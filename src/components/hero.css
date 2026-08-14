@@ -412,17 +412,41 @@
 }
 
 /* --- Small mobile -------------------------------------------------------- */
+/* At 320x640 the five headline lines plus a six-line lede push the telemetry
+   strip off the bottom of the screen. The display scale steps down again so
+   the whole composition — including the strip — fits one viewport. */
 @media (max-width: 26rem) {
   .hero {
-    padding-bottom: 9.5rem;
+    padding-bottom: 8.25rem;
+  }
+
+  .hero__headline {
+    font-size: clamp(1.95rem, 1.1rem + 3.6vw, 2.4rem);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__lede {
+    font-size: var(--step--1);
+    margin-bottom: var(--space-m);
   }
 
   .hero__eyebrow {
     gap: 0.5rem;
+    margin-bottom: var(--space-m);
   }
 
+  /* The strip still has to hold two rows inside the remaining band, so it
+     takes its own compact scale rather than inheriting the phone one. */
   .hero__stats {
-    gap: 0.75rem var(--space-s);
+    gap: 0.55rem var(--space-m);
+  }
+
+  .hero__stat-value {
+    font-size: var(--step-0);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: 0.7rem;
   }
 }
 

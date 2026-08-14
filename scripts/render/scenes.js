@@ -46,8 +46,15 @@ export function mulberry32(a) {
 }
 
 const TAU = Math.PI * 2;
-/** Phase in [0,1) over the loop. */
-const ph = (t, mult = 1, offset = 0) => ((t / LOOP) * mult + offset) % 1;
+/**
+ * Phase in [0,1) over the loop.
+ *
+ * The double modulo is load-bearing: JavaScript's % keeps the sign of the
+ * dividend, and several scenes sample backwards past t=0 to build motion
+ * trails. A bare % returns a negative phase there, which lands a full cycle
+ * away from the equivalent phase at the end of the loop and tears the seam.
+ */
+const ph = (t, mult = 1, offset = 0) => ((((t / LOOP) * mult + offset) % 1) + 1) % 1;
 const wave = (t, mult = 1, offset = 0) => Math.sin(ph(t, mult, offset) * TAU);
 
 // ---------------------------------------------------------------------------
@@ -228,7 +235,9 @@ const drift = (() => {
     lanes.push({
       horiz,
       pos: track + (dir > 0 ? 4 : -12),
-      speed: 0.5 + r() * 0.7,
+      // Whole cycles per loop: a fractional speed leaves the vehicle
+      // mid-street at the seam and the video visibly jumps.
+      speed: 1 + Math.floor(r() * 3),
       dir,
       offset: r(),
       len: 30 + r() * 16,
@@ -382,7 +391,7 @@ const canopy = (() => {
       baseY: H * (0.58 + near * 0.3),
       // Aerial perspective: the near plate is the lightest thing in the world
       // layer and still sits well under the perception layer.
-      shade: Math.round(10 + near * 42),
+      shade: Math.round(8 + near * 30),
     });
   }
   const COLS = 152; // depth-profile resolution, buffer reused every frame
@@ -546,7 +555,8 @@ const canopy = (() => {
       for (let s = 0; s < COLS; s++) {
         const sx = panX + 1 + (s / (COLS - 1)) * (panW - 2);
         const sy = pBot - prof[s] * (pBot - pTop);
-        s === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+        if (s === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
       }
       ctx.strokeStyle = C.phosphor;
       ctx.lineWidth = 1.8;
@@ -772,9 +782,8 @@ const hallway = (() => {
       ctx.beginPath();
       for (let i = done; i < route.length; i++) {
         const p = route[i];
-        i === done
-          ? ctx.moveTo(cx + p.x * sx, cy + p.y * sy)
-          : ctx.lineTo(cx + p.x * sx, cy + p.y * sy);
+        if (i === done) ctx.moveTo(cx + p.x * sx, cy + p.y * sy);
+        else ctx.lineTo(cx + p.x * sx, cy + p.y * sy);
       }
       ctx.lineTo(cx + route[0].x * sx, cy + route[0].y * sy);
       ctx.stroke();
@@ -793,7 +802,8 @@ const hallway = (() => {
       ctx.beginPath();
       for (let i = 0; i <= done; i++) {
         const p = route[i];
-        i === 0 ? ctx.moveTo(cx + p.x * sx, cy + p.y * sy) : ctx.lineTo(cx + p.x * sx, cy + p.y * sy);
+        if (i === 0) ctx.moveTo(cx + p.x * sx, cy + p.y * sy);
+        else ctx.lineTo(cx + p.x * sx, cy + p.y * sy);
       }
       ctx.stroke();
       // Keyframes
@@ -849,8 +859,9 @@ const swarm = (() => {
     agents.push({
       rx: 120 + r() * 200,
       ry: 90 + r() * 150,
-      sx: 0.7 + r() * 0.8,
-      sy: 0.9 + r() * 0.9,
+      // Integer cycle counts — sx*3 and sy*2 below must stay whole too.
+      sx: 1 + Math.floor(r() * 3),
+      sy: 1 + Math.floor(r() * 3),
       p: r(),
       q: r(),
       lead: r() > 0.86,
@@ -871,23 +882,28 @@ const swarm = (() => {
       ground(ctx);
       grid(ctx, 48);
 
-      // Forecast cones first, so agents sit above them
-      for (const a of agents) {
+      // Forecast cones first, so agents sit above them. Only the leads and a
+      // sampled third of the rest are drawn: every agent's line at once is
+      // scribble, and the claim being illustrated is that the forecast is
+      // legible.
+      agents.forEach((a, ai) => {
+        if (!a.lead && ai % 3 !== 0) return;
         ctx.beginPath();
-        for (let i = 0; i <= 12; i++) {
-          const [x, y] = at(a, t + (i / 12) * 1.4);
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        for (let i = 0; i <= 10; i++) {
+          const [x, y] = at(a, t + (i / 10) * 0.85);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
         ctx.strokeStyle = a.lead ? C.phosphorDim : 'rgba(212,248,92,0.16)';
         ctx.lineWidth = a.lead ? 1.4 : 1;
         ctx.stroke();
         // Uncertainty at the horizon
-        const [hx, hy] = at(a, t + 1.4);
+        const [hx, hy] = at(a, t + 0.85);
         ctx.strokeStyle = a.lead ? C.phosphorFaint : 'rgba(212,248,92,0.08)';
         ctx.beginPath();
         ctx.ellipse(hx, hy, 13, 8, 0, 0, TAU);
         ctx.stroke();
-      }
+      });
 
       // Agents
       for (const a of agents) {
@@ -1386,7 +1402,7 @@ const relay = (() => {
 
       // --- Forecast: a bouncing puck. Confidence decays along the horizon,
       // so the polyline reads forward in time instead of closing into a shape.
-      const NF = 46;
+      const NF = 16;
       let lx = x;
       let ly = y;
       let vsx = 0;
@@ -1578,7 +1594,8 @@ const relay = (() => {
         const e = Math.abs(padY(tt, 0) - cmdY(tt, 0));
         const sxx = sx0 + 84 + (i / 40) * (sw - 84);
         const syy = ty + 50 - (e / emax) * 22;
-        i === 0 ? ctx.moveTo(sxx, syy) : ctx.lineTo(sxx, syy);
+        if (i === 0) ctx.moveTo(sxx, syy);
+        else ctx.lineTo(sxx, syy);
       }
       ctx.strokeStyle = C.phosphor;
       ctx.lineWidth = 1.4;
@@ -1597,10 +1614,10 @@ const relay = (() => {
 // 08 — QUARRY · occupancy mapping
 // ---------------------------------------------------------------------------
 const quarry = (() => {
-  const cols = 22;
-  const rows = 14;
-  const tw = 34;
-  const th = 17;
+  const cols = 20;
+  const rows = 12;
+  const tw = 28;
+  const th = 14;
   const r = mulberry32(919);
   const heights = [];
   for (let i = 0; i < cols * rows; i++) heights.push(r());
@@ -1613,15 +1630,17 @@ const quarry = (() => {
     metric: (t) => (0.847 + wave(t, 2, 0.15) * 0.008).toFixed(3),
     draw(ctx, t) {
       ground(ctx);
-      const ox = W / 2;
-      const oy = 150;
+      // Centred on the lattice's own axis rather than the canvas: with
+      // cols != rows the diamond is lopsided and W/2 runs it off the frame.
+      const ox = W / 2 - ((cols - rows) / 2) * tw;
+      const oy = 100;
       const sweep = ph(t, 1) * (cols + rows + 6) - 3;
 
       for (let j = 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
           const hRaw = heights[j * cols + i];
           const carve = 0.5 + 0.5 * Math.sin(i * 0.4 + j * 0.3 + wave(t, 1) * 2.2);
-          const h = 10 + hRaw * 46 * carve;
+          const h = 8 + hRaw * 62 * carve;
           const x = ox + (i - j) * tw;
           const y = oy + (i + j) * th - h;
           const scanned = i + j < sweep;
@@ -1675,7 +1694,7 @@ const orbit = (() => {
     debris.push({
       a: r(),
       rad: 70 + r() * 210,
-      sp: (0.4 + r() * 1.1) * (r() > 0.5 ? 1 : -1),
+      sp: (1 + Math.floor(r() * 3)) * (r() > 0.5 ? 1 : -1),
       sz: 3 + r() * 7,
       threat: r() > 0.78,
     });
@@ -1710,7 +1729,6 @@ const orbit = (() => {
 
       // Radar sweep
       const sa = ph(t, 1) * TAU;
-      const g = ctx.createConicGradient ? null : null;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(sa);

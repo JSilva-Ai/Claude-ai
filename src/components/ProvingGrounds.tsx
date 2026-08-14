@@ -28,20 +28,28 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
   const [mounted, setMounted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   // Report visibility upward so the parent can elect one card on touch.
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      (entries) => onVisible(env.id, entries[0].intersectionRatio),
-      { threshold: [0, 0.25, 0.5, 0.75, 1] },
+      (entries) => {
+        const ratio = entries[0].intersectionRatio;
+        setVisible(ratio > 0.15);
+        onVisible(env.id, ratio);
+      },
+      { threshold: [0, 0.15, 0.25, 0.5, 0.75, 1] },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [env.id, onVisible]);
 
-  const wanted = enabled && (hoverToPlay ? hovered || auto : elected);
+  // Visibility gates everything, including hover and the auto-started lead
+  // monitors: a card scrolled off-screen must stop decoding, not keep a
+  // decoder busy for a picture nobody is looking at.
+  const wanted = enabled && visible && (hoverToPlay ? hovered || auto : elected);
 
   useEffect(() => {
     if (wanted) setMounted(true);

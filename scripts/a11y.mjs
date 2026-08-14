@@ -82,7 +82,10 @@ for (const name of wanted) {
 
   if (name === 'mobile') {
     await page.click('.nav__toggle');
-    await page.waitForTimeout(500);
+    // The sheet's last item finishes its staggered fade around 970ms. Auditing
+    // before then measures contrast against a half-faded button and reports a
+    // failure that does not exist at rest.
+    await page.waitForTimeout(1500);
     await audit(page, 'menu open');
     await page.click('.nav__toggle');
     await page.waitForTimeout(400);
