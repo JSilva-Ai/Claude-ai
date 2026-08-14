@@ -1,0 +1,118 @@
+/* ==========================================================================
+   New AI Vision Labs — Design tokens
+   Phosphor on ink. One accent per viewport.
+   ========================================================================== */
+
+:root {
+  /* --- Ground ----------------------------------------------------------- */
+  --ink-000: #050609;
+  --ink-050: #08090b;
+  --ink-100: #0c0e12;
+  --ink-150: #111318;
+  --ink-200: #16191f;
+  --ink-300: #1d2128;
+  --ink-400: #272c35;
+
+  /* --- Type ------------------------------------------------------------- */
+  --porcelain: #edeef0;
+  --grey-100: #c7cad0;
+  --grey-200: #9aa0aa;
+  --grey-300: #6f757f;
+  --grey-400: #4c525b;
+  --grey-500: #343941;
+
+  /* --- Signal ----------------------------------------------------------- */
+  --phosphor: #d4f85c;
+  --phosphor-dim: #a8c73f;
+  --phosphor-deep: #38431a;
+  --plasma: #7b5cff;
+  --plasma-dim: #5a43bd;
+  --ember: #ff5a3d;
+
+  /* --- Alpha surfaces --------------------------------------------------- */
+  --line-weak: rgba(237, 238, 240, 0.06);
+  --line: rgba(237, 238, 240, 0.1);
+  --line-strong: rgba(237, 238, 240, 0.18);
+  --fill-weak: rgba(237, 238, 240, 0.02);
+  --fill: rgba(237, 238, 240, 0.04);
+  --fill-strong: rgba(237, 238, 240, 0.07);
+  --phosphor-a10: rgba(212, 248, 92, 0.1);
+  --phosphor-a20: rgba(212, 248, 92, 0.2);
+  --phosphor-a40: rgba(212, 248, 92, 0.4);
+
+  /* --- Type families ---------------------------------------------------- */
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
+
+  /* --- Fluid type scale (clamped, 360 → 1600 viewport) ------------------ */
+  --step--2: clamp(0.688rem, 0.66rem + 0.12vw, 0.75rem);
+  --step--1: clamp(0.8rem, 0.77rem + 0.15vw, 0.875rem);
+  --step-0: clamp(0.938rem, 0.9rem + 0.19vw, 1.063rem);
+  --step-1: clamp(1.125rem, 1.05rem + 0.34vw, 1.375rem);
+  --step-2: clamp(1.375rem, 1.24rem + 0.6vw, 1.813rem);
+  --step-3: clamp(1.75rem, 1.5rem + 1.1vw, 2.563rem);
+  --step-4: clamp(2.125rem, 1.71rem + 1.85vw, 3.5rem);
+  --step-5: clamp(2.625rem, 1.9rem + 3.2vw, 5rem);
+  --step-6: clamp(3rem, 1.7rem + 5.8vw, 7.25rem);
+
+  /* --- Spacing scale ---------------------------------------------------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 8rem;
+  --section-y: clamp(5rem, 3.2rem + 8vw, 9.5rem);
+
+  /* --- Layout ----------------------------------------------------------- */
+  --gutter: clamp(1.25rem, 0.9rem + 1.8vw, 2.75rem);
+  --measure: 62ch;
+  --container: 84rem;
+  --container-wide: 96rem;
+  --container-text: 46rem;
+  --nav-h: 4.25rem;
+
+  /* --- Radii ------------------------------------------------------------ */
+  --r-xs: 2px;
+  --r-s: 4px;
+  --r-m: 8px;
+  --r-l: 14px;
+  --r-xl: 22px;
+  --r-full: 999px;
+
+  /* --- Elevation & glow -------------------------------------------------- */
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-m: 0 8px 24px -8px rgba(0, 0, 0, 0.65);
+  --shadow-l: 0 32px 64px -24px rgba(0, 0, 0, 0.8);
+  --glow-phosphor: 0 0 0 1px var(--phosphor-a20), 0 0 32px -8px rgba(212, 248, 92, 0.35);
+
+  /* --- Motion ------------------------------------------------------------ */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-linear: linear;
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 620ms;
+  --dur-reveal: 900ms;
+
+  /* --- Z index ----------------------------------------------------------- */
+  --z-canvas: 0;
+  --z-content: 10;
+  --z-nav: 100;
+  --z-overlay: 200;
+}
+
+/* Reduced motion collapses all durations. Layout is unaffected — the site is
+   designed to be complete when static. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+    --dur-reveal: 1ms;
+  }
+}

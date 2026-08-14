@@ -1,0 +1,388 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(var(--nav-h) + var(--space-2xl));
+  padding-bottom: 8.5rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* --- Field -------------------------------------------------------------- */
+.hero__field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Scrim keeps the copy legible over the field without dimming the whole
+   composition. Directional, so the field stays bright where it is empty. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      100deg,
+      var(--ink-050) 0%,
+      rgba(8, 9, 11, 0.92) 26%,
+      rgba(8, 9, 11, 0.55) 52%,
+      rgba(8, 9, 11, 0.2) 78%,
+      rgba(8, 9, 11, 0.45) 100%
+    ),
+    linear-gradient(180deg, var(--ink-050) 0%, transparent 22%, transparent 62%, var(--ink-050) 100%);
+}
+
+/* A single phosphor horizon line — the only glow in the hero. */
+.hero__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 26%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--phosphor-a20) 35%,
+    var(--phosphor-a40) 55%,
+    transparent
+  );
+  opacity: 0;
+  transform: scaleX(0.4);
+  transform-origin: 60% 50%;
+  transition:
+    opacity 1.6s var(--ease-out) 500ms,
+    transform 2s var(--ease-out) 500ms;
+}
+
+.hero[data-lit='true'] .hero__horizon {
+  opacity: 0.55;
+  transform: scaleX(1);
+}
+
+/* --- Load choreography --------------------------------------------------- */
+/* Each element declares its position in the sequence via --i. One rule, one
+   timing curve, no per-element animation code. */
+.hero__eyebrow,
+.hero__lede,
+.hero__actions,
+.hero__telemetry {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+  transition-delay: calc(var(--i) * 90ms + 120ms);
+}
+
+.hero[data-lit='true'] .hero__eyebrow,
+.hero[data-lit='true'] .hero__lede,
+.hero[data-lit='true'] .hero__actions,
+.hero[data-lit='true'] .hero__telemetry {
+  opacity: 1;
+  transform: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: var(--z-content);
+  width: 100%;
+}
+
+/* --- Eyebrow ------------------------------------------------------------- */
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: var(--space-l);
+  flex-wrap: wrap;
+}
+
+.hero__eyebrow-sep {
+  width: 1px;
+  height: 11px;
+  background: var(--line-strong);
+}
+
+/* --- Headline ------------------------------------------------------------ */
+.hero__headline {
+  max-width: 19ch;
+  margin-bottom: var(--space-l);
+}
+
+.hero__line {
+  display: block;
+  overflow: hidden;
+  /* Padding stops descenders being clipped by the overflow mask. */
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.hero__line-inner {
+  display: block;
+  transform: translate3d(0, 105%, 0);
+  transition: transform 1.15s var(--ease-out);
+  transition-delay: calc(var(--i) * 105ms);
+}
+
+.hero[data-lit='true'] .hero__line-inner {
+  transform: none;
+}
+
+.hero__headline em {
+  font-style: normal;
+}
+
+.hero__lede {
+  max-width: 46ch;
+  margin-bottom: var(--space-xl);
+  color: var(--grey-100);
+}
+
+/* --- Actions ------------------------------------------------------------- */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* --- Telemetry ----------------------------------------------------------- */
+.hero__telemetry {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-content);
+  border-top: 1px solid var(--line-weak);
+  background: linear-gradient(180deg, transparent, rgba(8, 9, 11, 0.7));
+  backdrop-filter: blur(2px);
+}
+
+.hero__telemetry-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-l);
+  padding-block: var(--space-m);
+}
+
+.hero__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-l);
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.hero__stat {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.hero__stat dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero__stat-value {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  color: var(--porcelain);
+  font-size: var(--step-2);
+  font-variation-settings: 'wdth' 112;
+  font-weight: 480;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.hero__stat-unit {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  color: var(--grey-300);
+  letter-spacing: 0;
+}
+
+/* --- Scroll cue ---------------------------------------------------------- */
+.hero__scroll {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.hero__scroll:hover {
+  color: var(--phosphor);
+}
+
+.hero__scroll:hover .label {
+  color: inherit;
+}
+
+.hero__scroll-rail {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 34px;
+  background: var(--line-strong);
+  overflow: hidden;
+}
+
+.hero__scroll-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 12px;
+  background: var(--phosphor);
+  animation: scroll-run 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes scroll-run {
+  0% {
+    transform: translateY(-14px);
+  }
+  60%,
+  100% {
+    transform: translateY(36px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll-dot {
+    animation: none;
+    height: 34px;
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================================================
+   Breakpoints — each is a composition decision, not a shrink
+   ========================================================================== */
+
+/* Tablet and up: the scroll cue earns its space. */
+@media (min-width: 48rem) {
+  .hero__scroll {
+    display: flex;
+  }
+}
+
+/* Laptop and up: the field is wide enough to hold the right half, so the
+   copy column narrows and the composition becomes asymmetric on purpose. */
+@media (min-width: 64rem) {
+  .hero {
+    padding-bottom: 7.5rem;
+  }
+
+  .hero__headline {
+    max-width: 15ch;
+  }
+}
+
+/* Large desktop: cap the headline so it never becomes a billboard. */
+@media (min-width: 100rem) {
+  .hero__headline {
+    max-width: 14ch;
+  }
+}
+
+/* --- Mobile: a deliberately different composition ------------------------ */
+@media (max-width: 47.99rem) {
+  .hero {
+    min-height: 100svh;
+    padding-top: calc(var(--nav-h) + var(--space-xl));
+    padding-bottom: 10.5rem;
+    justify-content: flex-end;
+  }
+
+  /* The field moves behind and above the copy rather than beside it, and is
+     pushed back so small type stays legible on a phone screen. */
+  .hero__scrim {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(8, 9, 11, 0.55) 0%,
+        rgba(8, 9, 11, 0.25) 30%,
+        rgba(8, 9, 11, 0.88) 62%,
+        var(--ink-050) 86%
+      );
+  }
+
+  .hero__horizon {
+    bottom: 42%;
+  }
+
+  .hero__headline {
+    max-width: 100%;
+  }
+
+  .hero__lede {
+    font-size: var(--step-0);
+    margin-bottom: var(--space-l);
+  }
+
+  .hero__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xs);
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+  }
+
+  /* Two-up stat grid; four columns is unreadable at this width. */
+  .hero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-s) var(--space-m);
+  }
+
+  .hero__stat-value {
+    font-size: var(--step-1);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: var(--space-s);
+  }
+}
+
+/* --- Small mobile -------------------------------------------------------- */
+@media (max-width: 26rem) {
+  .hero {
+    padding-bottom: 9.5rem;
+  }
+
+  .hero__eyebrow {
+    gap: 0.5rem;
+  }
+
+  .hero__stats {
+    gap: 0.75rem var(--space-s);
+  }
+}
+
+/* --- Short landscape phones: the field would crush the copy -------------- */
+@media (max-height: 34rem) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+    padding-block: calc(var(--nav-h) + var(--space-l)) var(--space-3xl);
+  }
+
+  .hero__telemetry {
+    position: static;
+    margin-top: var(--space-l);
+  }
+}

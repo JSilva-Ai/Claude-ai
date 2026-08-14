@@ -1,0 +1,243 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  transition: background-color var(--dur-slow) var(--ease-out);
+}
+
+.nav[data-condensed='true'] {
+  background: rgba(8, 9, 11, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* The rule draws itself in as the nav condenses — the only nav animation. */
+.nav__rule {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.nav[data-condensed='true'] .nav__rule {
+  transform: scaleX(1);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-l);
+  width: 100%;
+}
+
+.nav__logo {
+  display: flex;
+  align-items: center;
+  flex: none;
+  color: var(--porcelain);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.nav__logo:hover {
+  color: var(--phosphor);
+}
+
+/* --- Links --------------------------------------------------------------- */
+.nav__links {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.nav__link {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--grey-200);
+  border-radius: var(--r-s);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.nav__link:hover {
+  color: var(--porcelain);
+}
+
+.nav__link[data-active='true'] {
+  color: var(--porcelain);
+}
+
+/* Active marker is a phosphor tick under the label, not a pill. */
+.nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.15rem;
+  height: 1px;
+  background: var(--phosphor);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.nav__link[data-active='true']::after {
+  transform: scaleX(1);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex: none;
+}
+
+.nav__cta {
+  display: none;
+}
+
+/* --- Toggle -------------------------------------------------------------- */
+.nav__toggle {
+  display: grid;
+  place-items: center;
+  /* 44px minimum touch target. */
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border-radius: var(--r-s);
+  color: var(--porcelain);
+}
+
+.nav__toggle-bars {
+  display: grid;
+  gap: 5px;
+  width: 20px;
+}
+
+.nav__toggle-bars span {
+  display: block;
+  height: 1.5px;
+  width: 100%;
+  background: currentColor;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.nav__toggle-bars[data-open='true'] span:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.nav__toggle-bars[data-open='true'] span:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+/* --- Mobile sheet -------------------------------------------------------- */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-nav) - 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xl);
+  padding: calc(var(--nav-h) + var(--space-xl)) var(--gutter) var(--space-2xl);
+  background: var(--ink-050);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    visibility var(--dur-base) var(--ease-out);
+}
+
+.sheet[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sheet__links {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.sheet__links li {
+  border-bottom: 1px solid var(--line-weak);
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.sheet[data-open='true'] .sheet__links li {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 45ms + 80ms);
+}
+
+.sheet__link {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  font-size: var(--step-3);
+  font-variation-settings: 'wdth' 112;
+  font-weight: 470;
+  letter-spacing: -0.03em;
+  color: var(--porcelain);
+}
+
+.sheet__index {
+  font-size: var(--step--2);
+  color: var(--phosphor);
+  letter-spacing: 0.1em;
+}
+
+.sheet__foot {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.sheet[data-open='true'] .sheet__foot {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 45ms + 80ms);
+}
+
+.sheet__foot .btn {
+  width: 100%;
+}
+
+/* --- Laptop and up ------------------------------------------------------- */
+@media (min-width: 64rem) {
+  .nav__links {
+    display: flex;
+  }
+
+  .nav__cta {
+    display: inline-flex;
+  }
+
+  .nav__toggle {
+    display: none;
+  }
+
+  .sheet {
+    display: none;
+  }
+}

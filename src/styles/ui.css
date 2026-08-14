@@ -1,0 +1,278 @@
+/* ==========================================================================
+   Shared UI primitives — buttons, tags, rules, reveals
+   ========================================================================== */
+
+/* --- Reveal ------------------------------------------------------------- */
+/* Translation of a few pixels + opacity. Never a scale-up from 0.8. */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal='in'] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--porcelain);
+  --btn-border: var(--line-strong);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0 1.375rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--r-full);
+  font-size: var(--step--1);
+  font-weight: 560;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Primary — the only filled phosphor element on the page. */
+.btn--primary {
+  --btn-bg: var(--phosphor);
+  --btn-fg: var(--ink-000);
+  --btn-border: var(--phosphor);
+  font-weight: 620;
+}
+
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #e6ff7a;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.btn--primary:hover::after {
+  opacity: 1;
+}
+
+.btn--ghost:hover {
+  --btn-border: var(--line-strong);
+  --btn-bg: var(--fill-strong);
+}
+
+.btn--ghost {
+  --btn-border: var(--line);
+}
+
+.btn--sm {
+  min-height: 2.375rem;
+  padding: 0 1rem;
+  font-size: var(--step--2);
+}
+
+.btn__arrow {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.btn:hover .btn__arrow {
+  transform: translateX(3px);
+}
+
+/* --- Text link with rule ------------------------------------------------ */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--porcelain);
+  font-size: var(--step--1);
+  font-weight: 520;
+  padding-bottom: 2px;
+  background-image: linear-gradient(var(--phosphor), var(--phosphor));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    background-size var(--dur-slow) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--phosphor);
+  background-size: 100% 1px;
+}
+
+/* --- Tag ---------------------------------------------------------------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--fill-weak);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-200);
+  white-space: nowrap;
+}
+
+.tag--phosphor {
+  color: var(--phosphor);
+  border-color: var(--phosphor-a20);
+  background: var(--phosphor-a10);
+}
+
+/* --- Live dot ----------------------------------------------------------- */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  color: var(--phosphor);
+  flex: none;
+  animation: dot-pulse 2.8s var(--ease-in-out) infinite;
+}
+
+.dot--ember {
+  background: var(--ember);
+}
+
+/* The halo is derived from the dot's own colour, so a plasma or grey status
+   dot no longer pulses phosphor. */
+@keyframes dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}
+
+/* --- Section header ----------------------------------------------------- */
+.section-head {
+  display: grid;
+  gap: var(--space-m);
+  margin-bottom: var(--space-2xl);
+}
+
+.section-head__index {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-head__index::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  max-width: 8rem;
+  background: linear-gradient(90deg, var(--line-strong), transparent);
+}
+
+@media (min-width: 60rem) {
+  .section-head--split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    align-items: end;
+    gap: var(--space-xl);
+  }
+}
+
+/* --- Card --------------------------------------------------------------- */
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--fill) 0%, var(--fill-weak) 100%);
+  border: 1px solid var(--line-weak);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-slow) var(--ease-out),
+    background-color var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+/* Corner ticks — instrument framing, used instead of heavy borders. */
+.ticks::before,
+.ticks::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--phosphor-a40);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+
+.ticks::before {
+  top: 10px;
+  left: 10px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.ticks::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: 0;
+  border-top: 0;
+}
+
+.ticks:hover::before,
+.ticks:hover::after,
+.ticks:focus-within::before,
+.ticks:focus-within::after {
+  opacity: 1;
+}
+
+/* --- Grain + vignette overlay for the whole page ------------------------ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: var(--grain-url);
+  background-size: 180px 180px;
+}

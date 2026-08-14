@@ -1,0 +1,538 @@
+/* ==========================================================================
+   Section-level patterns shared across the page
+   ========================================================================== */
+
+.section-head__index {
+  margin-bottom: var(--space-m);
+}
+
+.section-head__title {
+  max-width: 20ch;
+}
+
+.section-head__lede {
+  padding-bottom: 0.4rem;
+}
+
+/* --- Thesis -------------------------------------------------------------- */
+.thesis__body {
+  display: grid;
+  gap: var(--space-l);
+  max-width: var(--measure);
+}
+
+.thesis__body p {
+  color: var(--grey-200);
+}
+
+.thesis__layout {
+  display: grid;
+  gap: var(--space-2xl);
+}
+
+.thesis__quote {
+  position: relative;
+  align-self: start;
+  padding: var(--space-l) 0 var(--space-l) var(--space-l);
+  border-left: 1px solid var(--phosphor-a40);
+}
+
+.thesis__quote blockquote {
+  font-size: var(--step-2);
+  font-variation-settings: 'wdth' 108;
+  font-weight: 440;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--porcelain);
+  text-wrap: balance;
+}
+
+.thesis__attribution {
+  margin-top: var(--space-m);
+  color: var(--grey-300);
+}
+
+@media (min-width: 64rem) {
+  .thesis__layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: var(--space-3xl);
+    align-items: start;
+  }
+
+  .thesis__quote {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--space-2xl));
+  }
+}
+
+/* --- Capabilities -------------------------------------------------------- */
+.caps {
+  display: grid;
+  gap: 1px;
+  background: var(--line-weak);
+  border-block: 1px solid var(--line-weak);
+}
+
+.cap {
+  position: relative;
+  display: grid;
+  gap: var(--space-s);
+  padding: var(--space-xl) var(--space-m);
+  background: var(--ink-050);
+  transition: background-color var(--dur-slow) var(--ease-out);
+}
+
+.cap:hover {
+  background: var(--ink-100);
+}
+
+.cap__code {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--grey-200);
+  transition:
+    color var(--dur-slow) var(--ease-out),
+    border-color var(--dur-slow) var(--ease-out);
+}
+
+.cap:hover .cap__code {
+  color: var(--phosphor);
+  border-color: var(--phosphor-a40);
+}
+
+.cap__title {
+  font-size: var(--step-2);
+  font-variation-settings: 'wdth' 110;
+  font-weight: 470;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+}
+
+.cap__summary {
+  color: var(--grey-200);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.cap__points {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--line-weak);
+}
+
+.cap__points li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: var(--step--1);
+  color: var(--grey-300);
+  line-height: 1.45;
+}
+
+.cap__points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 1px;
+  background: var(--phosphor);
+  opacity: 0.7;
+}
+
+/* From two columns up, cards inherit the track set from .caps via subgrid so
+   the summary and points share a baseline however the titles wrap. Below that
+   there is a single column and nothing to align to. */
+@media (min-width: 44rem) {
+  .caps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto auto auto 1fr);
+  }
+
+  .cap {
+    grid-template-rows: subgrid;
+    grid-row: span 4;
+  }
+}
+
+@media (min-width: 78rem) {
+  .caps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: auto auto auto 1fr;
+  }
+
+  .cap {
+    padding: var(--space-xl) var(--space-m) var(--space-l);
+  }
+}
+
+/* --- Research ------------------------------------------------------------ */
+.research__list {
+  border-top: 1px solid var(--line-weak);
+}
+
+.research__item {
+  display: grid;
+  gap: var(--space-xs);
+  padding-block: var(--space-l);
+  border-bottom: 1px solid var(--line-weak);
+  transition: background-color var(--dur-slow) var(--ease-out);
+}
+
+.research__item:hover {
+  background: linear-gradient(90deg, var(--fill-weak), transparent 70%);
+}
+
+.research__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.research__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grey-300);
+}
+
+.research__status[data-status='Active'] {
+  color: var(--phosphor);
+}
+
+.research__status[data-status='Preprint'] {
+  color: var(--plasma);
+}
+
+.research__title {
+  font-size: var(--step-2);
+  font-variation-settings: 'wdth' 108;
+  font-weight: 460;
+  letter-spacing: -0.028em;
+  line-height: 1.15;
+  max-width: 24ch;
+}
+
+.research__abstract {
+  color: var(--grey-200);
+  font-size: var(--step--1);
+  line-height: 1.6;
+  max-width: 58ch;
+}
+
+.research__tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 64rem) {
+  .research__item {
+    grid-template-columns: 6.5rem minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--space-l);
+    align-items: start;
+    padding-block: var(--space-l);
+  }
+
+  .research__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-s);
+  }
+}
+
+/* --- Applications -------------------------------------------------------- */
+.apps {
+  display: grid;
+  gap: var(--space-m);
+}
+
+.app {
+  display: grid;
+  gap: var(--space-s);
+  padding: var(--space-l);
+  align-content: start;
+}
+
+.app__sector {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.app__claim {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 108;
+  font-weight: 470;
+  letter-spacing: -0.024em;
+  line-height: 1.2;
+  color: var(--porcelain);
+  max-width: 22ch;
+}
+
+.app__detail {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+@media (min-width: 44rem) {
+  .apps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- Lab ----------------------------------------------------------------- */
+.lab__layout {
+  display: grid;
+  gap: var(--space-2xl);
+}
+
+.lab__principles {
+  display: grid;
+  gap: 1px;
+  background: var(--line-weak);
+  border: 1px solid var(--line-weak);
+  border-radius: var(--r-l);
+  overflow: hidden;
+}
+
+.lab__principle {
+  display: grid;
+  gap: 0.5rem;
+  padding: var(--space-l);
+  background: var(--ink-050);
+}
+
+.lab__principle h3 {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 106;
+  font-weight: 470;
+  letter-spacing: -0.02em;
+}
+
+.lab__principle p {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.lab__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-l);
+  margin: 0;
+}
+
+.lab__stat {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--line);
+}
+
+.lab__stat dd {
+  margin: 0;
+  font-size: var(--step-4);
+  font-variation-settings: 'wdth' 115;
+  font-weight: 440;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--porcelain);
+}
+
+@media (min-width: 64rem) {
+  .lab__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-3xl);
+    align-items: start;
+  }
+
+  .lab__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xl) var(--space-l);
+  }
+}
+
+/* --- Contact ------------------------------------------------------------- */
+.contact {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.contact__field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.contact__field canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The field is a ground, not a subject: held well back so the closing copy
+   stays the loudest thing in the section. */
+.contact__field-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, var(--ink-050) 0%, rgba(8, 9, 11, 0.82) 30%, rgba(8, 9, 11, 0.72) 100%),
+    linear-gradient(90deg, var(--ink-050) 0%, rgba(8, 9, 11, 0.4) 45%, rgba(8, 9, 11, 0.75) 100%);
+}
+
+.contact__close {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  margin-top: var(--space-2xl);
+}
+
+.contact__close-line {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  max-width: 42ch;
+  line-height: 1.5;
+}
+
+.contact__headline {
+  max-width: 16ch;
+}
+
+.contact__channels {
+  display: grid;
+  gap: 1px;
+  margin-top: var(--space-2xl);
+  background: var(--line-weak);
+  border-block: 1px solid var(--line-weak);
+}
+
+.channel {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-l) var(--space-m) var(--space-l) 0;
+  background: var(--ink-050);
+  align-content: start;
+}
+
+.channel__kind {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 108;
+  font-weight: 470;
+  letter-spacing: -0.02em;
+  color: var(--porcelain);
+}
+
+.channel__detail {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  max-width: 32ch;
+}
+
+.channel__action {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  word-break: break-word;
+}
+
+@media (min-width: 56rem) {
+  .contact__channels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .channel {
+    padding: var(--space-xl) var(--space-m);
+  }
+}
+
+/* --- Footer -------------------------------------------------------------- */
+.footer {
+  border-top: 1px solid var(--line-weak);
+  padding-block: var(--space-2xl) var(--space-l);
+}
+
+.footer__top {
+  display: grid;
+  gap: var(--space-2xl);
+}
+
+.footer__brand {
+  display: grid;
+  gap: var(--space-s);
+  align-content: start;
+}
+
+.footer__blurb {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  max-width: 34ch;
+  line-height: 1.55;
+}
+
+.footer__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-l);
+}
+
+.footer__col h3 {
+  margin-bottom: var(--space-s);
+}
+
+.footer__col ul {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.footer__col a {
+  font-size: var(--step--1);
+  color: var(--grey-200);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.footer__col a:hover {
+  color: var(--phosphor);
+}
+
+.footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--line-weak);
+}
+
+@media (min-width: 56rem) {
+  .footer__top {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+
+  .footer__cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2xl);
+  }
+}
