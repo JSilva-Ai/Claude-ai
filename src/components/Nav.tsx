@@ -39,7 +39,7 @@ export function Nav() {
       </a>
 
       <nav className="nav" data-condensed={condensed} aria-label="Primary">
-        <div className="container container--wide nav__inner">
+        <div className="container nav__inner">
           <a className="nav__logo" href="#top" aria-label="New AI Vision Labs — home">
             <Logo size={compact ? 21 : 26} live />
           </a>

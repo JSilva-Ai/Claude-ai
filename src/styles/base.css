@@ -189,10 +189,6 @@ h4 {
   padding-inline: var(--gutter);
 }
 
-.container--wide {
-  max-width: var(--container-wide);
-}
-
 .container--text {
   max-width: calc(var(--container-text) + var(--gutter) * 2);
 }

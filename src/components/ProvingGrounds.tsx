@@ -194,7 +194,7 @@ export function ProvingGrounds() {
       id="proving-grounds"
       aria-labelledby="grounds-title"
     >
-      <div className="container container--wide">
+      <div className="container">
         <SectionHead
           index={provingGrounds.index}
           label={provingGrounds.label}

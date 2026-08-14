@@ -73,8 +73,10 @@
   /* --- Layout ----------------------------------------------------------- */
   --gutter: clamp(1.25rem, 0.9rem + 1.8vw, 2.75rem);
   --measure: 62ch;
+  /* One container width for the whole page. The nav previously sat in a wider
+     one, so the logo and the headline below it did not share a left edge —
+     visible as soon as the viewport outgrows the cap. */
   --container: 84rem;
-  --container-wide: 96rem;
   --container-text: 46rem;
   --nav-h: 4.25rem;
 

@@ -28,7 +28,7 @@ function Capability({ item, i }: { item: (typeof capabilities.items)[number]; i:
 export function Capabilities() {
   return (
     <section className="section section--ruled" id="capabilities" aria-labelledby="cap-title">
-      <div className="container container--wide">
+      <div className="container">
         <SectionHead
           index={capabilities.index}
           label={capabilities.label}
