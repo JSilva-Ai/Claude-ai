@@ -77,10 +77,13 @@
 .hero__telemetry {
   opacity: 0;
   transform: translate3d(0, 12px, 0);
+  /* Deliberately quicker than the scroll-reveal duration. The lede is the LCP
+     element, so the length of this fade sets Largest Contentful Paint — the
+     sequence has to read as choreography, not as a wait. */
   transition:
-    opacity var(--dur-reveal) var(--ease-out),
-    transform var(--dur-reveal) var(--ease-out);
-  transition-delay: calc(var(--i) * 90ms + 120ms);
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out);
+  transition-delay: calc(var(--i) * 55ms + 80ms);
 }
 
 .hero[data-lit='true'] .hero__eyebrow,
@@ -129,8 +132,8 @@
 .hero__line-inner {
   display: block;
   transform: translate3d(0, 105%, 0);
-  transition: transform 1.15s var(--ease-out);
-  transition-delay: calc(var(--i) * 105ms);
+  transition: transform 0.82s var(--ease-out);
+  transition-delay: calc(var(--i) * 72ms);
 }
 
 .hero[data-lit='true'] .hero__line-inner {

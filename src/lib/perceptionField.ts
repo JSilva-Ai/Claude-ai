@@ -196,7 +196,7 @@ export function createPerceptionField(
   // compositionally identical field — not a degraded one.
   const coarse = window.matchMedia('(pointer: coarse)').matches;
   const lowCores = (navigator.hardwareConcurrency ?? 8) <= 4;
-  const density = coarse || lowCores ? 150 : 264;
+  const density = coarse || lowCores ? 150 : 232;
   const count = density * density;
 
   const data = new Float32Array(count * 4);
@@ -210,6 +210,18 @@ export function createPerceptionField(
       data[i++] = ((y + 0.5 + jy) / density) * 2 - 1;
       data[i++] = Math.random(); // confidence
       data[i++] = Math.random(); // phase
+    }
+  }
+
+  // Fisher-Yates over whole 4-float records. The adaptive quality controller
+  // below renders a prefix of this buffer, and a prefix of an unshuffled
+  // lattice would simply lop off the bottom of the field.
+  for (let a = count - 1; a > 0; a--) {
+    const b = Math.floor(Math.random() * (a + 1));
+    for (let k = 0; k < 4; k++) {
+      const tmp = data[a * 4 + k];
+      data[a * 4 + k] = data[b * 4 + k];
+      data[b * 4 + k] = tmp;
     }
   }
 
@@ -271,6 +283,17 @@ export function createPerceptionField(
   gl.clearColor(0, 0, 0, 0);
 
   let raf = 0;
+  // --- Adaptive quality ----------------------------------------------------
+  // The field is the most expensive thing on the page and the range of GPUs it
+  // has to run on is enormous. Rather than guessing a safe point count, it
+  // measures the frame time it is actually getting and spends down to fit.
+  let activeCount = count;
+  let frameAccum = 0;
+  let frameSamples = 0;
+  let lastFrame = 0;
+  let downshifts = 0;
+  let stalled = false;
+
   let start = performance.now();
   let visible = true;
   let ready = false;
@@ -284,6 +307,7 @@ export function createPerceptionField(
       if (visible && opts.animate && !raf) {
         // Resume without a time jump.
         start = performance.now() - elapsed * 1000;
+        lastFrame = 0;
         raf = requestAnimationFrame(frame);
       } else if (!visible && raf) {
         cancelAnimationFrame(raf);
@@ -297,9 +321,37 @@ export function createPerceptionField(
   let elapsed = 0;
 
   function frame(now: number) {
-    raf = opts.animate ? requestAnimationFrame(frame) : 0;
+    raf = opts.animate && !stalled ? requestAnimationFrame(frame) : 0;
     elapsed = (now - start) / 1000;
-    draw(elapsed);
+
+    if (lastFrame) {
+      const dt = now - lastFrame;
+      // Ignore the tab-restore spike; it is not a measure of capability.
+      if (dt < 500) {
+        frameAccum += dt;
+        frameSamples++;
+      }
+      // Time-boxed as well as frame-boxed: on a device slow enough to need
+      // this, waiting for 45 frames would take five seconds to react.
+      if (frameSamples >= 24 || frameAccum >= 700) {
+        const avg = frameAccum / frameSamples;
+        frameAccum = 0;
+        frameSamples = 0;
+        if (avg > 23 && downshifts < 3) {
+          // Under ~43fps: shed a third of the samples and measure again.
+          downshifts++;
+          activeCount = Math.max(Math.floor(activeCount * 0.62), 6000);
+        } else if (avg > 55 && downshifts >= 3) {
+          // Still under ~18fps with the smallest field this device will get.
+          // Settle on one resolved frame rather than a stuttering animation.
+          stalled = true;
+          draw(6.2);
+        }
+      }
+    }
+    lastFrame = now;
+
+    if (!stalled) draw(elapsed);
   }
 
   function draw(t: number) {
@@ -339,7 +391,7 @@ export function createPerceptionField(
     gl!.uniform3f(u.phosphor, 0.831, 0.973, 0.361);
     gl!.uniform3f(u.plasma, 0.482, 0.361, 1.0);
     gl!.uniform3f(u.rest, 0.55, 0.60, 0.69);
-    gl!.drawArrays(gl!.POINTS, 0, count);
+    gl!.drawArrays(gl!.POINTS, 0, activeCount);
   }
 
   if (opts.animate) {

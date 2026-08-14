@@ -375,7 +375,10 @@ const canopy = (() => {
     layers.push({
       trees,
       near,
-      speed: 0.24 + near * 1.5,
+      // Integer phase multiplier, so the parallax wraps exactly on the loop.
+      // Apparent speed comes from the wrap span, which differs per plate.
+      speed: [3, 2, 2, 1, 1][d],
+      span: W + 300 + d * 40,
       baseY: H * (0.58 + near * 0.3),
       // Aerial perspective: the near plate is the lightest thing in the world
       // layer and still sits well under the perception layer.
@@ -419,7 +422,7 @@ const canopy = (() => {
         ctx.fillStyle = fill;
         ctx.fillRect(0, L.baseY, W, 3);
         for (const tr of L.trees) {
-          const x = ((tr.u + ph(t, L.speed)) % 1) * (W + 440) - 220;
+          const x = ((tr.u + ph(t, L.speed)) % 1) * L.span - (L.span - W) / 2;
           const tw = 4 + tr.w * W * Math.pow(L.near, 1.6) * 2;
           const th = tr.h * H * (0.45 + L.near * 0.7);
           const topY = L.baseY - th;
@@ -942,18 +945,22 @@ const swarm = (() => {
 const lattice = (() => {
   const r = mulberry32(313);
   const FLOOR = H - 66;
-  const X0 = 96;
+  const X0 = 58;
   const X1 = W - 96;
   // A masonry wall: every block rests on the row below it, seams staggered.
   // Nothing floats — the whole point of the task is contact.
   const blocks = [];
   let base = FLOOR;
-  for (let row = 0; row < 8; row++) {
-    const rh = 32 + r() * 20;
-    let x = X0 - (row % 2 ? 0 : 22) - r() * 14;
+  let lo = X0;
+  let hi = X1;
+  for (let row = 0; row < 10 && hi - lo > 190; row++) {
+    // Row pitch is uniform inside a row so every block above lands in contact;
+    // the pile gets its irregular silhouette by narrowing as it rises.
+    const rh = 26 + r() * 30;
+    let x = lo;
     let col = 0;
-    while (x < X1 - 34) {
-      const bw = Math.min(56 + r() * 74, X1 - x);
+    while (x < hi - 34) {
+      const bw = Math.min(48 + r() * 86, hi - x);
       if (bw < 34) break;
       blocks.push({
         x,
@@ -962,23 +969,32 @@ const lattice = (() => {
         h: rh,
         row,
         col,
-        tone: Math.round(56 + r() * 14),
+        tone: Math.round(54 + r() * 16),
         id: 'M' + String(10 + blocks.length),
       });
       x += bw + 2;
       col++;
     }
     base -= rh + 2;
+    // Step in on one side or the other, rarely both — a tipped pile, not a
+    // pyramid.
+    const s = r();
+    if (s < 0.45) lo += 22 + r() * 74;
+    else if (s < 0.9) hi -= 22 + r() * 74;
+    else {
+      lo += 16 + r() * 34;
+      hi -= 16 + r() * 34;
+    }
   }
   for (let i = 0; i < blocks.length; i++) blocks[i].o = i / (blocks.length - 1);
   // Four mask treatments so any two touching instances always differ, while
   // phosphor stays the dominant accent and plasma marks only a minority.
   const MASK = [C.phosphor, C.phosphor, C.plasma, C.phosphor];
   const FILL = [
-    'rgba(212,248,92,0.08)',
     'rgba(212,248,92,0.05)',
-    'rgba(123,92,255,0.12)',
-    'rgba(212,248,92,0.05)',
+    'rgba(212,248,92,0.03)',
+    'rgba(123,92,255,0.08)',
+    'rgba(212,248,92,0.03)',
   ];
   const DASH = [null, [5, 4], null, [2, 4]];
   return {
@@ -998,12 +1014,6 @@ const lattice = (() => {
       ctx.fillRect(0, FLOOR, W, 2);
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(X0 - 26, FLOOR + 2, X1 - X0 + 52, 7);
-      // Target envelope — the structure the stack is being assembled into
-      ctx.strokeStyle = 'rgba(237,238,240,0.1)';
-      ctx.setLineDash([6, 6]);
-      ctx.lineWidth = 1;
-      ctx.strokeRect(X0 - 14.5, blocks[blocks.length - 1].y - 22.5, X1 - X0 + 29, FLOOR - blocks[blocks.length - 1].y + 22);
-      ctx.setLineDash([]);
 
       // Bottom rows land first, top rows lift first — a build, not a shower.
       const p = ph(t, 1);
@@ -1029,9 +1039,11 @@ const lattice = (() => {
         const v = b.tone;
         ctx.fillStyle = `rgb(${v},${v + 5},${v + 12})`;
         ctx.fillRect(b.x, y, b.w, b.h);
-        ctx.fillStyle = `rgb(${v + 16},${v + 21},${v + 28})`;
-        ctx.fillRect(b.x, y, b.w, 2);
-        ctx.strokeStyle = 'rgba(8,9,11,0.85)';
+        ctx.fillStyle = `rgb(${v + 14},${v + 19},${v + 26})`;
+        ctx.fillRect(b.x, y, b.w, 3);
+        ctx.fillStyle = `rgb(${v - 16},${v - 11},${v - 4})`;
+        ctx.fillRect(b.x, y + b.h - 3, b.w, 3);
+        ctx.strokeStyle = 'rgba(8,9,11,0.9)';
         ctx.lineWidth = 1;
         ctx.strokeRect(b.x + 0.5, y + 0.5, b.w - 1, b.h - 1);
 
@@ -1042,18 +1054,20 @@ const lattice = (() => {
         ctx.fillStyle = FILL[vi];
         ctx.fillRect(b.x + i, y + i, b.w - i * 2, b.h - i * 2);
         ctx.strokeStyle = col;
-        ctx.globalAlpha = settled ? 0.95 : 0.5;
+        ctx.globalAlpha = settled ? 0.8 : 0.42;
         ctx.lineWidth = 1.4;
         if (DASH[vi]) ctx.setLineDash(DASH[vi]);
         ctx.strokeRect(b.x + i + 0.5, y + i + 0.5, b.w - i * 2 - 1, b.h - i * 2 - 1);
         ctx.setLineDash([]);
         ctx.globalAlpha = 1;
 
-        if (b.w > 76 && b.h > 34) {
+        if (b.w > 92 && b.h > 36) {
           mono(ctx, 10, 700);
           ctx.fillStyle = col;
-          ctx.fillText(b.id, b.x + i + 5, y + i + 14);
-          meter(ctx, b.x + i + 5, y + b.h - i - 8, b.w - i * 2 - 10, settled ? 0.94 : 0.55, col);
+          ctx.globalAlpha = 0.85;
+          ctx.fillText(b.id, b.x + i + 6, y + i + 14);
+          meter(ctx, b.x + i + 6, y + i + 19, 30, settled ? 0.94 : 0.55, col);
+          ctx.globalAlpha = 1;
         }
       }
       vignette(ctx);
@@ -1242,13 +1256,14 @@ const relay = (() => {
   const PY0 = AY0 + 16;
   const PY1 = AY1 - 16;
   const Q = [0, 0];
+  const pos = (v) => ((v % 1) + 1) % 1; // ph() keeps the sign of t
   // Reflected linear motion — piecewise straight, periodic over the loop.
-  // 12 end-wall returns and 10 side-wall bounces per loop: a rally, so a 1.8 s
-  // forecast always contains visible reflections.
+  // 12 end-wall returns and 14 side-wall bounces per loop: a rally, so a short
+  // forecast still contains visible reflections.
   const puck = (t) => {
-    const rx = ph(t, 6) * 2;
+    const rx = pos(ph(t, 6)) * 2;
     Q[0] = PX0 + (rx < 1 ? rx : 2 - rx) * (PX1 - PX0);
-    const ry = ph(t, 7, 0.17) * 2;
+    const ry = pos(ph(t, 7, 0.17)) * 2;
     Q[1] = PY0 + (ry < 1 ? ry : 2 - ry) * (PY1 - PY0);
     return Q;
   };
@@ -1773,7 +1788,7 @@ const parse = (() => {
     items.push({
       x: 0.05 + r() * 0.9,
       p: r(),
-      sp: 0.22 + r() * 0.3,
+      sp: 1 + Math.floor(r() * 2), // integer, so the drift wraps on the loop
       g: glyphs[Math.floor(r() * glyphs.length)],
       size: 26 + r() * 28,
       conf: 0.6 + r() * 0.39,

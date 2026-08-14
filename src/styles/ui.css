@@ -270,14 +270,18 @@
   opacity: 1;
 }
 
-/* --- Grain + vignette overlay for the whole page ------------------------ */
+/* --- Grain -------------------------------------------------------------- */
+/* Scoped to the hero and not fixed. A page-wide fixed grain in
+   mix-blend-mode: overlay costs roughly 60% of scroll frame rate, because
+   every scrolled frame has to recomposite the whole document through the
+   blend. The texture is not worth that, and over the field is the only place
+   it reads anyway. */
 .grain {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
-  opacity: 0.4;
-  mix-blend-mode: overlay;
+  opacity: 0.055;
   background-image: var(--grain-url);
   background-size: 180px 180px;
 }

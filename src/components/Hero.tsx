@@ -29,6 +29,7 @@ function Field({ animate }: { animate: boolean }) {
     <div className="hero__field" aria-hidden="true">
       {!failed && <canvas ref={canvasRef} className="hero__canvas" />}
       <div className="hero__scrim" />
+      <div className="grain" />
       <div className="hero__horizon" />
     </div>
   );

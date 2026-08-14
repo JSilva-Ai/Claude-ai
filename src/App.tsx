@@ -24,7 +24,6 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
-      <div className="grain" aria-hidden="true" />
     </>
   );
 }
