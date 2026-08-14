@@ -283,6 +283,16 @@
   }
 }
 
+/* Below the laptop breakpoint four telemetry columns force the longest label
+   to ellipsis. Two columns, two rows — the strip stays readable instead of
+   staying four-across at any cost. */
+@media (max-width: 63.99rem) {
+  .hero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-s) var(--space-xl);
+  }
+}
+
 /* Laptop and up: the field is wide enough to hold the right half, so the
    copy column narrows and the composition becomes asymmetric on purpose. */
 @media (min-width: 64rem) {

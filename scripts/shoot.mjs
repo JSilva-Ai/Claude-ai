@@ -69,12 +69,14 @@ for (const name of wanted) {
   if (args.full) {
     // Scroll through so every reveal has fired before the full-page shot.
     await page.evaluate(async () => {
-      const step = window.innerHeight * 0.7;
-      for (let y = 0; y < document.body.scrollHeight; y += step) {
-        window.scrollTo(0, y);
-        await new Promise((r) => setTimeout(r, 190));
+      // Small steps on purpose. IntersectionObserver samples at frame
+      // boundaries and coalesces, so a viewport-sized jump can carry an
+      // element past the root between two samples and its reveal never fires.
+      for (let y = 0; y < document.body.scrollHeight; y += 300) {
+        window.scrollTo({ top: y, behavior: 'instant' });
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 55)));
       }
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: 'instant' });
       await new Promise((r) => setTimeout(r, 400));
     });
     await page.waitForTimeout(700);
@@ -90,10 +92,9 @@ for (const name of wanted) {
     // Reveals are scroll-triggered; without a pass down the page the lower
     // items in a section are still at opacity 0 when it is captured.
     await page.evaluate(async () => {
-      const step = window.innerHeight * 0.7;
-      for (let y = 0; y < document.body.scrollHeight; y += step) {
-        window.scrollTo(0, y);
-        await new Promise((r) => setTimeout(r, 150));
+      for (let y = 0; y < document.body.scrollHeight; y += 300) {
+        window.scrollTo({ top: y, behavior: 'instant' });
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 55)));
       }
     });
     const ids = ['thesis', 'capabilities', 'proving-grounds', 'research', 'applications', 'lab', 'contact'];

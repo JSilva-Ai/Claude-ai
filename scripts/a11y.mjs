@@ -69,12 +69,11 @@ for (const name of wanted) {
   await page.goto(URL, { waitUntil: 'networkidle' });
   // Fire every scroll reveal, or axe audits a page of opacity-0 elements.
   await page.evaluate(async () => {
-    const step = window.innerHeight * 0.8;
-    for (let y = 0; y < document.body.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 120));
+    for (let y = 0; y < document.body.scrollHeight; y += 300) {
+      window.scrollTo({ top: y, behavior: 'instant' });
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 55)));
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   });
   await page.waitForTimeout(600);
   await page.addScriptTag({ content: axeSource });

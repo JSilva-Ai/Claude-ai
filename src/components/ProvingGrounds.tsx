@@ -13,11 +13,13 @@ interface CardProps {
   enabled: boolean;
   /** On touch, only one card plays at a time; the parent elects it. */
   elected: boolean;
+  /** Lead monitors wake when the wall is reached, so "running" is literal. */
+  auto: boolean;
   onVisible(id: string, ratio: number): void;
   hoverToPlay: boolean;
 }
 
-function EnvironmentCard({ env, i, enabled, elected, onVisible, hoverToPlay }: CardProps) {
+function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPlay }: CardProps) {
   const revealRef = useReveal<HTMLLIElement>();
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ function EnvironmentCard({ env, i, enabled, elected, onVisible, hoverToPlay }: C
     return () => obs.disconnect();
   }, [env.id, onVisible]);
 
-  const wanted = enabled && (hoverToPlay ? hovered : elected);
+  const wanted = enabled && (hoverToPlay ? hovered || auto : elected);
 
   useEffect(() => {
     if (wanted) setMounted(true);
@@ -63,7 +65,6 @@ function EnvironmentCard({ env, i, enabled, elected, onVisible, hoverToPlay }: C
   return (
     <li
       className="env"
-      data-span={env.code === '01' || env.code === '04' ? 'wide' : 'narrow'}
       ref={revealRef}
       data-reveal
       style={{ '--reveal-delay': `${(i % 3) * 80}ms` } as React.CSSProperties}
@@ -136,8 +137,29 @@ export function ProvingGrounds() {
   const [motionOn, setMotionOn] = useState(true);
   const ratios = useRef(new Map<string, number>());
   const [elected, setElected] = useState<string | null>(null);
+  const [reached, setReached] = useState(false);
+  const gridRef = useRef<HTMLUListElement>(null);
 
   const enabled = motionOn && !reduced;
+
+  // The section claims ten worlds are running; a wall of stills labelled
+  // STANDBY undercuts that. The two lead monitors start when the wall is
+  // reached — two decoders, not ten — and the rest wake on hover.
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setReached(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: '-10% 0px -25% 0px' },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   // On touch, elect the single most-visible card. Ten simultaneous video
   // decodes is the fastest way to make a phone feel broken.
@@ -189,7 +211,7 @@ export function ProvingGrounds() {
           )}
         </div>
 
-        <ul className="grounds__grid">
+        <ul className="grounds__grid" ref={gridRef}>
           {environments.map((env, i) => (
             <EnvironmentCard
               key={env.id}
@@ -197,6 +219,7 @@ export function ProvingGrounds() {
               i={i}
               enabled={enabled}
               elected={elected === env.id}
+              auto={reached && i < 2}
               onVisible={onVisible}
               hoverToPlay={hoverCapable}
             />

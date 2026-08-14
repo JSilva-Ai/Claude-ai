@@ -266,50 +266,28 @@
   }
 }
 
-/* Desktop: six-column editorial rhythm. Two environments run wide so the
-   wall has a cadence instead of being a uniform contact sheet. */
+/* Desktop: a six-column grid read as four rows — two large monitors, two
+   rows of three, then two large again. Every card in a row spans the same
+   number of columns, so media heights match across the row; varying the span
+   *between* rows is what gives the wall its cadence. Mixing spans within a
+   row leaves one card short and opens a void beneath it. */
 @media (min-width: 68rem) {
   .grounds__grid {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--space-xl) var(--space-m);
   }
 
-  .env[data-span='wide'] {
+  .env:nth-child(-n + 2),
+  .env:nth-child(n + 9) {
     grid-column: span 3;
   }
 
-  .env[data-span='narrow'] {
-    grid-column: span 3;
-  }
-
-  /* 01 and 04 lead their rows at double width; the rest run three-up. */
-  .env:nth-child(1) {
-    grid-column: span 4;
-  }
-
-  .env:nth-child(2) {
+  .env:nth-child(n + 3):nth-child(-n + 8) {
     grid-column: span 2;
   }
 
-  .env:nth-child(3) {
-    grid-column: span 2;
-  }
-
-  .env:nth-child(4) {
-    grid-column: span 4;
-  }
-
-  .env:nth-child(n + 5) {
-    grid-column: span 2;
-  }
-
-  .env:nth-child(1) .env__media,
-  .env:nth-child(4) .env__media {
-    aspect-ratio: 16 / 8.4;
-  }
-
-  .env:nth-child(1) .env__name,
-  .env:nth-child(4) .env__name {
+  .env:nth-child(-n + 2) .env__name,
+  .env:nth-child(n + 9) .env__name {
     font-size: var(--step-2);
   }
 }

@@ -1,0 +1,13 @@
+{
+  "name": "New AI Vision Labs",
+  "short_name": "NAVL",
+  "description": "A machine perception research lab. Synthetic worlds, honest evaluation.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08090b",
+  "theme_color": "#08090b",
+  "icons": [
+    { "src": "/brand/mark-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
