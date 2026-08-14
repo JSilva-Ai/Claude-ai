@@ -15,16 +15,16 @@ export const nav = [
 
 export const hero = {
   eyebrow: 'New AI Vision Labs',
-  status: 'Ten environments running',
+  status: 'Ten worlds running',
   headline: ['We build the worlds', 'where machines', 'learn to see.'],
   accentWord: 'see',
-  lede: 'A machine perception lab. We author synthetic worlds, train vision systems inside them, and break those systems on purpose — so perception is proven long before it meets a real camera.',
+  lede: 'A machine perception research lab. We author synthetic worlds, raise vision systems inside them, and attack those systems until they break. Failure is cheaper in simulation than on a live camera.',
   primaryCta: { label: 'Enter the Proving Grounds', href: '#proving-grounds' },
   secondaryCta: { label: 'Read the research', href: '#research' },
   telemetry: [
-    { label: 'Environments', value: '10', unit: 'live' },
+    { label: 'Worlds running', value: '10', unit: 'live' },
     { label: 'Frames rendered', value: '4.1M', unit: '/ day' },
-    { label: 'Perception loop', value: '18', unit: 'ms' },
+    { label: 'Pixels to command', value: '18', unit: 'ms' },
     { label: 'Sim-to-real gap', value: '2.7', unit: '%' },
   ],
 };
@@ -32,12 +32,12 @@ export const hero = {
 export const thesis = {
   index: '01',
   label: 'Thesis',
-  headline: 'Perception is the bottleneck. Everything downstream is arithmetic.',
+  headline: 'Perception is the bottleneck.',
   accentWord: 'bottleneck.',
   body: [
-    'A system that acts in the physical world spends almost none of its difficulty on deciding what to do. It spends its difficulty on knowing what is in front of it — how far, how fast, how many, and which of them is the same object it saw four frames ago.',
-    'That problem does not yield to more parameters. It yields to more experience, and the physical world hands out experience at one second per second. A robot arm learns from one afternoon of failures. A camera on a bridge sees one winter.',
-    'So we build the experience instead. Ten synthetic environments run continuously, generating the hard cases the real world produces once a year: the occlusion at the wrong moment, the sensor dropout, the object that looks like nothing in the training set.',
+    'A machine that acts in the physical world spends almost none of its difficulty on deciding what to do. It spends its difficulty on knowing what is there: how far, how fast, how many, and whether that is the same object it saw four frames ago. Solve that and the rest is arithmetic.',
+    'The problem does not yield to more parameters. It yields to experience, and reality issues experience at one second per second. A robot arm learns from an afternoon of failures. A camera on a bridge learns from one winter.',
+    'So we manufacture the experience. Ten environments render continuously, producing the cases reality supplies about once a year: the occlusion at the worst moment, the sensor that drops out mid-turn, the object that resembles nothing in the training set. A model should meet its worst day early, and often.',
   ],
   pullQuote: 'A model is only as honest as the world that tested it.',
   attribution: 'Operating principle · New AI Vision Labs',
@@ -47,27 +47,27 @@ export const capabilities = {
   index: '02',
   label: 'Capabilities',
   headline: 'Four research lines, one loop.',
-  lede: 'Each line owns a piece of the path from photons to action. They share a codebase, an evaluation harness, and the same ten worlds.',
+  lede: 'Each line owns a segment of the path from photons to actuation. All four share a codebase, an evaluation harness, and the same ten worlds.',
   items: [
     {
       code: 'GP',
       title: 'Geometric perception',
       summary:
-        'Recovering metric structure — depth, pose, and scale — from ordinary cameras, without a depth sensor to lean on.',
+        'Metric structure — depth, pose, scale — recovered from ordinary cameras, with no depth sensor to lean on.',
       points: [
-        'Monocular depth with calibrated uncertainty, not just a heatmap',
+        'Monocular depth with calibrated uncertainty, not a pretty heatmap',
         'Six-degree-of-freedom pose under motion blur and rolling shutter',
-        'Scale recovery from a single moving camera',
+        'Absolute scale from a single moving camera',
       ],
     },
     {
       code: 'TU',
       title: 'Temporal understanding',
       summary:
-        'Holding object identity across time — through occlusion, through crowds, through the frames where the object simply is not there.',
+        'Identity held across time — through occlusion, through crowds, through the frames where the object simply is not there.',
       points: [
-        'Multi-object tracking that survives full occlusion',
-        'Trajectory forecasting with a three-second horizon',
+        'Tracking that survives eleven frames of total occlusion',
+        'Trajectory forecasting to a three-second horizon',
         'Event detection on continuous, unsegmented video',
       ],
     },
@@ -75,22 +75,22 @@ export const capabilities = {
       code: 'EC',
       title: 'Embodied control',
       summary:
-        'Closing the loop from pixels to actuation, inside a latency budget that does not forgive a late answer.',
+        'Pixels to actuation inside a latency budget that does not forgive a late answer, however correct it is.',
       points: [
-        'Perception-to-command in 18 ms on commodity silicon',
+        'Perception to command in 18 ms on commodity silicon',
         'Policies that degrade predictably when a sensor drops out',
-        'Formal envelopes on what the controller is permitted to do',
+        'Hard envelopes on what the controller is permitted to do',
       ],
     },
     {
       code: 'WG',
       title: 'World generation',
       summary:
-        'The simulators themselves — and the harder question of which synthetic experience actually transfers to reality.',
+        'The simulators themselves — and the harder question of which synthetic experience survives contact with reality.',
       points: [
-        'Procedural environments with ground truth for every pixel',
-        'Adversarial scenario search: the failure, found deliberately',
-        'Domain-gap measurement as a first-class metric',
+        'Procedural worlds with ground truth for every pixel',
+        'Adversarial scenario search: the failure, found on purpose',
+        'Domain gap measured as a first-class metric',
       ],
     },
   ],
@@ -100,8 +100,8 @@ export const provingGrounds = {
   index: '03',
   label: 'Proving Grounds',
   headline: 'Ten worlds. Running now.',
-  lede: 'Every environment isolates one way perception fails. They render continuously, with ground truth for every pixel, and they are designed to be hostile — an environment nothing fails in teaches nothing.',
-  note: 'World layer in grey. Perception layer in phosphor. What you see is what the model sees.',
+  lede: 'Each environment isolates one way perception fails. All ten render continuously, with ground truth for every pixel, and all are built to be hostile. A world nothing fails in teaches nothing.',
+  note: 'World in grey. Model output in phosphor. What you see is what the model sees.',
 };
 
 /** Detail for each of the ten captured environments. Ids match public/media/env. */
@@ -112,7 +112,7 @@ export const environments = [
     name: 'Drift',
     discipline: 'Multi-object tracking',
     blurb:
-      'An aerial grid at rush hour. Identities must survive a bridge that hides every vehicle for eleven frames.',
+      'An aerial grid at rush hour, where a bridge hides every vehicle for eleven frames and every identity has to survive it.',
     metric: { label: 'ID switches / 10k frames', value: '0' },
   },
   {
@@ -121,7 +121,7 @@ export const environments = [
     name: 'Canopy',
     discipline: 'Monocular depth',
     blurb:
-      'Flight through dense foliage, where every visual cue for scale is self-similar and half of them are moving.',
+      'Flight through dense foliage, where every cue for scale is self-similar and half of them are moving.',
     metric: { label: 'δ < 1.25', value: '0.962' },
   },
   {
@@ -130,7 +130,7 @@ export const environments = [
     name: 'Hallway',
     discipline: 'Visual SLAM',
     blurb:
-      'Deliberately repeating architecture. The map is only correct if the loop closes on the right corridor.',
+      'Deliberately repeating architecture, where the map is only correct if the loop closes on the right corridor.',
     metric: { label: 'Trajectory drift', value: '0.31%' },
   },
   {
@@ -139,7 +139,7 @@ export const environments = [
     name: 'Swarm',
     discipline: 'Trajectory forecasting',
     blurb:
-      'Forty-six agents whose futures depend on each other. Predicting one requires predicting all of them.',
+      'Forty-six agents whose futures depend on one another, so predicting any single one means predicting all of them.',
     metric: { label: 'Average displacement error', value: '0.14 m' },
   },
   {
@@ -148,7 +148,7 @@ export const environments = [
     name: 'Lattice',
     discipline: 'Instance segmentation',
     blurb:
-      'Identical parts stacked in contact. The boundary between two objects is the only thing worth getting right.',
+      'Identical parts stacked in contact, where the boundary between two objects is the only thing worth getting right.',
     metric: { label: 'mAP', value: '0.891' },
   },
   {
@@ -166,7 +166,7 @@ export const environments = [
     name: 'Relay',
     discipline: 'Predictive control',
     blurb:
-      'A closed loop with 90 ms of injected latency. The only way to be on time is to have been early.',
+      'A closed loop carrying 90 ms of injected latency, where the only way to be on time is to have been early.',
     metric: { label: 'Return rate', value: '99.1%' },
   },
   {
@@ -175,7 +175,7 @@ export const environments = [
     name: 'Quarry',
     discipline: 'Volumetric occupancy',
     blurb:
-      'Sparse returns over terrain that changes under the sensor. Free space must be proven, not assumed.',
+      'Sparse returns over terrain that shifts under the sensor, where free space has to be proven rather than assumed.',
     metric: { label: 'Voxel IoU', value: '0.847' },
   },
   {
@@ -184,7 +184,7 @@ export const environments = [
     name: 'Orbit',
     discipline: 'Collision avoidance',
     blurb:
-      'Thirty tracks, a two-second decision window, and a cost function where one miss is the only one that counts.',
+      'Thirty tracks and a two-second decision window, scored by the one miss that matters rather than the average.',
     metric: { label: 'Minimum separation', value: '41 m' },
   },
   {
@@ -193,7 +193,7 @@ export const environments = [
     name: 'Parse',
     discipline: 'Symbol recognition',
     blurb:
-      'Glyph sets the model has never seen, under noise designed by a second model to defeat the first.',
+      'Glyphs the model has never seen, under noise authored by a second model whose only job is defeating the first.',
     metric: { label: 'Top-1 accuracy', value: '97.4%' },
   },
 ] as const;
@@ -201,42 +201,42 @@ export const environments = [
 export const research = {
   index: '04',
   label: 'Research',
-  headline: 'Open problems we are actually stuck on.',
-  lede: 'Published where it is useful, and stated plainly where it is not yet working. A lab that only reports its wins is not reporting.',
+  headline: 'Open problems we are stuck on.',
+  lede: 'Published where publishing helps, and stated plainly where nothing works yet. A lab that reports only its wins is not reporting.',
   items: [
     {
       status: 'Active',
       title: 'Calibrated uncertainty in monocular depth',
       abstract:
-        'A depth network that is confidently wrong is more dangerous than one that abstains. We are training the abstention directly, and measuring whether the confidence means anything out of distribution.',
+        'A depth network that is confidently wrong is more dangerous than one that abstains, so we train the abstention directly. The open question is whether the confidence still means anything out of distribution. So far, beyond thirty meters, it does not.',
       tags: ['Geometric perception', 'Uncertainty'],
     },
     {
       status: 'Active',
       title: 'What actually transfers from simulation',
       abstract:
-        'Photorealism is expensive and, we suspect, largely irrelevant. We are ablating renderer fidelity against real-world performance to find which visual properties carry the transfer and which are decoration.',
+        'Photorealism is expensive and, we suspect, mostly beside the point. We ablate renderer fidelity against real-world performance to find which visual properties carry the transfer and which are decoration.',
       tags: ['World generation', 'Sim-to-real'],
     },
     {
       status: 'Preprint',
       title: 'Identity through total occlusion',
       abstract:
-        'Re-identification after an object has been entirely absent for a second or more, using motion priors rather than appearance. Appearance is the easy signal and the first one to disappear.',
+        'Re-identifying an object that has been entirely absent for a second or more, from motion priors rather than appearance. Appearance is the easy signal and the first one to go.',
       tags: ['Temporal understanding'],
     },
     {
       status: 'Early',
       title: 'Adversarial scenario search',
       abstract:
-        'Rather than sampling environments uniformly, we search them for the configuration that breaks the current policy — then add it to the curriculum. The search is the contribution.',
+        'Instead of sampling environments uniformly, we search them for the configuration that breaks the current policy, then add it to the curriculum. The search is the contribution; the failures are the dataset.',
       tags: ['World generation', 'Evaluation'],
     },
     {
       status: 'Active',
       title: 'Perception under a fixed latency budget',
       abstract:
-        'Accuracy is a curve against compute, and every deployed system reads a single point on it. We study where that point should sit when being late is equivalent to being wrong.',
+        'Accuracy is a curve against compute, and every deployed system reads a single point on it. We are working out where that point belongs when arriving late is indistinguishable from being wrong.',
       tags: ['Embodied control'],
     },
   ],
@@ -246,31 +246,31 @@ export const applications = {
   index: '05',
   label: 'Applications',
   headline: 'Where perception becomes consequence.',
-  lede: 'We work with a small number of partners whose problems are physical, measurable, and expensive to get wrong.',
+  lede: 'A small number of partners, taken on for problems that are physical, measurable, and expensive to get wrong.',
   items: [
     {
       sector: 'Industrial inspection',
-      claim: 'Finding the defect that has no training examples',
+      claim: 'The defect with no examples',
       detail:
-        'Production lines produce defects at rates too low to learn from. Synthetic defect generation supplies the negative class that reality withholds.',
+        'A good production line produces defects too rarely to learn from. We generate the negative class reality withholds, then check the model against the handful of real failures that exist.',
     },
     {
       sector: 'Robotics',
-      claim: 'Manipulation in clutter, without a fixture',
+      claim: 'Manipulation in clutter',
       detail:
-        'Grasping identical parts in contact is the Lattice problem exactly. Instance boundaries under contact are the difference between a pick and a jam.',
+        'Grasping identical parts in contact is the Lattice problem with a gripper attached. Instance boundaries under contact are the difference between a pick and a jam.',
     },
     {
       sector: 'Earth observation',
-      claim: 'Change detection through weather and revisit gaps',
+      claim: 'Change seen through cloud',
       detail:
-        'The signal is small, the sensor is inconsistent, and the ground truth arrives months late. Temporal models trained on synthetic revisit schedules close the gap.',
+        'The signal is small, the revisit is irregular, and the ground truth arrives months late. We train temporal models on synthetic revisit schedules, including the passes that are lost.',
     },
     {
       sector: 'Medical imaging',
       claim: 'Uncertainty a clinician can act on',
       detail:
-        'A model that says "I do not know" at the right moment is worth more than a model with a better average. Calibration is the deliverable, not accuracy.',
+        'A model that says "I do not know" at the right moment beats a model with a better average. Calibration is the deliverable; accuracy is the by-product.',
     },
   ],
 };
@@ -278,20 +278,20 @@ export const applications = {
 export const lab = {
   index: '06',
   label: 'The Lab',
-  headline: 'Small, senior, and unusually patient.',
+  headline: 'Small, senior, and slow on purpose.',
   lede: 'Twenty-six people. No growth target. We hire when a problem needs a person, not when a quarter needs headcount.',
   principles: [
     {
       title: 'Publish the failure',
-      body: 'Internal reviews lead with what broke. A result nobody tried to break is not a result.',
+      body: 'Internal reviews open with what broke. A result nobody tried to break is not a result.',
     },
     {
       title: 'Measure the gap',
-      body: 'Every synthetic claim carries a real-world number beside it, or it does not ship.',
+      body: 'Every synthetic number carries a real-world number beside it, or it does not ship.',
     },
     {
       title: 'Own the stack',
-      body: 'Renderer, training harness, evaluation, deployment. Borrowed abstractions hide the failure.',
+      body: 'Renderer, training harness, evaluation, deployment. A borrowed abstraction hides the failure inside someone else\'s code.',
     },
   ],
   stats: [
@@ -305,9 +305,9 @@ export const lab = {
 export const contact = {
   index: '07',
   label: 'Contact',
-  headline: 'If perception is your bottleneck, we should talk.',
+  headline: 'If perception is the bottleneck, we should talk.',
   accentWord: 'talk.',
-  lede: 'We take on a small number of engagements a year, and we read every application from people who want to work here.',
+  lede: 'We take on a handful of engagements a year. Every application to work here is read by someone you would work with.',
   channels: [
     {
       kind: 'Partnerships',
@@ -316,15 +316,33 @@ export const contact = {
     },
     {
       kind: 'Research',
-      detail: 'Collaborations, datasets, and reproductions of published work.',
+      detail: 'Collaborations, datasets, and reproductions of published work. Reproductions especially.',
       action: 'research@newaivisionlabs.com',
     },
     {
       kind: 'Careers',
-      detail: 'Four open roles across perception, simulation, and systems.',
+      detail: 'Four open roles across perception, simulation, and systems. Send work, not a cover letter.',
       action: 'careers@newaivisionlabs.com',
     },
   ],
+};
+
+/**
+ * Interface strings. These were previously hardcoded in JSX, which put the
+ * page's closing line and its final CTA outside copy control.
+ */
+export const ui = {
+  skipToContent: 'Skip to content',
+  navContact: 'Contact',
+  sheetCta: 'Contact the lab',
+  scroll: 'Scroll',
+  scrollLabel: 'Scroll to the thesis',
+  running: 'Running',
+  standby: 'Standby',
+  motionOn: 'Motion on',
+  motionOff: 'Motion off',
+  closingLine: 'The field above is the one you arrived on, finished resolving.',
+  closingCta: 'Send us the problem',
 };
 
 export const footer = {
@@ -345,7 +363,7 @@ export const footer = {
       links: [
         { label: 'Proving Grounds', href: '#proving-grounds' },
         { label: 'Applications', href: '#applications' },
-        { label: 'Evaluation harness', href: '#research' },
+        { label: 'How we evaluate', href: '#research' },
       ],
     },
   ],

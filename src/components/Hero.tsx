@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPerceptionField } from '../lib/perceptionField';
 import { usePointer, useReducedMotion } from '../lib/hooks';
-import { hero } from '../content/site';
+import { hero, ui } from '../content/site';
 import './hero.css';
 
 /**
@@ -120,8 +120,8 @@ export function Hero() {
               </div>
             ))}
           </dl>
-          <a className="hero__scroll" href="#thesis" aria-label="Scroll to the thesis">
-            <span className="label">Scroll</span>
+          <a className="hero__scroll" href="#thesis" aria-label={ui.scrollLabel}>
+            <span className="label">{ui.scroll}</span>
             <span className="hero__scroll-rail" aria-hidden="true">
               <span className="hero__scroll-dot" />
             </span>

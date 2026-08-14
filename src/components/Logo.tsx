@@ -136,11 +136,17 @@ export interface LogoProps extends HTMLAttributes<HTMLSpanElement> {
  * Horizontal lockup. The wordmark stays live text — selectable, searchable,
  * and it restyles with the rest of the page — rather than outlines.
  *
- * Proportions are all multiples of the mark so the lockup survives being set at
- * any size: cap height reads at ~0.40 of the mark, which puts the type's mass
- * just below the bracket's and stops the word from crowding the drawing. The
- * gap is a wide 0.52 because the bracket's job is to hold empty space; closing
- * that gap would make the mark read as a bullet point.
+ * Proportions are multiples of the mark, so the lockup holds at any size.
+ * Both were solved by eye against the alternatives rather than derived:
+ *
+ *   wordmark  0.58 × mark   — cap height lands at ~0.42 of the mark, which is
+ *                             where the word and the drawing carry equal
+ *                             weight. Smaller and the word becomes a caption;
+ *                             larger and the mark demotes itself to an icon.
+ *   gap       0.44 × mark   — the mark is mostly negative space, so it needs
+ *                             less air beside it than its bounding box
+ *                             suggests. Past ~0.5 the two halves stop reading
+ *                             as one object.
  */
 export function Logo({
   size = 26,
@@ -153,7 +159,7 @@ export function Logo({
 }: LogoProps) {
   const wordStyle: CSSProperties = {
     fontFamily: 'var(--font-sans, ui-sans-serif, system-ui, sans-serif)',
-    fontSize: `${size * 0.5}px`,
+    fontSize: `${size * 0.58}px`,
     fontWeight: 500,
     fontVariationSettings: "'wdth' 118, 'wght' 500",
     letterSpacing: '0.185em',
@@ -171,7 +177,7 @@ export function Logo({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: `${size * 0.52}px`,
+        gap: `${size * 0.44}px`,
         color: 'inherit',
         ...style,
       }}

@@ -292,6 +292,34 @@
   }
 }
 
+/* Laptops are wide but short. At 1280×800 the display scale is driven by
+   width alone, so the composition outgrows the viewport and pushes the
+   telemetry strip below the fold. Height has to be part of the decision. */
+@media (min-width: 48rem) and (max-height: 54rem) {
+  .hero {
+    padding-top: calc(var(--nav-h) + var(--space-m));
+    padding-bottom: 6.75rem;
+  }
+
+  .hero__headline {
+    font-size: clamp(2.6rem, 0.9rem + 3.9vw, 4.25rem);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__lede {
+    font-size: var(--step-0);
+    margin-bottom: var(--space-l);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: var(--space-s);
+  }
+}
+
 /* Large desktop: cap the headline so it never becomes a billboard. */
 @media (min-width: 100rem) {
   .hero__headline {
@@ -314,10 +342,11 @@
     background:
       linear-gradient(
         180deg,
-        rgba(8, 9, 11, 0.55) 0%,
-        rgba(8, 9, 11, 0.25) 30%,
-        rgba(8, 9, 11, 0.88) 62%,
-        var(--ink-050) 86%
+        rgba(8, 9, 11, 0.62) 0%,
+        rgba(8, 9, 11, 0.42) 26%,
+        rgba(8, 9, 11, 0.8) 52%,
+        rgba(8, 9, 11, 0.95) 74%,
+        var(--ink-050) 88%
       );
   }
 
@@ -325,8 +354,18 @@
     bottom: 42%;
   }
 
+  /* The three authored lines become five at phone widths, so the display
+     size is set for this breakpoint rather than inherited from the scale. */
   .hero__headline {
     max-width: 100%;
+    font-size: clamp(2.5rem, 1.1rem + 5.6vw, 3.25rem);
+  }
+
+  /* The lab's name is already in the nav one row above; repeating it here
+     costs a wrapped line for nothing. */
+  .hero__eyebrow-sep,
+  .hero__eyebrow .label--phosphor {
+    display: none;
   }
 
   .hero__lede {

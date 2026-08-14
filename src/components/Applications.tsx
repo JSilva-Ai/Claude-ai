@@ -6,7 +6,7 @@ function App({ item, i }: { item: (typeof applications.items)[number]; i: number
   const ref = useReveal<HTMLLIElement>();
   return (
     <li
-      className="app card ticks"
+      className="app ticks"
       ref={ref}
       data-reveal
       style={{ '--reveal-delay': `${(i % 2) * 80}ms` } as React.CSSProperties}

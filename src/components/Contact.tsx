@@ -1,7 +1,7 @@
 import { SectionHead } from './SectionHead';
 import { ResolvedField } from './ResolvedField';
 import { useReveal } from '../lib/hooks';
-import { contact } from '../content/site';
+import { contact, ui } from '../content/site';
 
 export function Contact() {
   const ref = useReveal<HTMLUListElement>();
@@ -51,12 +51,9 @@ export function Contact() {
         </ul>
 
         <div className="contact__close" ref={closeRef} data-reveal>
-          <p className="contact__close-line">
-            The field above is the same one you arrived on. It has finished
-            resolving.
-          </p>
+          <p className="contact__close-line">{ui.closingLine}</p>
           <a className="btn btn--primary" href={`mailto:${contact.channels[0].action}`}>
-            Start a conversation
+            {ui.closingCta}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path
                 d="M3 11L11 3M11 3H5M11 3V9"

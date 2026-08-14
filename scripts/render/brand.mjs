@@ -37,7 +37,6 @@ const PORT = 8932;
 const INK = '#08090b';
 const INK_100 = '#0c0e12';
 const PORCELAIN = '#edeef0';
-const GREY_200 = '#9aa0aa';
 const GREY_300 = '#6f757f';
 const PHOSPHOR = '#d4f85c';
 
@@ -76,19 +75,19 @@ function markSvg({ size = 32, stroke = PORCELAIN, dot = stroke, extra = '' } = {
    Transparent and full-bleed rather than a tile: at 16px the mark needs every
    pixel it can get, and an inset mark inside a tile leaves the corner ticks at
    one pixel each.
-   Colour follows the browser chrome. Phosphor is the default rather than the
-   dark-mode override so that a browser which ignores prefers-color-scheme in
-   favicons still renders something visible on a light tab strip.
+   Colour follows the browser chrome. Phosphor is carried on presentation
+   attributes and only the light override lives in CSS, so the mark still
+   renders if a consumer strips the stylesheet — and the failure mode of a
+   browser that ignores prefers-color-scheme in favicons is phosphor on a light
+   tab strip, which is legible, rather than ink on a dark one, which is not.
+   The override is scoped to the root id so the file stays safe to inline.
    ------------------------------------------------------------------------- */
 const FAVICON =
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${BOX} ${BOX}">` +
-  `<style>` +
-  `path,circle{fill:none;stroke:${PHOSPHOR}}` +
-  `circle{fill:${PHOSPHOR};stroke:none}` +
-  `@media(prefers-color-scheme:light){path{stroke:${INK}}circle{fill:${INK}}}` +
-  `</style>` +
-  `<path d="${TICK_PATH}" stroke-width="${SW}"/>` +
-  `<circle cx="16" cy="16" r="${DOT}"/>` +
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${BOX} ${BOX}" fill="none" id="nvl-mark">` +
+  `<style>@media(prefers-color-scheme:light){` +
+  `#nvl-mark .t{stroke:${INK}}#nvl-mark .d{fill:${INK}}}</style>` +
+  `<path class="t" d="${TICK_PATH}" stroke="${PHOSPHOR}" stroke-width="${SW}"/>` +
+  `<circle class="d" cx="16" cy="16" r="${DOT}" fill="${PHOSPHOR}"/>` +
   `</svg>\n`;
 
 /* -------------------------------------------------------------------------
@@ -110,9 +109,9 @@ body{background:${INK};-webkit-font-smoothing:antialiased;text-rendering:geometr
 /** The lockup as static markup — the same proportions Logo.tsx derives. */
 function lockup({ size = 30, color = PORCELAIN, dot = color } = {}) {
   return (
-    `<span style="display:inline-flex;align-items:center;gap:${size * 0.52}px;color:${color}">` +
+    `<span style="display:inline-flex;align-items:center;gap:${size * 0.44}px;color:${color}">` +
     markSvg({ size, stroke: color, dot }) +
-    `<span class="sans" style="font-size:${size * 0.5}px;font-weight:500;` +
+    `<span class="sans" style="font-size:${size * 0.58}px;font-weight:500;` +
     `font-variation-settings:'wdth' 118,'wght' 500;letter-spacing:.185em;` +
     `margin-right:-.185em;line-height:1;text-transform:uppercase;white-space:nowrap">` +
     `New AI Vision Labs</span></span>`
@@ -166,7 +165,7 @@ function ogHtml(variant = 'mark') {
      the card, not a credit in the corner. */
   .masthead{position:absolute;left:${G}px;right:${G}px;top:${G}px;height:${MARK}px;
     display:flex;align-items:center;justify-content:space-between}
-  .name{color:${PORCELAIN};font-size:26px;font-weight:500;
+  .name{color:${PORCELAIN};font-size:30px;font-weight:500;
     font-variation-settings:'wdth' 118,'wght' 500;letter-spacing:.185em;
     margin-right:-.185em;line-height:1;text-transform:uppercase;white-space:nowrap}
   .sub{margin-top:15px}
@@ -196,7 +195,15 @@ function ogHtml(variant = 'mark') {
       <span class="sans name">New AI Vision Labs</span>
       <span class="mono tag sub" style="display:block">Machine perception research</span>
     </span>
-    ${markSvg({ size: MARK, stroke: PORCELAIN, dot: accentWord ? PORCELAIN : PHOSPHOR })}
+    ${markSvg({
+      size: MARK,
+      stroke: PORCELAIN,
+      dot: accentWord ? PORCELAIN : PHOSPHOR,
+      // The mark's ink stops 2/32 of the box short of its own edge. Left as
+      // drawn it reads as inset from the margin every other element is flush
+      // to, so it is pushed back out by exactly that much.
+      extra: `style="margin-right:-${(MARK * 2) / BOX}px"`,
+    })}
   </div>
 
   <div class="rule" style="top:${G + MARK + 46}px"></div>

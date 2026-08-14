@@ -343,28 +343,33 @@ const canopy = (() => {
   const layers = [];
   for (let d = 0; d < LAYERS; d++) {
     const near = 1 - d / (LAYERS - 1); // 1 = nearest plate, 0 = deepest
-    const n = 4 + d * 4;
+    const n = 4 + d * 3;
     const trees = [];
     for (let i = 0; i < n; i++) {
       // Crown is a cluster of overlapping blobs riding the top of the trunk —
       // organic mass, never a box.
       const blobs = [];
-      const nb = 3 + Math.floor(r() * 3);
+      const nb = 13 + Math.floor(r() * 8);
       for (let k = 0; k < nb; k++) {
+        const rx = 0.2 + r() * 0.4;
         blobs.push({
-          dx: (r() - 0.5) * 3.4,
-          dy: 0.56 + r() * 0.42,
-          rx: 0.9 + r() * 1.1,
-          ry: 0.6 + r() * 0.55,
+          dx: (r() - 0.5) * 3.2,
+          dy: 0.5 + r() * 0.34,
+          rx,
+          ry: rx * (0.62 + r() * 0.34),
         });
+      }
+      const branches = [];
+      for (let k = 0; k < 3; k++) {
+        branches.push({ at: 0.5 + r() * 0.34, dir: r() > 0.5 ? 1 : -1, len: 0.9 + r() * 1.3 });
       }
       trees.push({
         u: (i + r() * 0.8) / n,
         w: 0.006 + r() * 0.028,
         h: 0.9 + r() * 0.5,
         lean: (r() - 0.5) * 0.2,
-        under: 0.4 + r() * 0.9,
         blobs,
+        branches,
       });
     }
     layers.push({
@@ -374,25 +379,9 @@ const canopy = (() => {
       baseY: H * (0.58 + near * 0.3),
       // Aerial perspective: the near plate is the lightest thing in the world
       // layer and still sits well under the perception layer.
-      shade: Math.round(12 + near * 46),
+      shade: Math.round(10 + near * 42),
     });
   }
-  // Depth ramp: near reads phosphor, mid plasma, far falls back into the ground.
-  const STOPS = [
-    [26, 30, 38],
-    [123, 92, 255],
-    [212, 248, 92],
-  ];
-  const ramp = (n) => {
-    const k = Math.max(0, Math.min(0.999, n)) * 2;
-    const i = Math.floor(k);
-    const f = k - i;
-    const a = STOPS[i];
-    const b = STOPS[i + 1];
-    return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(
-      a[1] + (b[1] - a[1]) * f,
-    )},${Math.round(a[2] + (b[2] - a[2]) * f)})`;
-  };
   const COLS = 152; // depth-profile resolution, buffer reused every frame
   const prof = new Float32Array(COLS);
   return {
@@ -428,26 +417,45 @@ const canopy = (() => {
         const fill = `rgb(${sh},${sh + 5},${sh + 12})`;
         // Forest floor for this plate — a receding ground line, not a horizon.
         ctx.fillStyle = fill;
-        ctx.fillRect(0, L.baseY, W, 4);
+        ctx.fillRect(0, L.baseY, W, 3);
         for (const tr of L.trees) {
           const x = ((tr.u + ph(t, L.speed)) % 1) * (W + 440) - 220;
-          const tw = 6 + tr.w * W * L.near * 1.4;
+          const tw = 4 + tr.w * W * Math.pow(L.near, 1.6) * 2;
           const th = tr.h * H * (0.45 + L.near * 0.7);
           const topY = L.baseY - th;
-          const fr = tw * 1.5;
+          const fr = tw * 1.55;
           const skew = tr.lean * th * 0.28;
+
+          // Litter round the base — one step down, so it sits in shadow
+          ctx.fillStyle = `rgb(${sh - 4},${sh + 1},${sh + 8})`;
+          ctx.beginPath();
+          ctx.ellipse(x + tw / 2, L.baseY + 1, tw * 0.8, tw * 0.22, 0, 0, TAU);
+          ctx.fill();
 
           ctx.fillStyle = fill;
           ctx.beginPath();
-          // Undergrowth clump at the base
-          ctx.ellipse(x + tw / 2, L.baseY, tw * tr.under * 1.6, tw * tr.under * 0.5, 0, 0, TAU);
-          // Trunk
           ctx.moveTo(x, L.baseY);
           ctx.lineTo(x + tw, L.baseY);
-          ctx.lineTo(x + tw * 0.7 + skew, topY);
-          ctx.lineTo(x + tw * 0.22 + skew, topY);
+          ctx.lineTo(x + tw * 0.66 + skew, topY);
+          ctx.lineTo(x + tw * 0.26 + skew, topY);
           ctx.closePath();
-          // Crown
+          // Branches — what stops a trunk reading as a pillar
+          for (const br of tr.branches) {
+            const by0 = L.baseY - th * br.at;
+            const bx0 = x + tw / 2 + skew * br.at;
+            const bl = tw * br.len * 2.4;
+            ctx.moveTo(bx0, by0 + tw * 0.3);
+            ctx.lineTo(bx0 + br.dir * bl, by0 - bl * 0.55);
+            ctx.lineTo(bx0 + br.dir * bl, by0 - bl * 0.55 - tw * 0.28);
+            ctx.lineTo(bx0, by0 - tw * 0.3);
+            ctx.closePath();
+          }
+          ctx.fill();
+
+          // Crown — a ragged cluster in its own darker value, so it reads as
+          // foliage held against the sky rather than a cap on a pole.
+          ctx.fillStyle = `rgb(${sh - 7},${sh - 2},${sh + 5})`;
+          ctx.beginPath();
           for (const b of tr.blobs) {
             const cx = x + tw / 2 + b.dx * fr + skew * b.dy;
             const cy = L.baseY - th * b.dy;
@@ -461,19 +469,20 @@ const canopy = (() => {
           const s1 = Math.min(COLS - 1, Math.ceil(((x + tw * 2.3) / W) * COLS));
           for (let s = s0; s <= s1; s++) if (prof[s] < L.near) prof[s] = L.near;
 
-          // Depth samples ride the trunk edges of the nearest plates.
-          if (L.near > 0.45 && tw > 9) {
-            const col = ramp(L.near);
-            for (let i = 0; i < 9; i++) {
-              const f = (i + 0.5) / 9;
+          // Depth samples ride the trunk edges of the nearest plates. Phosphor
+          // carries the estimate; plasma marks the samples it does not trust.
+          if (L.near > 0.6 && tw > 11) {
+            for (let i = 0; i < 7; i++) {
+              const f = (i + 0.5) / 7;
               const py = L.baseY - th * f * 0.75;
               if (py < 40 || py > panY - 14) continue;
-              const lx = x + (tw * 0.22 + skew) * f;
+              const lx = x + (tw * 0.26 + skew) * f;
               const conf = 0.55 + 0.45 * Math.sin(ph(t, 2) * TAU + i * 1.1 + tr.u * 9);
-              ctx.fillStyle = col;
-              ctx.globalAlpha = 0.45 + conf * 0.55;
-              ctx.fillRect(lx - 2, py - 2, 4, 4);
-              ctx.fillRect(lx + tw * (1 - 0.3 * f) - 2, py - 2, 4, 4);
+              const weak = L.near < 0.85 && i % 3 === 2;
+              ctx.fillStyle = weak ? C.plasma : C.phosphor;
+              ctx.globalAlpha = (weak ? 0.5 : 0.35 + L.near * 0.35) + conf * 0.4;
+              ctx.fillRect(lx - 2.5, py - 2.5, 5, 5);
+              ctx.fillRect(lx + tw * (1 - 0.32 * f) - 2.5, py - 2.5, 5, 5);
               ctx.globalAlpha = 1;
             }
           }
@@ -939,7 +948,7 @@ const lattice = (() => {
   // Nothing floats — the whole point of the task is contact.
   const blocks = [];
   let base = FLOOR;
-  for (let row = 0; row < 7; row++) {
+  for (let row = 0; row < 8; row++) {
     const rh = 32 + r() * 20;
     let x = X0 - (row % 2 ? 0 : 22) - r() * 14;
     let col = 0;
@@ -953,7 +962,7 @@ const lattice = (() => {
         h: rh,
         row,
         col,
-        tone: Math.round(52 + r() * 12),
+        tone: Math.round(56 + r() * 14),
         id: 'M' + String(10 + blocks.length),
       });
       x += bw + 2;
@@ -989,6 +998,12 @@ const lattice = (() => {
       ctx.fillRect(0, FLOOR, W, 2);
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(X0 - 26, FLOOR + 2, X1 - X0 + 52, 7);
+      // Target envelope — the structure the stack is being assembled into
+      ctx.strokeStyle = 'rgba(237,238,240,0.1)';
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(X0 - 14.5, blocks[blocks.length - 1].y - 22.5, X1 - X0 + 29, FLOOR - blocks[blocks.length - 1].y + 22);
+      ctx.setLineDash([]);
 
       // Bottom rows land first, top rows lift first — a build, not a shower.
       const p = ph(t, 1);
@@ -1150,7 +1165,7 @@ const tide = (() => {
       }
 
       // Perception layer — the estimated field, the loudest thing in frame.
-      const step = 42;
+      const step = 46;
       for (let gx = step * 0.6; gx < W; gx += step) {
         for (let gy = step * 0.6; gy < H; gy += step) {
           if (inside(gx, gy, 2)) continue;
@@ -1164,8 +1179,8 @@ const tide = (() => {
           // Plasma is reserved for the slack water behind the bodies — the
           // region where the estimate is least certain.
           ctx.strokeStyle = m > 0.82 ? C.phosphor : C.plasma;
-          ctx.globalAlpha = 0.45 + norm * 0.5;
-          ctx.lineWidth = 1.4;
+          ctx.globalAlpha = 0.3 + norm * 0.45;
+          ctx.lineWidth = 1.3;
           ctx.beginPath();
           ctx.moveTo(gx - ux * len * 0.4, gy - uy * len * 0.4);
           const ex = gx + ux * len * 0.6;
@@ -1222,8 +1237,8 @@ const relay = (() => {
   const AX1 = W - 62;
   const AY0 = 62;
   const AY1 = H - 136;
-  const PX0 = AX0 + 20;
-  const PX1 = AX1 - 20;
+  const PX0 = AX0 + 36;
+  const PX1 = AX1 - 36;
   const PY0 = AY0 + 16;
   const PY1 = AY1 - 16;
   const Q = [0, 0];
@@ -1233,7 +1248,7 @@ const relay = (() => {
   const puck = (t) => {
     const rx = ph(t, 6) * 2;
     Q[0] = PX0 + (rx < 1 ? rx : 2 - rx) * (PX1 - PX0);
-    const ry = ph(t, 5, 0.17) * 2;
+    const ry = ph(t, 7, 0.17) * 2;
     Q[1] = PY0 + (ry < 1 ? ry : 2 - ry) * (PY1 - PY0);
     return Q;
   };
@@ -1308,16 +1323,6 @@ const relay = (() => {
       ctx.stroke();
       bracket(ctx, AX0, AY0, AX1 - AX0, AY1 - AY0, 'rgba(237,238,240,0.24)', { lw: 1, corner: 18 });
 
-      // Reachable set — every state the puck visits over the full loop. It is
-      // the thing the controller is planning inside of.
-      ctx.strokeStyle = 'rgba(237,238,240,0.055)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let i = 0; i <= 480; i++) {
-        const p = puck((i / 480) * LOOP);
-        i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
-      }
-      ctx.stroke();
 
       const pk = puck(t);
       const x = pk[0];
@@ -1327,7 +1332,7 @@ const relay = (() => {
       ctx.lineWidth = 1.4;
       for (let k = -2; k <= 26; k++) {
         for (const fam of [0, 1]) {
-          const tk = fam ? (LOOP * k) / 12 : (LOOP * (k * 0.5 - 0.17)) / 5;
+          const tk = fam ? (LOOP * k) / 12 : (LOOP * (k * 0.5 - 0.17)) / 7;
           const age = (((t - tk) % LOOP) + LOOP) % LOOP;
           if (age > 2.4) continue;
           const p = puck(tk);
@@ -1349,14 +1354,14 @@ const relay = (() => {
       }
 
       // Trail — where the puck has been
-      ctx.lineWidth = 1.6;
-      for (let i = 0; i < 22; i++) {
-        const a = puck(t - i * 0.04);
+      ctx.lineWidth = 2.4;
+      ctx.strokeStyle = C.porcelain;
+      for (let i = 0; i < 26; i++) {
+        const a = puck(t - i * 0.03);
         const ax = a[0];
         const ay = a[1];
-        const b = puck(t - (i + 1) * 0.04);
-        ctx.strokeStyle = 'rgba(237,238,240,0.55)';
-        ctx.globalAlpha = 1 - i / 22;
+        const b = puck(t - (i + 1) * 0.03);
+        ctx.globalAlpha = 0.55 * (1 - i / 26);
         ctx.beginPath();
         ctx.moveTo(ax, ay);
         ctx.lineTo(b[0], b[1]);
@@ -1364,19 +1369,17 @@ const relay = (() => {
       }
       ctx.globalAlpha = 1;
 
-      // --- Forecast: a bouncing puck, reflections marked -------------------
-      ctx.strokeStyle = C.phosphor;
-      ctx.globalAlpha = 0.75;
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash([7, 5]);
-      ctx.beginPath();
-      ctx.moveTo(x, y);
+      // --- Forecast: a bouncing puck. Confidence decays along the horizon,
+      // so the polyline reads forward in time instead of closing into a shape.
+      const NF = 46;
       let lx = x;
       let ly = y;
       let vsx = 0;
       let vsy = 0;
       const bounces = [];
-      for (let i = 1; i <= 90; i++) {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = C.phosphor;
+      for (let i = 1; i <= NF; i++) {
         const f = puck(t + i * 0.02);
         const fx = f[0];
         const fy = f[1];
@@ -1386,36 +1389,54 @@ const relay = (() => {
         if (i > 1 && sy !== 0 && vsy !== 0 && sy !== vsy) bounces.push(lx, ly, 0);
         if (sx !== 0) vsx = sx;
         if (sy !== 0) vsy = sy;
+        ctx.globalAlpha = 0.9 * (1 - i / NF) + 0.08;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
         ctx.lineTo(fx, fy);
+        ctx.stroke();
+        // Chevrons carry the direction of travel
+        if (i % 9 === 0) {
+          const d = Math.hypot(fx - lx, fy - ly) || 1;
+          const ux = (fx - lx) / d;
+          const uy = (fy - ly) / d;
+          ctx.beginPath();
+          ctx.moveTo(fx - ux * 8 + uy * 5, fy - uy * 8 - ux * 5);
+          ctx.lineTo(fx, fy);
+          ctx.lineTo(fx - ux * 8 - uy * 5, fy - uy * 8 + ux * 5);
+          ctx.stroke();
+        }
         lx = fx;
         ly = fy;
       }
-      ctx.stroke();
-      ctx.setLineDash([]);
       ctx.globalAlpha = 1;
-      // Predicted reflection points
+      // Predicted reflection points, on the wall they bounce off
       for (let i = 0; i < bounces.length; i += 3) {
         const bx = bounces[i];
         const by = bounces[i + 1];
         ctx.strokeStyle = C.phosphor;
-        ctx.lineWidth = 1.3;
-        ctx.strokeRect(bx - 4.5, by - 4.5, 9, 9);
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(bx - 5.5, by - 5.5, 11, 11);
         ctx.beginPath();
         if (bounces[i + 2]) {
-          ctx.moveTo(bx, by - 13);
-          ctx.lineTo(bx, by + 13);
+          ctx.moveTo(bx, by - 15);
+          ctx.lineTo(bx, by + 15);
         } else {
-          ctx.moveTo(bx - 13, by);
-          ctx.lineTo(bx + 13, by);
+          ctx.moveTo(bx - 15, by);
+          ctx.lineTo(bx + 15, by);
         }
         ctx.stroke();
       }
-      // Horizon uncertainty
+      // Uncertainty growing with the horizon
       ctx.strokeStyle = C.plasma;
       ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.ellipse(lx, ly, 20, 13, 0, 0, TAU);
-      ctx.stroke();
+      for (const q of [0.45, 0.75, 1]) {
+        const f = puck(t + NF * 0.02 * q);
+        ctx.globalAlpha = 0.75 - q * 0.3;
+        ctx.beginPath();
+        ctx.ellipse(f[0], f[1], 7 + q * 16, 5 + q * 11, 0, 0, TAU);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
 
       // Intercept — the one critical state in the frame
       const th = nextHit(t, 0) - t < nextHit(t, 1) - t ? nextHit(t, 0) : nextHit(t, 1);
@@ -1461,6 +1482,34 @@ const relay = (() => {
       ctx.arc(x, y, 6.5, 0, TAU);
       ctx.fill();
       bracket(ctx, x - 19, y - 19, 38, 38, C.phosphor, { lw: 1.4, corner: 8, label: 'PUCK' });
+
+      // Live state vector — what the controller is actually consuming
+      const stx = AX0 + 16;
+      const sty = AY0 + 16;
+      const pv = puck(t - 0.02);
+      const vx2 = (x - pv[0]) / 0.02;
+      const vy2 = (y - pv[1]) / 0.02;
+      ctx.fillStyle = 'rgba(8,9,11,0.82)';
+      ctx.fillRect(stx, sty, 190, 64);
+      ctx.strokeStyle = 'rgba(237,238,240,0.12)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(stx + 0.5, sty + 0.5, 189, 63);
+      mono(ctx, 10, 600);
+      ctx.fillStyle = C.greyDim;
+      ctx.fillText('STATE', stx + 10, sty + 16);
+      mono(ctx, 11, 500);
+      ctx.fillStyle = C.porcelain;
+      ctx.fillText(
+        `P  ${(x - PX0).toFixed(0).padStart(3)} , ${(y - PY0).toFixed(0).padStart(3)} mm`,
+        stx + 10,
+        sty + 36,
+      );
+      ctx.fillText(
+        `V  ${(Math.hypot(vx2, vy2) * 0.004).toFixed(2)} m/s  ` +
+          `${((Math.atan2(vy2, vx2) * 180) / Math.PI).toFixed(0)}°`,
+        stx + 10,
+        sty + 54,
+      );
 
       // --- Telemetry strip --------------------------------------------------
       const ty = AY1 + 16;
@@ -1512,7 +1561,7 @@ const relay = (() => {
       for (let i = 0; i <= 40; i++) {
         const tt = t - (40 - i) * 0.03;
         const e = Math.abs(padY(tt, 0) - cmdY(tt, 0));
-        const sxx = sx0 + (i / 40) * sw;
+        const sxx = sx0 + 84 + (i / 40) * (sw - 84);
         const syy = ty + 50 - (e / emax) * 22;
         i === 0 ? ctx.moveTo(sxx, syy) : ctx.lineTo(sxx, syy);
       }
@@ -1521,7 +1570,7 @@ const relay = (() => {
       ctx.stroke();
       mono(ctx, 20, 700);
       ctx.fillStyle = C.porcelain;
-      ctx.fillText((emax * 0.06).toFixed(1) + ' mm', sx0 + sw - 76, ty + 44);
+      ctx.fillText((emax * 0.06).toFixed(1) + ' mm', sx0, ty + 44);
 
       vignette(ctx);
       hud(ctx, relay, t);
@@ -1720,7 +1769,7 @@ const parse = (() => {
   const glyphs = '⌁⌂⌘⍜⎔⎈⌬⏣◈◇◆⬡⬢▤▥▩◫⧉⧗⧖'.split('');
   const r = mulberry32(1721);
   const items = [];
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 56; i++) {
     items.push({
       x: 0.05 + r() * 0.9,
       p: r(),
@@ -1787,7 +1836,7 @@ const parse = (() => {
         ctx.rotate(it.rot);
         ctx.font = `400 ${it.size}px "JetBrains Mono", ui-monospace, monospace`;
         ctx.textAlign = 'center';
-        ctx.fillStyle = locking ? C.porcelain : done ? '#9aa0a8' : '#6d737c';
+        ctx.fillStyle = locking ? C.porcelain : done ? '#9aa0a8' : '#7b818a';
         ctx.fillText(it.g, 0, 0);
         ctx.restore();
         ctx.textAlign = 'left';

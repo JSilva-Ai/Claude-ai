@@ -44,6 +44,9 @@
 .nav__logo {
   display: flex;
   align-items: center;
+  /* Padding rather than height so the lockup keeps its optical position
+     while the hit area clears 24px. */
+  padding-block: 6px;
   flex: none;
   color: var(--porcelain);
   transition: color var(--dur-base) var(--ease-out);

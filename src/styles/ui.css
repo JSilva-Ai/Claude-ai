@@ -208,9 +208,14 @@
 
 @media (min-width: 60rem) {
   .section-head--split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
     align-items: end;
-    gap: var(--space-xl);
+    gap: var(--space-3xl);
+  }
+
+  /* The display line needs room to breathe away from the lede beside it. */
+  .section-head--split .section-head__title {
+    max-width: 17ch;
   }
 }
 

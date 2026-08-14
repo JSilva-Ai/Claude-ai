@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SectionHead } from './SectionHead';
 import { useMediaQuery, useReducedMotion, useReveal } from '../lib/hooks';
-import { environments, provingGrounds } from '../content/site';
+import { environments, provingGrounds, ui } from '../content/site';
 import './provingGrounds.css';
 
 type Env = (typeof environments)[number];
@@ -110,7 +110,7 @@ function EnvironmentCard({ env, i, enabled, elected, onVisible, hoverToPlay }: C
           <span className="env__code mono">{env.code}</span>
           <span className="env__state">
             <span className={playing ? 'dot' : 'env__state-dot'} />
-            <span className="label">{playing ? 'Running' : 'Standby'}</span>
+            <span className="label">{playing ? ui.running : ui.standby}</span>
           </span>
         </div>
       </div>
@@ -184,7 +184,7 @@ export function ProvingGrounds() {
               <span className="grounds__toggle-track" aria-hidden="true">
                 <span className="grounds__toggle-thumb" />
               </span>
-              <span className="label">Motion {motionOn ? 'on' : 'off'}</span>
+              <span className="label">{motionOn ? ui.motionOn : ui.motionOff}</span>
             </button>
           )}
         </div>

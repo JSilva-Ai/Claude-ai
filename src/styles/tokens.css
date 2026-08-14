@@ -17,7 +17,9 @@
   --porcelain: #edeef0;
   --grey-100: #c7cad0;
   --grey-200: #9aa0aa;
-  --grey-300: #6f757f;
+  --grey-300: #7c828c;
+  /* grey-400 and below sit under 4.5:1 on ink and are therefore reserved for
+     non-text use — rules, dots, disabled marks. Text stops at grey-300. */
   --grey-400: #4c525b;
   --grey-500: #343941;
 
