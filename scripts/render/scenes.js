@@ -349,7 +349,7 @@ const canopy = (() => {
       // Crown is a cluster of overlapping blobs riding the top of the trunk —
       // organic mass, never a box.
       const blobs = [];
-      const nb = 13 + Math.floor(r() * 8);
+      const nb = 14 - d * 2 + Math.floor(r() * 6); // deep plates need fewer
       for (let k = 0; k < nb; k++) {
         const rx = 0.2 + r() * 0.4;
         blobs.push({
@@ -1096,14 +1096,14 @@ const tide = (() => {
     return false;
   };
   const parts = [];
-  while (parts.length < 360) {
+  while (parts.length < 320) {
     const x = r();
     const y = r();
     if (!inside(x * W, y * H, 4)) parts.push({ x, y, p: r() });
   }
   // Shed vortices trailing each body — periodic, so the wake loops cleanly.
   const VORT = [];
-  for (const o of OBS) for (let i = 0; i < 3; i++) VORT.push({ o, off: i / 3, sgn: i % 2 ? 1 : -1 });
+  for (const o of OBS) for (let i = 0; i < 2; i++) VORT.push({ o, off: i / 2, sgn: i % 2 ? 1 : -1 });
   const F = [0, 0];
   const flow = (x, y, t) => {
     let u = 1;

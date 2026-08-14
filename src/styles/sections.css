@@ -437,9 +437,18 @@
 .contact__field-scrim {
   position: absolute;
   inset: 0;
+  /* One directional scrim, not two stacked ones — stacking multiplied the
+     opacities and buried the field the bookend depends on. Dark where the
+     copy sits, open where it does not. */
   background:
-    linear-gradient(180deg, var(--ink-050) 0%, rgba(8, 9, 11, 0.82) 30%, rgba(8, 9, 11, 0.72) 100%),
-    linear-gradient(90deg, var(--ink-050) 0%, rgba(8, 9, 11, 0.4) 45%, rgba(8, 9, 11, 0.75) 100%);
+    linear-gradient(
+      180deg,
+      var(--ink-050) 0%,
+      rgba(8, 9, 11, 0.86) 18%,
+      rgba(8, 9, 11, 0.52) 52%,
+      rgba(8, 9, 11, 0.3) 100%
+    ),
+    linear-gradient(90deg, rgba(8, 9, 11, 0.72) 0%, rgba(8, 9, 11, 0.28) 60%, transparent 100%);
 }
 
 .contact__close {
@@ -584,5 +593,36 @@
   .footer__cols {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2xl);
+  }
+}
+
+/* ==========================================================================
+   Mobile: one left edge
+   --------------------------------------------------------------------------
+   The ruled grids carry horizontal padding so their cells breathe on wide
+   viewports. At phone widths that padding puts card content 24px inside the
+   container while every section headline sits flush to it — two left edges on
+   the same screen. Below the two-column breakpoint the cells go flush and the
+   rules do the separating on their own.
+   ========================================================================== */
+@media (max-width: 43.99rem) {
+  .cap,
+  .app,
+  .channel {
+    padding-inline: 0;
+  }
+
+  .lab__principle {
+    padding-left: var(--space-s);
+  }
+
+  /* Match the hero: on a phone a primary action spans the column. */
+  .contact__close .btn {
+    width: 100%;
+  }
+
+  .cap,
+  .app {
+    padding-block: var(--space-l);
   }
 }
