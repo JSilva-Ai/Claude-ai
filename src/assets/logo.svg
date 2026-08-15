@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  New AI Vision Labs — NAI monogram.
+
+  The N is drawn whole (stem, falling diagonal, stem) and the A is set so that
+  its left arm crosses the N's right stem through the lower third, with its
+  apex carried above the N's cap height. That overhang is the peak: the two
+  letters interlock rather than standing side by side, and the highest point of
+  the mark belongs to both.
+
+  Three things here are load-bearing and easy to undo by accident:
+
+  1. The baseline clip. A stroked diagonal cannot end in a horizontal edge —
+     its cap is perpendicular to its own direction — so the N's diagonal and
+     the A's two feet all hang below the baseline by up to half a stroke. One
+     clip at y=38 cuts every foot flat at once, which is cheaper and far less
+     error-prone than converting the letters to filled outlines by hand.
+  2. The N's miter limit sits below its join ratio. Its corners are reversals
+     (up, down-right, up) and at this weight a miter there throws a spike well
+     past the baseline; the low limit cuts them flat. The A keeps a high limit,
+     because its apex is the one join that must stay sharp.
+  3. An earlier version had the two letters share a single rising stroke. It
+     read as "MAi" — a vertical followed by a falling then rising diagonal is
+     an M, and the eye takes that reading before the intended one.
+
+  The i is a stem and its tittle, drawn as the sphere. It is the only filled
+  element and the only element carrying the blue, so it is where the eye lands.
+
+  Geometry is duplicated in src/components/Logo.tsx (inline, so it can inherit
+  currentColor) and in scripts/render/brand.mjs (rasterised, outside the
+  cascade). If one moves, all three move.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 48" width="58" height="48"
+     fill="none" role="img" aria-label="New AI Vision Labs">
+  <defs>
+    <linearGradient id="nai-sphere" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#1E6FFF"/>
+    </linearGradient>
+    <clipPath id="nai-baseline">
+      <rect x="0" y="0" width="58" height="38"/>
+    </clipPath>
+  </defs>
+  <g stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="butt" stroke-linejoin="miter"
+     clip-path="url(#nai-baseline)">
+    <!-- N — flat-cut corners, see note 2 -->
+    <path d="M8 38.01V15l13 23V15" stroke-miterlimit="1.4"/>
+    <!-- A — apex above the N's cap height, sharp -->
+    <path d="M21 38.01 31 10l10 28.01" stroke-miterlimit="5"/>
+    <path d="M23.9 30h14.2"/>
+    <!-- i — stem -->
+    <path d="M48 38.01V22"/>
+  </g>
+  <!-- i — tittle, as the sphere -->
+  <circle cx="48" cy="14" r="3.3" fill="url(#nai-sphere)"/>
+</svg>

@@ -23,7 +23,7 @@ const args = Object.fromEntries(
     return [k, v ?? true];
   }),
 );
-const URL = args.url ?? 'http://127.0.0.1:4173';
+const URL = args.url ?? 'http://127.0.0.1:4173/Claude-ai/';
 const VIEWPORTS = {
   desktop: { width: 1440, height: 900 },
   mobile: { width: 390, height: 844 },

@@ -1,979 +1,718 @@
 /* ==========================================================================
-   Section-level patterns shared across the page
+   Page-level patterns: page heads, approach, app grid, app detail, demo,
+   prose, steps, footer
    ========================================================================== */
 
-.section-head__index {
-  margin-bottom: var(--space-m);
+/* --- Page head ------------------------------------------------------------ */
+.pagehead {
+  padding-top: calc(var(--nav-h) + var(--space-2xl));
+  padding-bottom: var(--space-xl);
+  position: relative;
 }
 
-.section-head__title {
-  max-width: 20ch;
+.pagehead::after {
+  content: '';
+  position: absolute;
+  inset-inline: var(--gutter);
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  max-width: var(--container);
+  margin-inline: auto;
 }
 
-.section-head__lede {
-  padding-bottom: 0.4rem;
+.pagehead__label {
+  margin-bottom: var(--space-s);
 }
 
-/* --- Thesis -------------------------------------------------------------- */
-.thesis__body {
-  display: grid;
-  gap: var(--space-l);
+/* A breadcrumb is a standalone link, not inline text, so it needs a real
+   24px target box. */
+.pagehead__label a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+.pagehead__label a:hover {
+  color: var(--blue-lift);
+}
+
+.pagehead__title {
+  font-size: var(--step-5);
+  max-width: 18ch;
+}
+
+.pagehead__lede {
+  margin-top: var(--space-m);
+  color: var(--chrome);
+  font-size: var(--step-1);
   max-width: var(--measure);
 }
 
-.thesis__body p {
-  color: var(--grey-200);
-}
-
-.thesis__layout {
-  display: grid;
-  gap: var(--space-2xl);
-}
-
-.thesis__aside {
-  display: grid;
-  gap: var(--space-2xl);
-  align-self: start;
-}
-
-/* Grey, not phosphor: the accent in this viewport is already spent on the one
-   word in the headline. */
-.thesis__quote {
-  position: relative;
-  padding: 0 0 0 var(--space-l);
-  border-left: 1px solid var(--line-strong);
-}
-
-.thesis__quote blockquote {
-  font-size: var(--step-2);
-  font-variation-settings: 'wdth' 108;
-  font-weight: 440;
-  line-height: 1.25;
-  letter-spacing: -0.025em;
-  color: var(--porcelain);
-  text-wrap: balance;
-}
-
-.thesis__attribution {
+.pagehead__meta {
   margin-top: var(--space-m);
-  color: var(--grey-300);
-  text-wrap: balance;
 }
 
-/* --- Thesis: the cases ledger -------------------------------------------- */
-.thesis__cases-label {
-  padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--line);
-  color: var(--grey-300);
+.pagehead__updated {
+  font-size: var(--step--2);
+  color: var(--chrome-dim);
+  letter-spacing: 0.08em;
 }
 
-.thesis__cases ul {
+/* --- Approach ------------------------------------------------------------- */
+.approach {
   display: grid;
+  gap: var(--space-2xl);
+  grid-template-columns: 1fr;
 }
 
-.thesis__cases li {
+@media (min-width: 62rem) {
+  .approach {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-3xl);
+  }
+}
+
+.approach__body p {
+  color: var(--chrome);
+  font-size: var(--step-1);
+  max-width: var(--measure);
+}
+
+.approach__body p + p {
+  margin-top: var(--space-m);
+}
+
+.approach__points {
+  display: grid;
+  gap: var(--space-l);
+  align-content: start;
+}
+
+.approach__point {
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--line);
+}
+
+.approach__point-title {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 100, 'wght' 650;
+  margin-bottom: var(--space-2xs);
+}
+
+.approach__point-body {
+  color: var(--chrome);
+  font-size: var(--step-0);
+  max-width: 54ch;
+}
+
+/* --- App grid ------------------------------------------------------------- */
+.appgrid {
+  display: grid;
+  gap: var(--space-l);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+
+.appcard {
+  position: relative;
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  background: var(--black-100);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.appcard:hover,
+.appcard:focus-within {
+  border-color: var(--blue-a35);
+  box-shadow: var(--glow-soft);
+  transform: translateY(-2px);
+}
+
+.appcard__art {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--black-150);
+  border-bottom: 1px solid var(--line);
+}
+
+.appcard__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* No screenshot yet: an empty framed panel carrying the mark's peak. Honest
+   about being empty, rather than a stock device mockup standing in for a
+   product that does not exist yet. */
+.appcard__empty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 90% at 50% 120%, var(--blue-ink) 0%, transparent 62%),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 11px,
+      rgba(200, 205, 212, 0.028) 11px 12px
+    );
+}
+
+.appcard__empty-mark {
+  width: 34px;
+  height: 26px;
+  clip-path: polygon(50% 0, 100% 100%, 78% 100%, 50% 44%, 22% 100%, 0 100%);
+  background: var(--gradient-blue);
+  opacity: 0.5;
+}
+
+.appcard__art .pill {
+  position: absolute;
+  top: var(--space-s);
+  left: var(--space-s);
+  background: rgba(5, 5, 7, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.appcard__meta {
+  padding: var(--space-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.appcard__name {
+  font-size: var(--step-2);
+}
+
+/* Stretch the title's hit area across the whole card, without nesting a link
+   inside a link. */
+.appcard__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.appcard__link:hover {
+  color: var(--blue-lift);
+}
+
+.appcard__tagline {
+  color: var(--chrome);
+  font-size: var(--step--1);
+}
+
+.appcard__platforms {
+  margin-top: var(--space-2xs);
+  font-size: var(--step--2);
+  color: var(--chrome-dim);
+  letter-spacing: 0.1em;
+}
+
+/* --- App detail ------------------------------------------------------------ */
+.app {
+  display: grid;
+  gap: var(--space-2xl);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 58rem) {
+  .app {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: var(--space-3xl);
+  }
+}
+
+.app__para {
+  color: var(--chrome);
+  font-size: var(--step-1);
+  max-width: var(--measure);
+  margin-top: var(--space-m);
+}
+
+.app__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  align-content: start;
+  padding: var(--space-l);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--black-100);
+  height: fit-content;
+}
+
+.app__side-h {
+  margin-top: var(--space-m);
+}
+
+.app__note {
+  color: var(--chrome);
+  font-size: var(--step--1);
+}
+
+.app__badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.app__platforms {
+  font-size: var(--step--1);
+  color: var(--chrome);
+  letter-spacing: 0.08em;
+}
+
+.app__links {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.app__links a {
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+  color: var(--chrome);
+  font-size: var(--step--1);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+}
+
+.app__links a:hover {
+  color: var(--blue-lift);
+  text-decoration-color: currentColor;
+}
+
+.shots {
+  display: grid;
+  gap: var(--space-m);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.shots__item img {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+
+/* --- Demo ------------------------------------------------------------------ */
+.demo {
+  display: grid;
+  gap: var(--space-l);
+}
+
+.demo__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  background: var(--black-150);
+  box-shadow: var(--glow-soft);
+}
+
+.demo__iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.demo__placeholder {
+  display: grid;
+  place-content: center;
+  gap: var(--space-2xs);
+  text-align: center;
+  padding: var(--space-3xl) var(--space-l);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-l);
+  background: var(--black-100);
+}
+
+.demo__placeholder-title {
+  font-variation-settings: 'wdth' 100, 'wght' 700;
+  font-size: var(--step-1);
+}
+
+.demo__placeholder-body {
+  color: var(--chrome-dim);
+  font-size: var(--step--1);
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
+.demo__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.demo__note,
+.demo__error {
+  color: var(--chrome-dim);
+  font-size: var(--step--1);
+}
+
+.demo__controls {
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--line);
+}
+
+.controls {
+  margin-top: var(--space-s);
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: 26rem;
+}
+
+.controls__row {
+  display: flex;
   justify-content: space-between;
   gap: var(--space-m);
-  padding-block: 0.85rem;
+  padding-block: var(--space-3xs);
   border-bottom: 1px solid var(--line-weak);
 }
 
-.thesis__case {
-  color: var(--grey-200);
+.controls__keys {
+  color: var(--blue-lift);
   font-size: var(--step--1);
-  line-height: 1.35;
 }
 
-.thesis__case-env {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex: none;
-  min-height: 24px;
-  font-size: var(--step--2);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--grey-200);
-  transition: color var(--dur-base) var(--ease-out);
+.controls__action {
+  color: var(--chrome);
+  font-size: var(--step--1);
 }
 
-.thesis__case-env:hover {
-  color: var(--porcelain);
+/* --- Demo callout ---------------------------------------------------------- */
+.demo-callout__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-l);
+  padding: var(--space-xl);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(90% 140% at 100% 0%, var(--blue-ink) 0%, transparent 58%),
+    var(--black-100);
 }
 
-.thesis__case-code {
-  color: var(--grey-300);
+.demo-callout .head__title {
+  font-size: var(--step-3);
+  margin-top: var(--space-2xs);
 }
 
-.thesis__case-env:hover .thesis__case-code {
-  color: var(--phosphor);
+.demo-callout .head__lede {
+  font-size: var(--step-0);
+  margin-top: var(--space-2xs);
 }
 
-@media (min-width: 64rem) {
-  .thesis__layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+/* --- Mail card (support) --------------------------------------------------- */
+.mailcard {
+  padding: var(--space-xl);
+  border: 1px solid var(--blue-a35);
+  border-radius: var(--r-l);
+  background:
+    radial-gradient(80% 160% at 0% 0%, var(--blue-ink) 0%, transparent 60%),
+    var(--black-100);
+  box-shadow: var(--glow-soft);
+}
+
+.mailcard__label {
+  margin-bottom: var(--space-2xs);
+}
+
+/* Sized to fit the address on the narrowest supported screen without breaking
+   the word: an email address split across a line break ("…newaivisionla /
+   bs.com") is hard to read back and easy to mistype. */
+.mailcard__address {
+  display: inline-block;
+  font-size: clamp(1.1rem, 0.6rem + 2.6vw, 2.25rem);
+  font-variation-settings: var(--vf-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  overflow-wrap: normal;
+  background: var(--gradient-blue);
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Wins over the generic `.mailcard a` colour below, which would otherwise
+     paint the glyphs solid white and hide the gradient entirely. */
+  color: transparent !important;
+  text-decoration: none !important;
+}
+
+/* The gradient fill removes the underline cue, so hover restores one that is
+   drawn rather than inherited. */
+.mailcard__address:hover {
+  box-shadow: inset 0 -2px 0 0 var(--blue);
+}
+
+.mailcard__note {
+  margin-top: var(--space-m);
+  margin-bottom: 0;
+}
+
+/* --- Prose ----------------------------------------------------------------- */
+.prose__layout {
+  display: grid;
+  gap: var(--space-2xl);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 62rem) {
+  .prose__layout {
+    grid-template-columns: 15rem minmax(0, 1fr);
     gap: var(--space-3xl);
     align-items: start;
   }
 
-  .thesis__aside {
+  .toc {
     position: sticky;
-    top: calc(var(--nav-h) + var(--space-2xl));
+    top: calc(var(--nav-h) + var(--space-m));
   }
 }
 
-/* --- Capabilities -------------------------------------------------------- */
-.caps {
+.toc__label {
+  margin-bottom: var(--space-s);
+}
+
+.toc__list {
   display: grid;
-  gap: 1px;
-  background: var(--line-weak);
-  border-block: 1px solid var(--line-weak);
+  gap: var(--space-2xs);
+  counter-reset: toc;
 }
 
-.cap {
-  position: relative;
-  display: grid;
-  gap: var(--space-s);
-  padding: var(--space-xl) var(--space-m);
-  background: var(--ink-050);
-  transition: background-color var(--dur-slow) var(--ease-out);
-}
-
-.cap:hover {
-  background: var(--ink-100);
-}
-
-/* A channel legend on a panel, not a boxed monogram. A two-letter badge in a
-   rounded square is an avatar; the same two letters against a hairline that
-   runs to the column edge belong to the ruled grid the section is built on. */
-.cap__code {
+.toc__list a {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--grey-200);
-  transition: color var(--dur-slow) var(--ease-out);
+  min-height: 1.5rem;
+  color: var(--chrome-dim);
+  font-size: var(--step--1);
+  line-height: 1.4;
 }
 
-.cap__code::after {
-  content: '';
-  height: 1px;
-  flex: 1;
-  background: var(--line);
-  transition: background-color var(--dur-slow) var(--ease-out);
+.toc__list a:hover {
+  color: var(--blue-lift);
 }
 
-.cap:hover .cap__code {
-  color: var(--porcelain);
+.prose {
+  max-width: var(--measure);
+  color: var(--chrome);
 }
 
-.cap:hover .cap__code::after {
-  background: var(--line-strong);
+.prose p {
+  margin-block: var(--space-s);
 }
 
-/* Bottom-aligned in its subgrid track: a one-line title then sits against the
-   summary it introduces instead of leaving a hole between them. */
-.cap__title {
-  align-self: end;
+.prose__section {
+  margin-top: var(--space-xl);
+}
+
+.prose__h2 {
   font-size: var(--step-2);
-  font-variation-settings: 'wdth' 110;
-  font-weight: 470;
-  letter-spacing: -0.028em;
-  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: var(--space-2xs);
+  /* Anchored from the ToC; keep the heading clear of the fixed nav. */
+  scroll-margin-top: calc(var(--nav-h) + var(--space-m));
 }
 
-.cap__summary {
-  color: var(--grey-200);
-  font-size: var(--step--1);
-  line-height: 1.55;
-  text-wrap: pretty;
-}
-
-.cap__points {
+.prose__list {
   display: grid;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: var(--space-s);
-  border-top: 1px solid var(--line-weak);
+  gap: var(--space-2xs);
+  margin-block: var(--space-s);
+  padding-left: var(--space-m);
 }
 
-.cap__points li {
+.prose__list li {
   position: relative;
-  padding-left: 1.1rem;
-  font-size: var(--step--1);
-  color: var(--grey-300);
-  line-height: 1.45;
+  font-size: var(--step-0);
 }
 
-/* Twelve phosphor dashes in one viewport is a speckle, not a signal. The
-   markers are rules, and rules are grey. */
-.cap__points li::before {
+.prose__list li::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0.62em;
+  left: calc(var(--space-m) * -1);
+  top: 0.72em;
   width: 5px;
-  height: 1px;
-  background: var(--grey-400);
+  height: 5px;
+  border-radius: 50%;
+  background: var(--blue);
 }
 
-/* From two columns up, cards inherit the track set from .caps via subgrid so
-   the summary and points share a baseline however the titles wrap. Below that
-   there is a single column and nothing to align to. */
-@media (min-width: 44rem) {
-  .caps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, auto auto auto 1fr);
-  }
-
-  .cap {
-    grid-template-rows: subgrid;
-    grid-row: span 4;
-  }
+.prose a,
+.mailcard a {
+  color: var(--white);
+  text-decoration: underline;
+  text-decoration-color: var(--blue-a60);
+  text-underline-offset: 3px;
 }
 
-@media (min-width: 78rem) {
-  .caps {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: auto auto auto 1fr;
-  }
-
-  .cap {
-    padding: var(--space-xl) var(--space-m) var(--space-l);
-  }
+.prose a:hover {
+  color: var(--blue-lift);
 }
 
-/* --- Research ------------------------------------------------------------ */
-.research__list {
-  border-top: 1px solid var(--line-weak);
-}
-
-.research__item {
+/* --- Steps ----------------------------------------------------------------- */
+.steps {
   display: grid;
-  gap: var(--space-xs);
-  padding-block: var(--space-l);
-  border-bottom: 1px solid var(--line-weak);
-  transition: background-color var(--dur-slow) var(--ease-out);
+  gap: var(--space-m);
+  margin-block: var(--space-m);
 }
 
-.research__item:hover {
-  background: linear-gradient(90deg, var(--fill-weak), transparent 70%);
-}
-
-.research__meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.research__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--grey-300);
-}
-
-/* Three states, read off the dot rather than off the word. Colouring the
-   labels put four phosphor strings and one violet one in a single viewport —
-   a legend where the brief allows one signal. The dot is instrument state:
-   filled and live for active work, filled and dim for a preprint, hollow for
-   something barely started. Plasma is depth, not a status chip. */
-.research__status .dot {
-  background: var(--grey-500);
-  color: var(--grey-500);
-  animation: none;
-}
-
-.research__status[data-status='Active'] .dot {
-  background: var(--phosphor);
-  color: var(--phosphor);
-  animation: dot-pulse 2.8s var(--ease-in-out) infinite;
-}
-
-.research__status[data-status='Preprint'] .dot {
-  background: var(--grey-200);
-  color: var(--grey-200);
-}
-
-.research__status[data-status='Early'] .dot {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--grey-400);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .research__status[data-status='Active'] .dot {
-    animation: none;
-  }
-}
-
-.research__title {
-  font-size: var(--step-2);
-  font-variation-settings: 'wdth' 108;
-  font-weight: 460;
-  letter-spacing: -0.028em;
-  line-height: 1.15;
-  max-width: 24ch;
-}
-
-.research__abstract {
-  color: var(--grey-200);
-  font-size: var(--step--1);
-  line-height: 1.6;
-  max-width: 58ch;
-  text-wrap: pretty;
-}
-
-/* Classification line, hung under a hairline so it reads as filing metadata
-   rather than as a second paragraph of chips. */
-.research__tags {
-  display: flex;
-  gap: 0 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-  padding-top: 0.65rem;
-  border-top: 1px solid var(--line-weak);
-}
-
-.research__tags li + li::before {
-  content: '/';
-  margin-right: 0.75rem;
-  color: var(--grey-300);
-}
-
-.research__tags li {
-  display: flex;
-  align-items: center;
-}
-
-@media (min-width: 64rem) {
-  .research__item {
-    grid-template-columns: 6.5rem minmax(0, 1fr) minmax(0, 1.15fr);
-    gap: var(--space-l);
-    align-items: start;
-    padding-block: var(--space-l);
-  }
-
-  .research__meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-s);
-  }
-}
-
-/* --- Applications -------------------------------------------------------- */
-.apps {
+.steps__item {
   display: grid;
-  gap: 1px;
-  background: var(--line-weak);
-  border-block: 1px solid var(--line-weak);
-}
-
-.app {
-  position: relative;
-  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   gap: var(--space-s);
-  padding: var(--space-xl) var(--space-m);
-  background: var(--ink-050);
-  align-content: start;
-  transition: background-color var(--dur-slow) var(--ease-out);
-}
-
-.app:hover {
-  background: var(--ink-100);
-}
-
-.app__sector {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-/* Four ordinals in one viewport is four things asking to be looked at. They
-   are set by value instead, like the section indices. */
-.app__no {
-  color: var(--porcelain);
-}
-
-.app__claim {
-  align-self: end;
-  font-size: var(--step-1);
-  font-variation-settings: 'wdth' 108;
-  font-weight: 470;
-  letter-spacing: -0.024em;
-  line-height: 1.2;
-  color: var(--porcelain);
-  /* 22ch forced "Uncertainty a / clinician can act on"; the balancer needs
-     room to find the break itself. */
-  max-width: 26ch;
-}
-
-.app__detail {
-  color: var(--grey-300);
-  font-size: var(--step--1);
-  line-height: 1.55;
-  text-wrap: pretty;
-}
-
-@media (min-width: 44rem) {
-  .apps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, auto auto 1fr);
-  }
-
-  .app {
-    grid-template-rows: subgrid;
-    grid-row: span 3;
-  }
-}
-
-/* --- Lab ----------------------------------------------------------------- */
-.lab__layout {
-  display: grid;
-  gap: var(--space-2xl);
-}
-
-.lab__principles {
-  display: grid;
-  gap: 1px;
-  background: var(--line-weak);
-  border-block: 1px solid var(--line-weak);
-}
-
-.lab__principle {
-  position: relative;
-  display: grid;
-  gap: 0.5rem;
-  padding: var(--space-l) var(--space-m) var(--space-l) var(--space-l);
-  background: var(--ink-050);
-  transition: background-color var(--dur-slow) var(--ease-out);
-}
-
-/* The indent was hanging on nothing at rest — a 32px gutter with no marker in
-   it reads as a mistake. A permanent rail occupies it, and a phosphor tick
-   runs down that rail on hover. */
-.lab__principle::before,
-.lab__principle::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: var(--space-l);
-  bottom: var(--space-l);
-  width: 1px;
-}
-
-.lab__principle::before {
-  background: var(--line-strong);
-}
-
-.lab__principle::after {
-  background: var(--phosphor);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform var(--dur-slow) var(--ease-out);
-}
-
-.lab__principle:hover {
-  background: var(--ink-100);
-}
-
-.lab__principle:hover::after {
-  transform: scaleY(1);
-}
-
-.lab__principle h3 {
-  font-size: var(--step-1);
-  font-variation-settings: 'wdth' 106;
-  font-weight: 470;
-  letter-spacing: -0.02em;
-}
-
-.lab__principle p {
-  color: var(--grey-300);
-  font-size: var(--step--1);
-  line-height: 1.55;
-}
-
-.lab__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-l);
-  margin: 0;
-}
-
-.lab__stat {
-  display: grid;
-  gap: 0.5rem;
   padding-top: var(--space-s);
   border-top: 1px solid var(--line);
 }
 
-.lab__stat dt {
-  /* The longest label wraps at phone widths, and .label sets line-height 1 —
-     two lines of tracked mono then collide. */
-  line-height: 1.35;
+.steps__n {
+  color: var(--blue);
+  font-size: var(--step--1);
 }
 
-.lab__stat dd {
-  margin: 0;
-  font-size: var(--step-4);
-  font-variation-settings: 'wdth' 115;
-  font-weight: 440;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--porcelain);
-}
-
-@media (min-width: 64rem) {
-  .lab__layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: var(--space-3xl);
-    align-items: start;
-  }
-
-  /* A single column reads as a spec sheet and, more usefully, brings the
-     right-hand column down to roughly the height of the principles beside it.
-     As a 2×2 it stopped 140px short and left a hole under the section. The
-     block is ruled top and bottom like the principles, so both columns open
-     and close on the same two lines. */
-  .lab__stats {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    border-block: 1px solid var(--line-weak);
-  }
-
-  .lab__stat {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: var(--space-m);
-    padding-block: var(--space-m);
-    border-top: 1px solid var(--line-weak);
-  }
-
-  .lab__stat:first-child {
-    border-top: 0;
-  }
-
-  .lab__stat dt {
-    order: -1;
-  }
-
-  .lab__stat dd {
-    text-align: right;
-  }
-}
-
-/* --- Contact ------------------------------------------------------------- */
-.contact {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.contact__field {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-}
-
-.contact__field canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* The field is a ground, not a subject: held well back so the closing copy
-   stays the loudest thing in the section. */
-.contact__field-scrim {
-  position: absolute;
-  inset: 0;
-  /* One directional scrim, not two stacked ones — stacking multiplied the
-     opacities and buried the field the bookend depends on. Dark where the
-     copy sits, open where it does not. */
-  background:
-    linear-gradient(
-      180deg,
-      var(--ink-050) 0%,
-      rgba(8, 9, 11, 0.86) 18%,
-      rgba(8, 9, 11, 0.52) 52%,
-      rgba(8, 9, 11, 0.3) 100%
-    ),
-    linear-gradient(90deg, rgba(8, 9, 11, 0.72) 0%, rgba(8, 9, 11, 0.28) 60%, transparent 100%);
-}
-
-/* The closing row is ruled off like every other block on the page, so it
-   reads as the last line of the argument rather than as a CTA banner bolted
-   to the bottom. */
-.contact__close {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-m);
-  margin-top: var(--space-3xl);
-  padding-top: var(--space-l);
-  border-top: 1px solid var(--line-weak);
-}
-
-.contact__close-line {
-  color: var(--grey-200);
-  font-size: var(--step-0);
-  max-width: 38ch;
-  line-height: 1.45;
-  text-wrap: balance;
-}
-
-.contact__headline {
-  max-width: 20ch;
-}
-
-.contact__channels {
-  display: grid;
-  gap: 1px;
-  margin-top: var(--space-2xl);
-  background: var(--line-weak);
-  border-block: 1px solid var(--line-weak);
-}
-
-/* The address is pinned to the bottom of the cell so all three sit on one
-   line however the descriptions wrap. */
-.channel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-l) var(--space-m) var(--space-l) 0;
-  background: var(--ink-050);
-}
-
-.channel__kind {
+.steps__title {
+  color: var(--white);
   font-size: var(--step-1);
-  font-variation-settings: 'wdth' 108;
-  font-weight: 470;
-  letter-spacing: -0.02em;
-  color: var(--porcelain);
+  font-variation-settings: 'wdth' 100, 'wght' 650;
+  margin-bottom: var(--space-3xs);
 }
 
-.channel__detail {
-  color: var(--grey-300);
+/* --- Reviews (rendered only when real ones exist) --------------------------- */
+.reviews {
+  display: grid;
+  gap: var(--space-l);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  margin-top: var(--space-xl);
+}
+
+.review {
+  padding: var(--space-l);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--black-100);
+}
+
+.review__quote {
+  font-size: var(--step-1);
+}
+
+.review__by {
+  margin-top: var(--space-m);
+  display: flex;
+  gap: var(--space-2xs);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.review__author {
+  color: var(--chrome);
   font-size: var(--step--1);
-  line-height: 1.5;
-  max-width: 32ch;
-  text-wrap: pretty;
 }
 
-.channel__action {
-  align-self: flex-start;
-  min-height: 24px;
-  margin-top: auto;
-  padding-top: 0.9rem;
-  font-family: var(--font-mono);
-  font-size: var(--step--1);
-  word-break: break-word;
+.review__source {
+  color: var(--chrome-dim);
+  font-size: var(--step--2);
 }
 
-@media (min-width: 56rem) {
-  .contact__channels {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .channel {
-    padding: var(--space-xl) var(--space-m);
-  }
-}
-
-/* --- Footer -------------------------------------------------------------- */
+/* --- Footer ----------------------------------------------------------------- */
 .footer {
-  border-top: 1px solid var(--line-weak);
-  padding-block: var(--space-2xl) var(--space-l);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-l);
+  margin-top: var(--space-2xl);
 }
 
-.footer__top {
+.footer__inner {
   display: grid;
   gap: var(--space-2xl);
+  grid-template-columns: 1fr;
 }
 
-.footer__brand {
-  display: grid;
-  gap: var(--space-s);
-  align-content: start;
+@media (min-width: 52rem) {
+  .footer__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  }
 }
 
 .footer__blurb {
-  color: var(--grey-300);
+  margin-top: var(--space-s);
+  color: var(--chrome);
   font-size: var(--step--1);
   max-width: 34ch;
-  line-height: 1.55;
+}
+
+/* WCAG 2.2 target size: a link in a list is not covered by the inline-text
+   exception, so every one of these gets a 24px-tall target box. */
+.footer__email {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  margin-top: var(--space-s);
+  color: var(--chrome);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+}
+
+.footer__email:hover {
+  color: var(--blue-lift);
 }
 
 .footer__cols {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-l);
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
 }
 
-.footer__col h3 {
+.footer__col-title {
   margin-bottom: var(--space-s);
 }
 
-.footer__col ul {
+.footer__list {
   display: grid;
-  gap: 0.25rem;
+  gap: var(--space-2xs);
 }
 
-.footer__col a {
-  /* Inline-flex with a floor height so each link clears the 24px minimum
-     target without opening up the list's rhythm. */
-  display: inline-flex;
+.footer__list a {
+  display: flex;
   align-items: center;
-  min-height: 24px;
+  min-height: 1.5rem;
+  color: var(--chrome);
   font-size: var(--step--1);
-  color: var(--grey-200);
-  transition: color var(--dur-base) var(--ease-out);
 }
 
-.footer__col a:hover {
-  color: var(--phosphor);
+.footer__list a:hover {
+  color: var(--blue-lift);
 }
 
-.footer__bottom {
+.footer__base {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-s);
+  justify-content: space-between;
   margin-top: var(--space-2xl);
   padding-top: var(--space-m);
   border-top: 1px solid var(--line-weak);
 }
 
-@media (min-width: 56rem) {
-  .footer__top {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  }
-
-  .footer__cols {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2xl);
-  }
-}
-
-/* ==========================================================================
-   Mobile: one left edge
-   --------------------------------------------------------------------------
-   The ruled grids carry horizontal padding so their cells breathe on wide
-   viewports. At phone widths that padding puts card content 24px inside the
-   container while every section headline sits flush to it — two left edges on
-   the same screen. Below the two-column breakpoint the cells go flush and the
-   rules do the separating on their own.
-   ========================================================================== */
-@media (max-width: 43.99rem) {
-  .cap,
-  .app,
-  .channel {
-    padding-inline: 0;
-  }
-
-  .lab__principle {
-    padding-left: var(--space-s);
-  }
-
-  /* Match the hero: on a phone a primary action spans the column. */
-  .contact__close .btn {
-    width: 100%;
-  }
-
-  .cap,
-  .app {
-    padding-block: var(--space-l);
-  }
-}
-
-/* --- Lab: open roles ----------------------------------------------------- */
-/* The section's human element. Built from the same ruled-grid parts as the
-   rest of the page so it reads as another instrument panel, not a careers
-   widget bolted on the end. */
-.lab__roles {
-  margin-top: var(--space-2xl);
-}
-
-.lab__roles-head {
-  display: grid;
-  gap: var(--space-xs);
-  padding-bottom: var(--space-m);
-  border-bottom: 1px solid var(--line);
-}
-
-.lab__roles-note {
-  color: var(--grey-200);
-  font-size: var(--step--1);
-  line-height: 1.55;
-  max-width: 60ch;
-  text-wrap: pretty;
-}
-
-.lab__roles ul {
-  display: grid;
-  gap: 1px;
-  background: var(--line-weak);
-}
-
-.lab__role {
-  display: grid;
-  gap: 0.4rem;
-  padding: var(--space-m) 0;
-  background: var(--ink-050);
-  transition: background-color var(--dur-slow) var(--ease-out);
-}
-
-.lab__role:hover {
-  background: var(--ink-100);
-}
-
-.lab__role-code {
+.footer__copy,
+.footer__domain {
+  /* --chrome-faint is 3.21:1 on the page and is a non-text token. Even the
+     smallest legal line is still text and still needs 4.5:1. */
+  color: var(--chrome-dim);
   font-size: var(--step--2);
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--grey-300);
-}
-
-.lab__role-title {
-  font-size: var(--step-1);
-  font-variation-settings: 'wdth' 106;
-  font-weight: 470;
-  letter-spacing: -0.022em;
-  line-height: 1.1;
-}
-
-.lab__role-note {
-  color: var(--grey-300);
-  font-size: var(--step--1);
-  line-height: 1.5;
-  max-width: 46ch;
-  text-wrap: pretty;
-}
-
-@media (min-width: 48rem) {
-  .lab__roles-head {
-    grid-template-columns: 10rem minmax(0, 1fr);
-    align-items: baseline;
-    gap: var(--space-l);
-  }
-
-  .lab__role {
-    grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 1.1fr);
-    align-items: baseline;
-    gap: var(--space-l);
-    padding: var(--space-l) 0;
-  }
-
-  .lab__role-code {
-    padding-top: 0.15rem;
-  }
-}
-
-/* --- The capability loop ------------------------------------------------- */
-/* Full-bleed: the only place the container is deliberately broken. The four
-   columns above are parts of this loop, so it is drawn wider than they are,
-   and the break is what stops four ruled grids in sequence from reading as
-   one undifferentiated rhythm. */
-.loop {
-  margin-inline: calc(50% - 50vw);
-  margin-top: var(--space-3xl);
-  padding-inline: var(--gutter);
-}
-
-.loop__label {
-  margin-bottom: var(--space-m);
-  color: var(--grey-300);
-}
-
-.loop__rail {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  background: var(--line-weak);
-  border-top: 1px solid var(--line);
-}
-
-.loop__station {
-  position: relative;
-  display: grid;
-  gap: 0.4rem;
-  padding: var(--space-m) var(--space-s) var(--space-m) 0;
-  background: var(--ink-050);
-}
-
-/* The tick is the station on the rail. It sits on the top border, not inside
-   the cell, so the rail reads as one continuous track. */
-.loop__tick {
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 10px;
-  height: 3px;
-  background: var(--porcelain);
-}
-
-.loop__code {
-  font-size: var(--step--2);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--grey-200);
-}
-
-.loop__hands {
-  font-size: var(--step--1);
-  color: var(--porcelain);
-  line-height: 1.35;
-  text-wrap: pretty;
-}
-
-/* The return leg. A single hairline running back under the whole rail with an
-   arrowhead at the left end — the loop closing, stated once. */
-.loop__return {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: var(--space-s);
-  padding-top: var(--space-s);
-  border-top: 1px solid var(--line-weak);
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--grey-300);
-  line-height: 1.4;
-}
-
-.loop__return-arrow {
-  flex: none;
-  width: 0;
-  height: 0;
-  border-block: 4px solid transparent;
-  border-right: 6px solid var(--grey-300);
-}
-
-@media (min-width: 48rem) {
-  .loop__rail {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .loop__station {
-    padding-inline: var(--space-m) var(--space-l);
-  }
-
-  .loop__station:first-child {
-    padding-left: 0;
-  }
+  letter-spacing: 0.08em;
 }

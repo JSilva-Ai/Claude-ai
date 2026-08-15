@@ -1,11 +1,15 @@
 /**
  * Visual QA harness.
  *
- *   node scripts/shoot.mjs [--url=http://127.0.0.1:4173] [--vp=desktop,mobile]
- *                          [--full] [--sections] [--motion]
+ *   node scripts/shoot.mjs [--url=http://127.0.0.1:4173/Claude-ai/]
+ *                          [--vp=desktop,mobile] [--routes=,apps/] [--full]
  *
- * Writes PNGs to .qa/ and reports any console errors, which is the cheapest
- * way to catch a broken render before looking at a single pixel.
+ * Walks every route, writes PNGs to .qa/, and fails on console errors, failed
+ * requests, broken images, or horizontal overflow.
+ *
+ * The site is multi-page, so this navigates between real documents rather than
+ * scrolling one. That also means each route gets its own console-error budget:
+ * an error on /privacy is not masked by a clean home page.
  */
 
 import { mkdirSync, rmSync } from 'node:fs';
@@ -18,7 +22,7 @@ const args = Object.fromEntries(
   }),
 );
 
-const URL = args.url ?? 'http://127.0.0.1:4173';
+const URL = args.url ?? 'http://127.0.0.1:4173/Claude-ai/';
 const OUT = '.qa';
 
 const VIEWPORTS = {
@@ -30,9 +34,24 @@ const VIEWPORTS = {
   small: { width: 320, height: 640, dsf: 2 },
 };
 
+/** Route → filename stem. Keep in step with public/sitemap.xml. */
+const ROUTES = [
+  ['', 'home'],
+  ['apps/', 'apps'],
+  ['apps/void-striker/', 'app'],
+  ['demo/', 'demo'],
+  ['support/', 'support'],
+  ['privacy/', 'privacy'],
+  ['terms/', 'terms'],
+  ['data-deletion/', 'data-deletion'],
+];
+
 const wanted = (args.vp ? String(args.vp).split(',') : ['desktop', 'mobile']).filter(
   (v) => v in VIEWPORTS,
 );
+const routes = args.routes
+  ? ROUTES.filter(([r]) => String(args.routes).split(',').includes(r))
+  : ROUTES;
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -45,111 +64,89 @@ const problems = [];
 
 for (const name of wanted) {
   const vp = VIEWPORTS[name];
-  const context = await browser.newContext({
-    viewport: { width: vp.width, height: vp.height },
-    deviceScaleFactor: vp.dsf,
-    isMobile: name === 'mobile' || name === 'small',
-    hasTouch: name === 'mobile' || name === 'small' || name === 'tablet',
-    reducedMotion: args.motion === 'reduce' ? 'reduce' : 'no-preference',
-  });
-  const page = await context.newPage();
-  page.on('console', (m) => {
-    if (m.type() === 'error') problems.push(`[${name}] console: ${m.text()}`);
-  });
-  page.on('pageerror', (e) => problems.push(`[${name}] pageerror: ${e.message}`));
-  page.on('requestfailed', (r) => {
-    // A cancelled media fetch is teardown, not a broken asset. The lead
-    // monitors auto-play, so closing the context aborts whatever clip is
-    // still buffering — and the narrow viewports, shot last, race it most
-    // often. A genuinely missing clip still surfaces: as a 404 poster in the
-    // broken-image check, or as a NaN duration in video-check.mjs.
-    if (r.resourceType() === 'media' && r.failure()?.errorText === 'net::ERR_ABORTED') return;
-    problems.push(`[${name}] request failed: ${r.url()} — ${r.failure()?.errorText}`);
-  });
 
-  await page.goto(URL, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(2200); // let the hero choreography resolve
-
-  await page.screenshot({ path: `${OUT}/${name}-hero.png` });
-
-  if (args.full) {
-    // Scroll through so every reveal has fired before the full-page shot.
-    await page.evaluate(async () => {
-      // Small steps on purpose. IntersectionObserver samples at frame
-      // boundaries and coalesces, so a viewport-sized jump can carry an
-      // element past the root between two samples and its reveal never fires.
-      for (let y = 0; y < document.body.scrollHeight; y += 300) {
-        window.scrollTo({ top: y, behavior: 'instant' });
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 55)));
-      }
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      await new Promise((r) => setTimeout(r, 400));
+  for (const [route, stem] of routes) {
+    const context = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      deviceScaleFactor: vp.dsf,
+      isMobile: name === 'mobile' || name === 'small',
+      hasTouch: name === 'mobile' || name === 'small' || name === 'tablet',
+      reducedMotion: args.motion === 'reduce' ? 'reduce' : 'no-preference',
     });
-    await page.waitForTimeout(700);
-    // Chromium stitches full-page shots by scrolling, which smears any
-    // position:fixed layer down the capture. Pin them for the shot only.
-    await page.addStyleTag({
-      content: '.grain{display:none!important}.nav{position:absolute!important}',
-    });
-    await page.screenshot({ path: `${OUT}/${name}-full.png`, fullPage: true });
-  }
+    const page = await context.newPage();
+    const tag = `${stem}/${name}`;
 
-  if (args.sections) {
-    // Reveals are scroll-triggered; without a pass down the page the lower
-    // items in a section are still at opacity 0 when it is captured.
-    await page.evaluate(async () => {
-      for (let y = 0; y < document.body.scrollHeight; y += 300) {
-        window.scrollTo({ top: y, behavior: 'instant' });
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 55)));
-      }
+    page.on('console', (m) => {
+      if (m.type() === 'error') problems.push(`[${tag}] console: ${m.text()}`);
     });
-    const ids = ['thesis', 'capabilities', 'proving-grounds', 'research', 'applications', 'lab', 'contact'];
-    for (const id of ids) {
-      const el = await page.$(`#${id}`);
-      if (!el) {
-        problems.push(`[${name}] missing section #${id}`);
-        continue;
-      }
-      await el.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(900);
-      await el.screenshot({ path: `${OUT}/${name}-${id}.png` });
+    page.on('pageerror', (e) => problems.push(`[${tag}] pageerror: ${e.message}`));
+    page.on('requestfailed', (r) => {
+      // A cancelled fetch during teardown is not a broken asset. Closing the
+      // context aborts whatever is still in flight, and the narrow viewports,
+      // shot last, race it most often. A genuinely missing file still surfaces
+      // as a broken image below or as a non-200 in the route check.
+      if (r.failure()?.errorText === 'net::ERR_ABORTED') return;
+      problems.push(`[${tag}] request failed: ${r.url()} — ${r.failure()?.errorText}`);
+    });
+
+    const res = await page.goto(URL + route, { waitUntil: 'networkidle' });
+    if (!res || res.status() !== 200) {
+      problems.push(`[${tag}] HTTP ${res ? res.status() : 'no response'} for /${route}`);
     }
-  }
+    await page.waitForTimeout(route === '' ? 1800 : 700);
 
-  // Broken images do not 404 behind an SPA fallback — the server happily
-  // returns index.html with a 200. Decode state is the only honest signal.
-  const brokenImages = await page.evaluate(() =>
-    [...document.querySelectorAll('img')]
-      .filter((img) => img.complete && img.naturalWidth === 0)
-      .map((img) => img.getAttribute('src')),
-  );
-  for (const src of brokenImages) problems.push(`[${name}] broken image: ${src}`);
-
-  // Horizontal overflow is the single most common responsive defect.
-  const overflow = await page.evaluate(() => {
-    const docWidth = document.documentElement.clientWidth;
-    if (document.documentElement.scrollWidth <= docWidth + 1) return null;
-    const offenders = [];
-    for (const el of document.querySelectorAll('*')) {
-      const r = el.getBoundingClientRect();
-      if (r.right > docWidth + 1 || r.left < -1) {
-        offenders.push(
-          `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 40)} → ${Math.round(r.left)}..${Math.round(r.right)}`,
-        );
-      }
-      if (offenders.length > 6) break;
+    if (args.full) {
+      // Scroll through so every reveal has fired. Small steps on purpose:
+      // IntersectionObserver samples at frame boundaries and coalesces, so a
+      // viewport-sized jump can carry an element past the root between two
+      // samples and its reveal never fires.
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 300) {
+          window.scrollTo({ top: y, behavior: 'instant' });
+          await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 45)));
+        }
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        await new Promise((r) => setTimeout(r, 300));
+      });
+      await page.waitForTimeout(500);
     }
-    return { scrollWidth: document.documentElement.scrollWidth, docWidth, offenders };
-  });
-  if (overflow) {
-    problems.push(
-      `[${name}] HORIZONTAL OVERFLOW ${overflow.scrollWidth} > ${overflow.docWidth}\n    ` +
-        overflow.offenders.join('\n    '),
+
+    await page.screenshot({ path: `${OUT}/${stem}-${name}.png` });
+
+    // Broken images do not 404 behind a static host's directory handling —
+    // decode state is the only honest signal.
+    const broken = await page.evaluate(() =>
+      [...document.querySelectorAll('img')]
+        .filter((img) => img.complete && img.naturalWidth === 0)
+        .map((img) => img.getAttribute('src')),
     );
-  }
+    for (const src of broken) problems.push(`[${tag}] broken image: ${src}`);
 
-  await context.close();
-  console.log(`  shot ${name}`);
+    const overflow = await page.evaluate(() => {
+      const docWidth = document.documentElement.clientWidth;
+      if (document.documentElement.scrollWidth <= docWidth + 1) return null;
+      const offenders = [];
+      for (const el of document.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect();
+        if (r.right > docWidth + 1 || r.left < -1) {
+          offenders.push(
+            `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 40)} → ${Math.round(r.left)}..${Math.round(r.right)}`,
+          );
+        }
+        if (offenders.length > 6) break;
+      }
+      return { scrollWidth: document.documentElement.scrollWidth, docWidth, offenders };
+    });
+    if (overflow) {
+      problems.push(
+        `[${tag}] HORIZONTAL OVERFLOW ${overflow.scrollWidth} > ${overflow.docWidth}\n    ` +
+          overflow.offenders.join('\n    '),
+      );
+    }
+
+    await context.close();
+  }
+  console.log(`  shot ${name} — ${routes.length} routes`);
 }
 
 await browser.close();
@@ -159,5 +156,5 @@ if (problems.length) {
   for (const p of problems) console.log('  ' + p);
   process.exitCode = 1;
 } else {
-  console.log('\nNo console errors, failed requests, or horizontal overflow.');
+  console.log('\nNo console errors, failed requests, broken images, or horizontal overflow.');
 }

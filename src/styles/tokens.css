@@ -1,50 +1,67 @@
 /* ==========================================================================
    New AI Vision Labs — Design tokens
-   Phosphor on ink. One accent per viewport.
+   An independent app studio. Electric blue on deep black; chrome for the
+   second voice. The blue is a signal, not a wash: it marks the one thing on
+   a screen that is being offered, and everything else stays achromatic.
    ========================================================================== */
 
 :root {
-  /* --- Ground ----------------------------------------------------------- */
-  --ink-000: #050609;
-  --ink-050: #08090b;
-  --ink-100: #0c0e12;
-  --ink-150: #111318;
-  --ink-200: #16191f;
-  --ink-300: #1d2128;
-  --ink-400: #272c35;
+  /* --- Ground -----------------------------------------------------------
+     --black-000 is the page. The rest are surfaces that sit on it; each step
+     is small on purpose, because on an OLED phone a large step reads as a
+     visible plate rather than as depth. */
+  --black-000: #050507;
+  --black-050: #08080b;
+  --black-100: #0c0d11;
+  --black-150: #101218;
+  --black-200: #15171e;
+  --black-300: #1c1f28;
+  --black-400: #262a35;
 
-  /* --- Type ------------------------------------------------------------- */
-  --porcelain: #edeef0;
-  --grey-100: #c7cad0;
-  --grey-200: #9aa0aa;
-  --grey-300: #7c828c;
-  /* grey-400 and below sit under 4.5:1 on ink and are therefore reserved for
-     non-text use — rules, dots, disabled marks. Text stops at grey-300. */
-  --grey-400: #4c525b;
-  --grey-500: #343941;
+  /* --- Type -------------------------------------------------------------
+     Body copy is pure white. --chrome is the silver second voice; --chrome-dim
+     is the smallest type that is still allowed to carry meaning (6.3:1 on the
+     page). Everything below it is non-text: rules, dots, disabled marks. */
+  --white: #ffffff;
+  --chrome: #c8cdd4;
+  --chrome-dim: #8a9099;
+  --chrome-faint: #5a606a;
+  --chrome-ghost: #33373f;
 
-  /* --- Signal ----------------------------------------------------------- */
-  --phosphor: #d4f85c;
-  --phosphor-dim: #a8c73f;
-  --phosphor-deep: #38431a;
-  --plasma: #7b5cff;
-  --plasma-dim: #5a43bd;
-  --ember: #ff5a3d;
+  /* --- Signal -----------------------------------------------------------
+     One primary. The gradient runs --blue → --blue-deep, which is the logo's
+     own transition, so every gradient on the site is the mark's gradient. */
+  --blue: #0a84ff;
+  --blue-deep: #1e6fff;
+  --blue-lift: #4da2ff; /* hover — lighter, so a hover reads as "nearer" */
+  --blue-shade: #0b3a7a;
+  --blue-ink: #071c38;
+  --gradient-blue: linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 100%);
 
-  /* --- Alpha surfaces --------------------------------------------------- */
-  --line-weak: rgba(237, 238, 240, 0.06);
-  --line: rgba(237, 238, 240, 0.1);
-  --line-strong: rgba(237, 238, 240, 0.18);
-  --fill-weak: rgba(237, 238, 240, 0.02);
-  --fill: rgba(237, 238, 240, 0.04);
-  --fill-strong: rgba(237, 238, 240, 0.07);
-  --phosphor-a10: rgba(212, 248, 92, 0.1);
-  --phosphor-a20: rgba(212, 248, 92, 0.2);
-  --phosphor-a40: rgba(212, 248, 92, 0.4);
+  /* --- Alpha surfaces ---------------------------------------------------- */
+  --line-weak: rgba(200, 205, 212, 0.07);
+  --line: rgba(200, 205, 212, 0.12);
+  --line-strong: rgba(200, 205, 212, 0.2);
+  --fill-weak: rgba(200, 205, 212, 0.025);
+  --fill: rgba(200, 205, 212, 0.045);
+  --fill-strong: rgba(200, 205, 212, 0.08);
+  --blue-a10: rgba(10, 132, 255, 0.1);
+  --blue-a20: rgba(10, 132, 255, 0.2);
+  --blue-a35: rgba(10, 132, 255, 0.35);
+  --blue-a60: rgba(10, 132, 255, 0.6);
 
-  /* --- Type families ---------------------------------------------------- */
+  /* --- Type families ----------------------------------------------------
+     Archivo carries a real width axis (62–125), which is what makes the
+     headings heavy and condensed without shipping a second family for it.
+     Condensing is done on the axis, never by transform — a scaled letterform
+     thins its horizontals and stops looking drawn. */
   --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
+
+  /* Display: heavy and condensed. Body: regular, normal width. */
+  --vf-display: 'wdth' 76, 'wght' 800;
+  --vf-display-tight: 'wdth' 70, 'wght' 850;
+  --vf-body: 'wdth' 100, 'wght' 400;
 
   /* --- Fluid type scale (clamped, 360 → 1600 viewport) ------------------ */
   --step--2: clamp(0.688rem, 0.66rem + 0.12vw, 0.75rem);
@@ -55,7 +72,7 @@
   --step-3: clamp(1.75rem, 1.5rem + 1.1vw, 2.563rem);
   --step-4: clamp(2.125rem, 1.71rem + 1.85vw, 3.5rem);
   --step-5: clamp(2.625rem, 1.9rem + 3.2vw, 5rem);
-  --step-6: clamp(3rem, 1.7rem + 5.8vw, 7.25rem);
+  --step-6: clamp(3.25rem, 1.9rem + 6vw, 7.5rem);
 
   /* --- Spacing scale ---------------------------------------------------- */
   --space-3xs: 0.25rem;
@@ -68,36 +85,39 @@
   --space-2xl: 4rem;
   --space-3xl: 6rem;
   --space-4xl: 8rem;
-  --section-y: clamp(5rem, 3.2rem + 8vw, 9.5rem);
+  --section-y: clamp(4.5rem, 3rem + 7vw, 8.5rem);
 
-  /* --- Layout ----------------------------------------------------------- */
+  /* --- Layout ------------------------------------------------------------ */
   --gutter: clamp(1.25rem, 0.9rem + 1.8vw, 2.75rem);
   --measure: 62ch;
-  /* One container width for the whole page. The nav previously sat in a wider
-     one, so the logo and the headline below it did not share a left edge —
-     visible as soon as the viewport outgrows the cap. */
-  --container: 84rem;
-  --container-text: 46rem;
+  --container: 78rem;
+  --container-text: 42rem;
   --nav-h: 4.25rem;
 
-  /* --- Radii ------------------------------------------------------------ */
-  --r-xs: 2px;
-  --r-s: 4px;
-  --r-m: 8px;
-  --r-l: 14px;
-  --r-xl: 22px;
+  /* --- Radii -------------------------------------------------------------
+     Slightly softer than the old lab language: this site's subject is phone
+     software, and a card that holds a screenshot should echo the device. */
+  --r-xs: 3px;
+  --r-s: 6px;
+  --r-m: 10px;
+  --r-l: 16px;
+  --r-xl: 24px;
   --r-full: 999px;
 
-  /* --- Elevation & glow -------------------------------------------------- */
-  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-m: 0 8px 24px -8px rgba(0, 0, 0, 0.65);
-  --shadow-l: 0 32px 64px -24px rgba(0, 0, 0, 0.8);
-  --glow-phosphor: 0 0 0 1px var(--phosphor-a20), 0 0 32px -8px rgba(212, 248, 92, 0.35);
+  /* --- Elevation & glow --------------------------------------------------
+     The glow is the brand's one decorative move. It is always blue, always on
+     an edge, and never behind body text. */
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-m: 0 8px 24px -8px rgba(0, 0, 0, 0.7);
+  --shadow-l: 0 32px 64px -24px rgba(0, 0, 0, 0.85);
+  --glow-edge: 0 0 0 1px var(--blue-a35);
+  --glow-soft: 0 0 24px -6px var(--blue-a35);
+  --glow-blue: var(--glow-edge), var(--glow-soft);
+  --glow-strong: 0 0 0 1px var(--blue-a60), 0 0 40px -8px rgba(10, 132, 255, 0.5);
 
   /* --- Motion ------------------------------------------------------------ */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-linear: linear;
   --dur-fast: 160ms;
   --dur-base: 320ms;
   --dur-slow: 620ms;
@@ -110,8 +130,8 @@
   --z-overlay: 200;
 }
 
-/* Reduced motion collapses all durations. Layout is unaffected — the site is
-   designed to be complete when static. */
+/* Reduced motion collapses all durations. Layout is unaffected — every page
+   is designed to be complete when static. */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-fast: 1ms;

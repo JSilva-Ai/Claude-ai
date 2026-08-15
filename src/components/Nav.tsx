@@ -1,107 +1,119 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Logo } from './Logo';
-import { useActiveSection, useMediaQuery, useScrollY } from '../lib/hooks';
-import { nav, ui } from '../content/site';
+import { useEffect, useRef, useState } from 'react';
+import { Lockup } from './Logo';
+import { nav, routes, ui } from '../content/site';
+import { isCurrent, url } from '../lib/url';
+import { useMediaQuery, useScrollY } from '../lib/hooks';
 import './nav.css';
 
+/**
+ * Site navigation.
+ *
+ * This is a multi-page site, not a single page with anchors, so "active" is a
+ * question about the current URL rather than about scroll position. That also
+ * means the links are ordinary hrefs and a middle-click or a right-click →
+ * open in new tab behaves the way a visitor expects.
+ */
 export function Nav() {
-  const scrollY = useScrollY();
   const [open, setOpen] = useState(false);
-  const ids = useMemo(() => nav.map((n) => n.id), []);
-  const active = useActiveSection(ids);
-  // The lockup is proportional to its mark, so one number sets the whole thing.
-  const compact = useMediaQuery('(max-width: 30rem)');
-  const condensed = scrollY > 24;
+  const compact = useMediaQuery('(max-width: 46rem)');
+  const scrolled = useScrollY() > 12;
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Lock the page behind the mobile sheet, and let Escape close it.
+  // Close on Escape, and hand focus back to the control that opened the sheet
+  // — otherwise focus is left on a node that no longer exists and the next Tab
+  // starts from the top of the document.
   useEffect(() => {
-    document.body.dataset.scrollLocked = String(open);
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  // Close the sheet if the viewport grows past the breakpoint while it is open.
+  // The sheet covers the page; letting the body scroll behind it means the
+  // page moves under a menu that is not moving.
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 64rem)');
-    const on = () => mq.matches && setOpen(false);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // A resize past the breakpoint leaves the sheet mounted but its trigger gone.
+  useEffect(() => {
+    if (!compact) setOpen(false);
+  }, [compact]);
+
+  const links = nav.map((item) => (
+    <a
+      key={item.route}
+      className="nav__link"
+      href={url(item.route)}
+      aria-current={isCurrent(item.route) ? 'page' : undefined}
+      onClick={() => setOpen(false)}
+    >
+      {item.label}
+    </a>
+  ));
 
   return (
-    <>
-      <a className="skip-link" href="#main">
+    <header className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
+      <a className="skip" href="#main">
         {ui.skipToContent}
       </a>
 
-      <nav className="nav" data-condensed={condensed} aria-label="Primary">
-        <div className="container nav__inner">
-          <a className="nav__logo" href="#top" aria-label="New AI Vision Labs — home">
-            <Logo size={compact ? 21 : 26} live />
+      <div className="container nav__inner">
+        <a className="nav__brand" href={url(routes.home)} aria-label={`${'New AI Vision Labs'} — home`}>
+          <Lockup />
+        </a>
+
+        {!compact && <nav className="nav__links" aria-label="Primary">{links}</nav>}
+
+        {compact ? (
+          <button
+            ref={toggleRef}
+            type="button"
+            className="nav__toggle"
+            aria-expanded={open}
+            aria-controls="nav-sheet"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="nav__toggle-bars" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+            {open ? ui.close : ui.menu}
+          </button>
+        ) : (
+          <a className="btn btn--sm" href={`mailto:office@newaivisionlabs.com`}>
+            {ui.emailUs}
           </a>
-
-          <ul className="nav__links">
-            {nav.map((item) => (
-              <li key={item.id}>
-                <a
-                  className="nav__link"
-                  href={`#${item.id}`}
-                  data-active={active === item.id}
-                  aria-current={active === item.id ? 'true' : undefined}
-                >
-                  <span className="nav__link-text">{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <div className="nav__actions">
-            <a className="btn btn--ghost btn--sm nav__cta" href="#contact">
-              <span className="btn__label">{ui.navContact}</span>
-            </a>
-            <button
-              className="nav__toggle"
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="nav-sheet"
-            >
-              <span className="visually-hidden">{open ? 'Close menu' : 'Open menu'}</span>
-              <span className="nav__toggle-bars" data-open={open} aria-hidden="true">
-                <span />
-                <span />
-              </span>
-            </button>
-          </div>
-        </div>
-        <div className="nav__rule" aria-hidden="true" />
-      </nav>
-
-      {/* Mobile sheet. Rendered always so it can transition, hidden from AT
-          and from tab order when closed. */}
-      <div className="sheet" id="nav-sheet" data-open={open} inert={!open || undefined}>
-        <ul className="sheet__links">
-          {nav.map((item, i) => (
-            <li key={item.id} style={{ '--i': i } as React.CSSProperties}>
-              <a className="sheet__link" href={`#${item.id}`} onClick={() => setOpen(false)}>
-                <span className="mono sheet__index">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div className="sheet__foot" style={{ '--i': nav.length } as React.CSSProperties}>
-          <a className="btn btn--primary" href="#contact" onClick={() => setOpen(false)}>
-            <span className="btn__label">{ui.sheetCta}</span>
-          </a>
-        </div>
+        )}
       </div>
-    </>
+
+      {compact && (
+        <div
+          id="nav-sheet"
+          ref={sheetRef}
+          className="nav__sheet"
+          data-open={open}
+          hidden={!open}
+        >
+          <nav className="nav__sheet-links" aria-label="Primary">
+            {links}
+          </nav>
+          <a className="btn btn--block" href="mailto:office@newaivisionlabs.com">
+            {ui.emailUs}
+          </a>
+        </div>
+      )}
+    </header>
   );
 }
