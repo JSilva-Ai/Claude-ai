@@ -65,19 +65,33 @@ same surface, returned.
 ## The ten environments
 
 `scripts/render/scenes.js` holds ten canvas simulations, captured to looping
-WebM plus poster frames. They share one art-directed rule, which is what makes
-ten different simulations read as one instrument suite:
+WebM and MP4 plus poster frames. They share one art-directed rule, which is
+what makes ten different simulations read as one instrument suite:
 
 > the **world** is drawn in cool grey — the **perception layer** is drawn in
 > phosphor, with plasma for uncertain or predicted state and ember reserved
 > for threat.
 
 ```bash
-node scripts/render/capture.mjs            # all ten, video + poster
-node scripts/render/capture.mjs --sheet    # contact sheet for art direction
-node scripts/render/capture.mjs --posters  # posters only, fast iteration
-node scripts/render/seam.mjs               # verify every clip loops cleanly
+node scripts/render/capture.mjs               # all ten: webm, mp4, poster
+node scripts/render/capture.mjs --sheet       # contact sheet for art direction
+node scripts/render/capture.mjs --posters     # posters only, fast iteration
+node scripts/render/capture.mjs --keep-frames # leave the PNG frames on disk
+node scripts/render/seam.mjs                  # verify every clip loops cleanly
 ```
+
+Frames are pulled from the page one at a time and encoded with ffmpeg rather
+than recorded with MediaRecorder. That is not a stylistic choice:
+MediaRecorder timestamps by wall clock rather than by the frame index it was
+asked to record, and under software rasterisation that produced clips 1.5× to
+6× longer than the loop — each playing at its own wrong speed — while
+silently dropping frames when the encoder fell behind, so the loops never
+actually closed. Pulling frame by frame is slower to run and exact: every
+clip is 12.00 s and 360 frames.
+
+Each clip ships as VP9 WebM and H.264 MP4, and the page offers both sources.
+Safari's WebM support is recent and patchy, and Chromium's recorder can only
+produce VP8/VP9 in the first place.
 
 All motion is a periodic function of `t` over `LOOP` seconds and deterministic
 (seeded, never `Math.random()` at draw time), so the clips loop invisibly.
@@ -111,7 +125,7 @@ Current numbers, at 4× CPU throttle with software WebGL:
 | LCP | 1.8 s (0.35 s FCP) |
 | CLS | 0.0000 |
 | Hero / scroll frame rate | 41 / 44 fps |
-| Total transfer | 622 KB |
+| Total transfer | 622 KB (initial view) |
 | axe-core | no violations, at rest and with the menu open |
 
 ## Conventions worth knowing
