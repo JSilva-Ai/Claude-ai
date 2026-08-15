@@ -144,8 +144,15 @@ Current numbers, at 4× CPU throttle with software WebGL:
 ## Deploying
 
 The build is static. `.github/workflows/deploy.yml` publishes it to GitHub
-Pages from whichever branch is the repository default — enable it once under
-**Settings → Pages → Source: GitHub Actions**.
+Pages from whichever branch is the repository default.
+
+**One manual step is unavoidable before the first deploy:** open
+**Settings → Pages** and set **Source: GitHub Actions**. Creating a Pages site
+is a repository-admin action, and `GITHUB_TOKEN` cannot do it — the action's
+`enablement: true` option is refused with "Resource not accessible by
+integration" regardless of what the workflow's `permissions:` block grants.
+Until that switch is flipped the deploy job fails with a message saying so;
+every other check passes independently of it.
 
 `base` is configurable because the same build has to serve from two different
 places:

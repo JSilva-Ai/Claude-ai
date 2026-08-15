@@ -54,11 +54,19 @@ jobs:
         env:
           BASE_PATH: ${{ steps.base.outputs.path }}
 
-      # enablement turns Pages on if it is not already, so the first deploy
-      # does not require someone to visit the settings page first.
+      # `enablement: true` was tried and cannot work here: creating a Pages
+      # site is a repository-admin action, and GITHUB_TOKEN is refused with
+      # "Resource not accessible by integration" no matter what `permissions:`
+      # grants. Turning Pages on is a genuine one-time manual step.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
+
+      - name: How to fix a Pages failure
+        if: failure()
+        run: |
+          echo "::error title=GitHub Pages is not enabled::Open Settings → Pages"\
+               " on this repository and set Source to 'GitHub Actions', then"\
+               " re-run this workflow. It only has to be done once."
+          exit 1
 
       - uses: actions/upload-pages-artifact@v3
         with:
