@@ -97,6 +97,27 @@ Headings are heavy and condensed on Archivo's width axis (`wdth` 76, `wght`
 800) rather than by transform — scaling a letterform horizontally thins its
 horizontals unevenly.
 
+## The playable demo
+
+`game/void_striker.html` is the game, exactly as authored, and
+`game/VOID_STRIKER.md` is its handoff notes. `npm run demo` builds the
+deployable copy into `public/demo/void-striker/`.
+
+The script exists because the game has one external dependency — an `@import`
+of two faces from Google Fonts — and it downloads them, writes them alongside,
+and rewrites the import. A third-party font request would hand every visitor's
+IP to Google on a site whose privacy policy says collection is minimal, and it
+would make the studio's one piece of proof depend on a CDN being up.
+
+**Edit `game/void_striker.html` and re-run `npm run demo`. Never edit the copy
+under `public/`** — it is generated and will be overwritten.
+
+Self-hosting also keeps the embed same-origin, which the game needs: its
+leaderboard, achievements, and volume setting are all `localStorage`.
+
+The frame is set to the game's own 520×720 ratio, because its `resize()` fits
+to `min(vw/520, vh/720)` and would otherwise letterbox inside a wider box.
+
 ## The hero
 
 `src/lib/perceptionField.ts` renders a WebGL2 point cloud. Points at rest are
@@ -115,6 +136,7 @@ npm run qa         # eight routes × six viewports
 npm run qa:a11y    # axe-core, keyboard walk, touch targets
 npm run qa:perf    # Core Web Vitals and measured frame rate
 npm run brand      # regenerate og.jpg and brand/mark-512.png
+npm run demo       # rebuild the playable demo from game/void_striker.html
 ```
 
 Everything except `check` and `brand` needs the built site being served:
@@ -148,15 +170,14 @@ them against `BASE_URL` — Vite cannot rewrite those for you.
 
 ## Before this goes public
 
-- **`demo.src` in `src/content/site.ts` is empty.** The demo page renders a
-  placeholder until it points at a playable build. See the note there for the
-  two ways to wire it up.
 - **Every `[TODO]` marker is visible on the live page.** That is deliberate.
   `src/content/legal.ts` and `src/content/help.ts` are honest templates, not
   finished policy — nothing in them asserts what any app collects, because that
   is a fact about software that has to be checked rather than guessed. Have a
   lawyer read the privacy policy and terms before publishing.
-- **VOID STRIKER's description, platforms, and screenshots are placeholders.**
+- **VOID STRIKER's store plan and screenshots are still open.** The description
+  is written from the game's own source; what iOS and Android actually means —
+  a wrapper, a native rewrite, or undecided — is marked inline.
 - The canonical URLs and the sitemap point at `newaivisionlabs.com` while the
   build is served from GitHub Pages. That is intended — the domain is owned and
   not yet pointed at the site.

@@ -13,7 +13,8 @@
     "qa": "node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --full",
     "qa:a11y": "node scripts/a11y.mjs",
     "qa:perf": "node scripts/perf.mjs --cpu=4",
-    "brand": "node scripts/render/brand.mjs"
+    "brand": "node scripts/render/brand.mjs",
+    "demo": "node scripts/install-demo.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

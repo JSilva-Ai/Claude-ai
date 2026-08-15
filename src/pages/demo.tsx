@@ -6,7 +6,7 @@ import { demo } from '../content/site';
 mount(
   <>
     <PageHead label={demo.label} title={demo.headline} lede={demo.lede} />
-    <section className="section">
+    <section className="section section--tight">
       <div className="container demo">
         <DemoFrame />
         <div className="demo__controls">

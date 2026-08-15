@@ -308,10 +308,58 @@
   gap: var(--space-l);
 }
 
+/* Wide screens: the game is portrait, so setting the controls beside it rather
+   than under it uses the space the frame cannot, and lifts the whole thing far
+   enough up the page that you can see it is running without scrolling. */
+@media (min-width: 62rem) {
+  /* Scoped to .demo rather than written flat, so these beat the base rules
+     below on specificity instead of on source order — this block sits above
+     them in the file, and a flat selector would silently lose. */
+  .demo {
+    grid-template-columns: 26rem minmax(0, 1fr);
+    /* min-content, or row 1 stretches to share the frame's height with row 2
+       and leaves a gap under the note. */
+    grid-template-rows: min-content 1fr;
+    column-gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .demo .demo__frame {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    max-width: none;
+  }
+
+  .demo .demo__bar {
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    /* The base rule wraps. In a column with a bounded height, wrapping breaks
+       items into a second *column* rather than a second line, which puts the
+       note beside the button instead of under it. */
+    flex-wrap: nowrap;
+    gap: var(--space-s);
+  }
+
+  .demo .demo__controls {
+    grid-column: 2;
+    grid-row: 2;
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+/* The game's own resize() fits to min(vw/520, vh/720), so it letterboxes to a
+   520:720 portrait however the frame is shaped. Matching that ratio here means
+   no black bars, and capping the width keeps a portrait panel from swallowing
+   a desktop page — which also happens to read the way a phone game should. */
 .demo__frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  max-width: min(100%, 30rem);
+  margin-inline: auto;
+  aspect-ratio: 520 / 720;
   border: 1px solid var(--line-strong);
   border-radius: var(--r-l);
   overflow: hidden;
@@ -323,6 +371,20 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Focus ring for the game. Driven by a data attribute rather than :focus —
+   see the note in DemoFrame.tsx for why a pseudo-class cannot work here. */
+.demo__iframe[data-focused='true'] {
+  outline: 2px solid var(--blue);
+  /* Negative, because the global ring is drawn outside the element and the
+     frame's overflow:hidden clips it away completely. */
+  outline-offset: -3px;
+}
+
+.demo__frame:has(.demo__iframe[data-focused='true']) {
+  border-color: var(--blue-a60);
+  box-shadow: var(--glow-blue);
 }
 
 .demo__placeholder {

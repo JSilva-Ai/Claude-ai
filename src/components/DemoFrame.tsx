@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { demo } from '../content/site';
 import { asset } from '../lib/url';
 
@@ -22,6 +22,42 @@ import { asset } from '../lib/url';
 export function DemoFrame() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
+  /**
+   * Whether the game holds keyboard focus.
+   *
+   * Focus crossing into an iframe is close to invisible from the parent
+   * document, and each of the obvious approaches was tried and measured:
+   *
+   *   - `:focus` / `:focus-visible` on the iframe never match. With the game
+   *     focused, `iframe.matches(':focus')` is false while
+   *     `document.activeElement` *is* the iframe.
+   *   - `:focus-within` on the wrapper fails for the same reason.
+   *   - `focus` / `focusin` handlers on the iframe element never fire — the
+   *     event targets the inner document and does not cross the boundary.
+   *
+   * What does happen is that the parent window blurs. So the signal is a window
+   * blur while the iframe is the active element, and a window focus to clear
+   * it. Switching browser tabs also blurs the window, which leaves the ring on
+   * — correct, as it happens: the game still holds focus and will still receive
+   * the arrow keys when you come back.
+   *
+   * The game is played with the arrow keys, so this is not a nicety: it is the
+   * only thing telling a keyboard player whether their input is going to the
+   * game or to the page.
+   */
+  const [focused, setFocused] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const onBlur = () => setFocused(document.activeElement === iframeRef.current);
+    const onFocus = () => setFocused(false);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
 
   if (!demo.src) {
     return (
@@ -47,11 +83,16 @@ export function DemoFrame() {
       <div className="demo__frame" ref={wrapRef}>
         <iframe
           className="demo__iframe"
+          ref={iframeRef}
           src={src}
           title={`${demo.headline} — playable demo`}
           allow="fullscreen; gamepad; autoplay"
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
+          /* Fullscreen is granted through `allow` above — it is a Permissions
+             Policy feature, not a sandbox flag, and naming it here is a parse
+             error the browser reports on every load. */
+          sandbox="allow-scripts allow-same-origin allow-pointer-lock"
           loading="lazy"
+          data-focused={focused}
           onError={() => setFailed(true)}
         />
       </div>

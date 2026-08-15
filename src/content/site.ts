@@ -81,7 +81,7 @@ export const home = {
     index: '02',
     label: 'Playable',
     headline: 'Try something we made.',
-    body: 'A browser build of one of our games, running here in the page — not a video of it, and not a trailer. Controls and all.',
+    body: 'VOID STRIKER runs right here in the page — the real build, not a trailer. Six weapons, boss waves, and an upgrade shop between them.',
     cta: { label: 'Open the demo', route: routes.demo },
   },
 };
@@ -124,11 +124,10 @@ export interface App {
 /**
  * The studio's apps. One entry today.
  *
- * [TODO] Everything factual about VOID STRIKER below — the description, the
- * platform list, the screenshots — needs your review before this goes public.
- * It is written as a neutral description of a game in development rather than
- * as a claim about features that exist, precisely because I could not verify
- * any of them.
+ * VOID STRIKER's description is written from the game's own source, which is
+ * vendored at game/void_striker.html — every feature named below was read out
+ * of it rather than assumed. What is still open is the store plan, and that is
+ * marked inline.
  *
  * Adding an app also means adding its page: copy apps/void-striker/index.html
  * to apps/<slug>/index.html and change the slug it imports. See README.
@@ -137,12 +136,13 @@ export const apps: App[] = [
   {
     slug: 'void-striker',
     name: 'VOID STRIKER',
-    tagline: '[TODO] one-line description of the game',
+    tagline: 'An arcade space shooter, playable in the browser right now.',
     status: 'In development',
-    platforms: ['iOS', 'Android'],
+    platforms: ['Browser', 'iOS [TODO]', 'Android [TODO]'],
     description: [
-      '[TODO] Two or three short paragraphs about what the game is and who it is for. Written plainly — what you do in it, what makes it different, what state it is in.',
-      '[TODO] If there is a release window you are willing to commit to, say it here. If there is not, say that instead; "in development" with no date is more honest than a date you will move.',
+      'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
+      'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. Scores, achievements, and settings are kept on your own device.',
+      'The browser build is finished and playable on the demo page. [TODO] Say what the iOS and Android plan actually is — a wrapper around this build, a native rewrite, or undecided — and whether there is a release window you are willing to commit to. "In development" with no date is more honest than a date you will move.',
     ],
     screenshots: [],
     stores: [
@@ -171,37 +171,32 @@ export const appsPage = {
 export const demo = {
   label: 'Playable demo',
   headline: 'VOID STRIKER',
-  lede: 'A browser build, running in the page. It is the real thing, not a recording.',
+  lede: 'The real game, running in this page. Not a trailer and not a recording — it is the same build, and your score goes on the leaderboard.',
   /**
-   * [TODO] REQUIRED — the demo will not render until this is set.
+   * The playable build, self-hosted.
    *
-   * Put the URL of the playable web build here. Two shapes work:
+   * `game/void_striker.html` is the canonical source; `npm run demo` copies it
+   * to public/ and self-hosts its two Google Fonts faces on the way. Re-run
+   * that after any change to the game — do not edit the copy in public/.
    *
-   *   1. Self-hosted. Drop the build into `public/demo/void-striker/` and set
-   *      this to 'demo/void-striker/index.html'. Same-origin, so nothing else
-   *      is needed and it keeps working offline in dev. This is the option I
-   *      would pick.
-   *   2. Externally hosted (itch.io, a game server). Set the full https URL.
-   *      Cross-origin embedding only works if that host allows it — check its
-   *      `X-Frame-Options` / `frame-ancestors` before assuming it will.
-   *
-   * A relative value is resolved against the site's base path; a value
-   * starting with 'http' is used as-is.
+   * Self-hosting also keeps the embed same-origin, which the game needs: its
+   * leaderboard, achievements, and volume setting are all localStorage.
    */
-  src: '',
-  /** Shown in place of the frame while `src` is empty. */
+  src: 'demo/void-striker/index.html',
   unconfigured: {
     title: 'Demo not connected yet',
     body: 'The playable build has not been pointed at from the site. Set `demo.src` in src/content/site.ts to the URL of the web build.',
   },
-  /** [TODO] Replace with the game's real controls. */
+  /** Read out of the game's own key handling, not guessed. */
   controls: [
-    { keys: '[TODO]', action: 'Move' },
-    { keys: '[TODO]', action: 'Fire' },
-    { keys: '[TODO]', action: 'Pause' },
+    { keys: '\u2190 \u2192 \u2191 \u2193  /  WASD', action: 'Move' },
+    { keys: 'Space  /  Z', action: 'Fire' },
+    { keys: 'Q', action: 'Bomb' },
+    { keys: '1 2 3  /  4', action: 'Pick upgrade / skip' },
+    { keys: 'Drag', action: 'Move and fire, on touch' },
   ],
   fullscreenLabel: 'Fullscreen',
-  note: 'Runs in the browser. Nothing is installed, and the demo does not collect anything.',
+  note: 'Runs entirely in your browser. Scores and achievements are saved on this device only — nothing is sent anywhere.',
 };
 
 /* -------------------------------------------------------------------------
