@@ -41,7 +41,9 @@
     linear-gradient(180deg, var(--ink-050) 0%, transparent 22%, transparent 62%, var(--ink-050) 100%);
 }
 
-/* A single phosphor horizon line — the only glow in the hero. */
+/* The sensor horizon. It lives in the field, on the right — starting it at 35%
+   ran a hairline straight across the copy column and read as a stray divider
+   under the buttons rather than as part of the picture. */
 .hero__horizon {
   position: absolute;
   left: 0;
@@ -50,9 +52,9 @@
   height: 1px;
   background: linear-gradient(
     90deg,
-    transparent,
-    var(--phosphor-a20) 35%,
-    var(--phosphor-a40) 55%,
+    transparent 40%,
+    var(--phosphor-a20) 58%,
+    var(--phosphor-a40) 74%,
     transparent
   );
   opacity: 0;
@@ -250,7 +252,7 @@
   left: 0;
   width: 1px;
   height: 12px;
-  background: var(--phosphor);
+  background: var(--porcelain);
   animation: scroll-run 2.4s var(--ease-in-out) infinite;
 }
 
@@ -363,8 +365,11 @@
       );
   }
 
+  /* Clear of the copy: at 42% the horizon ran straight through the gap
+     between the headline and the lede and read as a stray divider. It belongs
+     in the field, above the type. */
   .hero__horizon {
-    bottom: 42%;
+    bottom: 62%;
   }
 
   /* The three authored lines become five at phone widths, so the display
@@ -374,10 +379,10 @@
     font-size: clamp(2.5rem, 1.1rem + 5.6vw, 3.25rem);
   }
 
-  /* The lab's name is already in the nav one row above; repeating it here
-     costs a wrapped line for nothing. */
+  /* Two mono strings do not fit one phone line; the mode reading is the one
+     that can be inferred from the field itself. */
   .hero__eyebrow-sep,
-  .hero__eyebrow .label--phosphor {
+  .hero__eyebrow .label:last-child {
     display: none;
   }
 
@@ -396,10 +401,12 @@
     width: 100%;
   }
 
-  /* Two-up stat grid; four columns is unreadable at this width. */
+  /* Two-up stat grid; four columns is unreadable at this width. The row gap
+     has to clearly beat the 6px inside each pair or the strip reads as four
+     loose lines instead of two rows. */
   .hero__stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-s) var(--space-m);
+    gap: var(--space-m) var(--space-m);
   }
 
   .hero__stat-value {
@@ -418,6 +425,12 @@
 @media (max-width: 26rem) {
   .hero {
     padding-bottom: 8.25rem;
+  }
+
+  /* At 320×640 the copy fills the frame; there is no band of field left for
+     the horizon to sit in, so it would only cross the headline. */
+  .hero__horizon {
+    display: none;
   }
 
   .hero__headline {

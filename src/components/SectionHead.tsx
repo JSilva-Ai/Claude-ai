@@ -26,7 +26,7 @@ export function SectionHead({ index, label, headline, lede, split = true }: Prop
     >
       <div>
         <p className="section-head__index label">
-          <span className="accent">{index}</span>
+          <span className="section-head__no">{index}</span>
           <span>{label}</span>
         </p>
         <h2 className="display display-3 section-head__title">{headline}</h2>

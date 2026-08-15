@@ -4,7 +4,7 @@ import { thesis } from '../content/site';
 
 export function Thesis() {
   const bodyRef = useReveal<HTMLDivElement>();
-  const quoteRef = useReveal<HTMLElement>();
+  const quoteRef = useReveal<HTMLDivElement>();
 
   const [before, after] = thesis.headline.split(thesis.accentWord);
 
@@ -31,10 +31,27 @@ export function Thesis() {
             ))}
           </div>
 
-          <figure className="thesis__quote" ref={quoteRef} data-reveal>
-            <blockquote>{thesis.pullQuote}</blockquote>
-            <figcaption className="label thesis__attribution">{thesis.attribution}</figcaption>
-          </figure>
+          <div className="thesis__aside" ref={quoteRef} data-reveal>
+            <figure className="thesis__quote">
+              <blockquote>{thesis.pullQuote}</blockquote>
+              <figcaption className="label thesis__attribution">{thesis.attribution}</figcaption>
+            </figure>
+
+            <div className="thesis__cases">
+              <p className="label thesis__cases-label">{thesis.casesLabel}</p>
+              <ul>
+                {thesis.cases.map((c) => (
+                  <li key={c.code}>
+                    <span className="thesis__case">{c.case}</span>
+                    <a className="thesis__case-env mono" href="#proving-grounds">
+                      <span className="thesis__case-code">{c.code}</span>
+                      {c.env}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>

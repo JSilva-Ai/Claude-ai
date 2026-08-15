@@ -196,7 +196,13 @@ export function createPerceptionField(
   // compositionally identical field — not a degraded one.
   const coarse = window.matchMedia('(pointer: coarse)').matches;
   const lowCores = (navigator.hardwareConcurrency ?? 8) <= 4;
-  const density = coarse || lowCores ? 150 : 232;
+  // The sampled plane is scaled by aspect, so a wider canvas spreads a fixed
+  // budget over more world and the field thins out — at 1920×1080 it reads as
+  // dust rather than as a returning surface. The budget follows the area, up
+  // to a ceiling; the adaptive controller below spends it back down if the
+  // device cannot hold the frame rate.
+  const spread = Math.min(1.22, Math.sqrt((window.innerWidth * window.innerHeight) / (1440 * 900)));
+  const density = Math.round((coarse || lowCores ? 150 : 232) * Math.max(1, spread));
   const count = density * density;
 
   const data = new Float32Array(count * 4);
@@ -390,7 +396,9 @@ export function createPerceptionField(
     gl!.uniform1f(u.resolved, opts.mode === 'resolved' ? 1 : 0);
     gl!.uniform3f(u.phosphor, 0.831, 0.973, 0.361);
     gl!.uniform3f(u.plasma, 0.482, 0.361, 1.0);
-    gl!.uniform3f(u.rest, 0.55, 0.60, 0.69);
+    // Cool-neutral, not blue: at 0.55/0.60/0.69 the unreturned points read as
+    // a blue haze, which is the one hue the identity is defined against.
+    gl!.uniform3f(u.rest, 0.6, 0.62, 0.64);
     gl!.drawArrays(gl!.POINTS, 0, activeCount);
   }
 

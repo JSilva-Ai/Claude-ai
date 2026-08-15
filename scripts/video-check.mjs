@@ -34,8 +34,16 @@ await page.evaluate(async () => {
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 40)));
   }
 });
-await page.locator('#proving-grounds').scrollIntoViewIfNeeded();
-await page.waitForTimeout(2500);
+// Scroll the wall itself into view, not the section: the section starts with
+// its heading block, so aligning on that leaves the monitors below the fold
+// and their visibility gate correctly keeps them paused.
+await page.locator('.grounds__grid').scrollIntoViewIfNeeded();
+await page.evaluate(() => {
+  const first = document.querySelector('.env');
+  const r = first.getBoundingClientRect();
+  window.scrollBy({ top: r.top - window.innerHeight * 0.15, behavior: 'instant' });
+});
+await page.waitForTimeout(3500);
 
 // --- Lead monitors should be running without any interaction ---------------
 const auto = await page.evaluate(() =>
@@ -92,8 +100,8 @@ console.log(`  playing after scrolling away: ${afterScroll}`);
 if (afterScroll > 0) problems.push(`${afterScroll} monitor(s) still decoding off-screen`);
 
 // --- The motion toggle must actually stop playback -------------------------
-await page.locator('#proving-grounds').scrollIntoViewIfNeeded();
-await page.waitForTimeout(2000);
+await page.locator('.grounds__grid').scrollIntoViewIfNeeded();
+await page.waitForTimeout(2500);
 await page.locator('.grounds__toggle').click();
 await page.waitForTimeout(1200);
 const afterToggle = await page.evaluate(

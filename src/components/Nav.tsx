@@ -61,7 +61,7 @@ export function Nav() {
 
           <div className="nav__actions">
             <a className="btn btn--ghost btn--sm nav__cta" href="#contact">
-              {ui.navContact}
+              <span className="btn__label">{ui.navContact}</span>
             </a>
             <button
               className="nav__toggle"
@@ -98,7 +98,7 @@ export function Nav() {
         </ul>
         <div className="sheet__foot" style={{ '--i': nav.length } as React.CSSProperties}>
           <a className="btn btn--primary" href="#contact" onClick={() => setOpen(false)}>
-            {ui.sheetCta}
+            <span className="btn__label">{ui.sheetCta}</span>
           </a>
         </div>
       </div>

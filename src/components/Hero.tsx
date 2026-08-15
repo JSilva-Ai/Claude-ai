@@ -57,9 +57,9 @@ export function Hero() {
       <div className="container hero__inner">
         <div className="hero__eyebrow" style={{ '--i': 0 } as React.CSSProperties}>
           <span className="dot" />
-          <span className="label label--phosphor">{hero.eyebrow}</span>
-          <span className="hero__eyebrow-sep" aria-hidden="true" />
           <span className="label">{hero.status}</span>
+          <span className="hero__eyebrow-sep" aria-hidden="true" />
+          <span className="label">{hero.mode}</span>
         </div>
 
         <h1 className="hero__headline display display-1">
@@ -85,25 +85,20 @@ export function Hero() {
 
         <div className="hero__actions" style={{ '--i': 5 } as React.CSSProperties}>
           <a className="btn btn--primary" href={hero.primaryCta.href}>
-            {hero.primaryCta.label}
-            <svg
-              className="btn__arrow"
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M3 11L11 3M11 3H5M11 3V9"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="square"
-              />
-            </svg>
+            <span className="btn__label">{hero.primaryCta.label}</span>
+            <span className="btn__arrow" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M3 11L11 3M11 3H5M11 3V9"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="square"
+                />
+              </svg>
+            </span>
           </a>
           <a className="btn btn--ghost" href={hero.secondaryCta.href}>
-            {hero.secondaryCta.label}
+            <span className="btn__label">{hero.secondaryCta.label}</span>
           </a>
         </div>
       </div>

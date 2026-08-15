@@ -5,6 +5,7 @@ import { lab } from '../content/site';
 export function Lab() {
   const principlesRef = useReveal<HTMLUListElement>();
   const statsRef = useReveal<HTMLDListElement>();
+  const rolesRef = useReveal<HTMLDivElement>();
 
   return (
     <section className="section section--ruled" id="lab" aria-labelledby="lab-title">
@@ -34,6 +35,27 @@ export function Lab() {
               </div>
             ))}
           </dl>
+        </div>
+
+        {/* The one place on the page that addresses a person rather than
+            describing a system. The brief asks the Lab section for a human
+            element; a roster of invented faces would be the corporate answer
+            and a dishonest one, so the human element is the address itself —
+            what the lab is looking for, and what to send. */}
+        <div className="lab__roles" ref={rolesRef} data-reveal>
+          <div className="lab__roles-head">
+            <p className="label">{lab.rolesLabel}</p>
+            <p className="lab__roles-note">{lab.rolesNote}</p>
+          </div>
+          <ul>
+            {lab.roles.map((r) => (
+              <li className="lab__role" key={r.code}>
+                <span className="lab__role-code mono">{r.code}</span>
+                <h3 className="lab__role-title">{r.title}</h3>
+                <p className="lab__role-note">{r.note}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

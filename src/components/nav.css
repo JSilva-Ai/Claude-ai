@@ -204,7 +204,7 @@
 
 .sheet__index {
   font-size: var(--step--2);
-  color: var(--phosphor);
+  color: var(--grey-300);
   letter-spacing: 0.1em;
 }
 

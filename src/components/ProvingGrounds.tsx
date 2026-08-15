@@ -101,7 +101,6 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
             <video
               className="env__video"
               ref={videoRef}
-              src={`/media/env/${env.id}.webm`}
               poster={`/media/env/${env.id}.jpg`}
               muted
               loop
@@ -110,7 +109,12 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
               aria-hidden="true"
               tabIndex={-1}
               data-visible={playing}
-            />
+            >
+              {/* WebM first — it is the smaller of the two and every browser
+                  that can play it should. Safari falls through to H.264. */}
+              <source src={`/media/env/${env.id}.webm`} type="video/webm" />
+              <source src={`/media/env/${env.id}.mp4`} type="video/mp4" />
+            </video>
           )}
           <span className="env__scanline" aria-hidden="true" />
         </div>

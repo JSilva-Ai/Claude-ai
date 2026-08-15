@@ -53,15 +53,17 @@ export function Contact() {
         <div className="contact__close" ref={closeRef} data-reveal>
           <p className="contact__close-line">{ui.closingLine}</p>
           <a className="btn btn--primary" href={`mailto:${contact.channels[0].action}`}>
-            {ui.closingCta}
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path
-                d="M3 11L11 3M11 3H5M11 3V9"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="square"
-              />
-            </svg>
+            <span className="btn__label">{ui.closingCta}</span>
+            <span className="btn__arrow" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M3 11L11 3M11 3H5M11 3V9"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="square"
+                />
+              </svg>
+            </span>
           </a>
         </div>
       </div>

@@ -8,14 +8,14 @@ function Item({ item }: { item: (typeof research.items)[number] }) {
     <li className="research__item" ref={ref} data-reveal>
       <div className="research__meta">
         <span className="research__status" data-status={item.status}>
-          <span className="dot" aria-hidden="true" style={{ background: 'currentColor' }} />
+          <span className="dot" aria-hidden="true" />
           {item.status}
         </span>
       </div>
       <h3 className="research__title">{item.title}</h3>
       <div>
         <p className="research__abstract">{item.abstract}</p>
-        <ul className="research__tags" style={{ marginTop: '0.9rem' }}>
+        <ul className="research__tags">
           {item.tags.map((t) => (
             <li key={t}>
               <span className="tag">{t}</span>

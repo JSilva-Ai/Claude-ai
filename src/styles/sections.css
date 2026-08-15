@@ -30,11 +30,18 @@
   gap: var(--space-2xl);
 }
 
+.thesis__aside {
+  display: grid;
+  gap: var(--space-2xl);
+  align-self: start;
+}
+
+/* Grey, not phosphor: the accent in this viewport is already spent on the one
+   word in the headline. */
 .thesis__quote {
   position: relative;
-  align-self: start;
-  padding: var(--space-l) 0 var(--space-l) var(--space-l);
-  border-left: 1px solid var(--phosphor-a40);
+  padding: 0 0 0 var(--space-l);
+  border-left: 1px solid var(--line-strong);
 }
 
 .thesis__quote blockquote {
@@ -50,6 +57,58 @@
 .thesis__attribution {
   margin-top: var(--space-m);
   color: var(--grey-300);
+  text-wrap: balance;
+}
+
+/* --- Thesis: the cases ledger -------------------------------------------- */
+.thesis__cases-label {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--grey-300);
+}
+
+.thesis__cases ul {
+  display: grid;
+}
+
+.thesis__cases li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--line-weak);
+}
+
+.thesis__case {
+  color: var(--grey-200);
+  font-size: var(--step--1);
+  line-height: 1.35;
+}
+
+.thesis__case-env {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex: none;
+  min-height: 24px;
+  font-size: var(--step--2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-200);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.thesis__case-env:hover {
+  color: var(--porcelain);
+}
+
+.thesis__case-code {
+  color: var(--grey-300);
+}
+
+.thesis__case-env:hover .thesis__case-code {
+  color: var(--phosphor);
 }
 
 @media (min-width: 64rem) {
@@ -59,7 +118,7 @@
     align-items: start;
   }
 
-  .thesis__quote {
+  .thesis__aside {
     position: sticky;
     top: calc(var(--nav-h) + var(--space-2xl));
   }
@@ -86,29 +145,41 @@
   background: var(--ink-100);
 }
 
+/* A channel legend on a panel, not a boxed monogram. A two-letter badge in a
+   rounded square is an avatar; the same two letters against a hairline that
+   runs to the column edge belong to the ruled grid the section is built on. */
 .cap__code {
-  display: inline-grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r-s);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
   font-family: var(--font-mono);
   font-size: var(--step--2);
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.16em;
   color: var(--grey-200);
-  transition:
-    color var(--dur-slow) var(--ease-out),
-    border-color var(--dur-slow) var(--ease-out);
+  transition: color var(--dur-slow) var(--ease-out);
+}
+
+.cap__code::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+  transition: background-color var(--dur-slow) var(--ease-out);
 }
 
 .cap:hover .cap__code {
-  color: var(--phosphor);
-  border-color: var(--phosphor-a40);
+  color: var(--porcelain);
 }
 
+.cap:hover .cap__code::after {
+  background: var(--line-strong);
+}
+
+/* Bottom-aligned in its subgrid track: a one-line title then sits against the
+   summary it introduces instead of leaving a hole between them. */
 .cap__title {
+  align-self: end;
   font-size: var(--step-2);
   font-variation-settings: 'wdth' 110;
   font-weight: 470;
@@ -120,6 +191,7 @@
   color: var(--grey-200);
   font-size: var(--step--1);
   line-height: 1.55;
+  text-wrap: pretty;
 }
 
 .cap__points {
@@ -138,6 +210,8 @@
   line-height: 1.45;
 }
 
+/* Twelve phosphor dashes in one viewport is a speckle, not a signal. The
+   markers are rules, and rules are grey. */
 .cap__points li::before {
   content: '';
   position: absolute;
@@ -145,8 +219,7 @@
   top: 0.62em;
   width: 5px;
   height: 1px;
-  background: var(--phosphor);
-  opacity: 0.7;
+  background: var(--grey-400);
 }
 
 /* From two columns up, cards inherit the track set from .caps via subgrid so
@@ -210,18 +283,37 @@
   color: var(--grey-300);
 }
 
-.research__status[data-status='Active'] {
+/* Three states, read off the dot rather than off the word. Colouring the
+   labels put four phosphor strings and one violet one in a single viewport —
+   a legend where the brief allows one signal. The dot is instrument state:
+   filled and live for active work, filled and dim for a preprint, hollow for
+   something barely started. Plasma is depth, not a status chip. */
+.research__status .dot {
+  background: var(--grey-500);
+  color: var(--grey-500);
+  animation: none;
+}
+
+.research__status[data-status='Active'] .dot {
+  background: var(--phosphor);
   color: var(--phosphor);
+  animation: dot-pulse 2.8s var(--ease-in-out) infinite;
 }
 
-.research__status[data-status='Preprint'] {
-  color: var(--plasma);
+.research__status[data-status='Preprint'] .dot {
+  background: var(--grey-200);
+  color: var(--grey-200);
 }
 
-/* Early work is deliberately the quietest of the three states, not an
-   unstyled fallthrough. */
-.research__status[data-status='Early'] {
-  color: var(--grey-300);
+.research__status[data-status='Early'] .dot {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--grey-400);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research__status[data-status='Active'] .dot {
+    animation: none;
+  }
 }
 
 .research__title {
@@ -238,12 +330,29 @@
   font-size: var(--step--1);
   line-height: 1.6;
   max-width: 58ch;
+  text-wrap: pretty;
 }
 
+/* Classification line, hung under a hairline so it reads as filing metadata
+   rather than as a second paragraph of chips. */
 .research__tags {
   display: flex;
-  gap: 0.4rem;
+  gap: 0 0.75rem;
   flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--line-weak);
+}
+
+.research__tags li + li::before {
+  content: '/';
+  margin-right: 0.75rem;
+  color: var(--grey-300);
+}
+
+.research__tags li {
+  display: flex;
+  align-items: center;
 }
 
 @media (min-width: 64rem) {
@@ -289,20 +398,30 @@
   gap: 0.6rem;
 }
 
+/* Four ordinals in one viewport is four things asking to be looked at. They
+   are set by value instead, like the section indices. */
+.app__no {
+  color: var(--porcelain);
+}
+
 .app__claim {
+  align-self: end;
   font-size: var(--step-1);
   font-variation-settings: 'wdth' 108;
   font-weight: 470;
   letter-spacing: -0.024em;
   line-height: 1.2;
   color: var(--porcelain);
-  max-width: 22ch;
+  /* 22ch forced "Uncertainty a / clinician can act on"; the balancer needs
+     room to find the break itself. */
+  max-width: 26ch;
 }
 
 .app__detail {
   color: var(--grey-300);
   font-size: var(--step--1);
   line-height: 1.55;
+  text-wrap: pretty;
 }
 
 @media (min-width: 44rem) {
@@ -339,15 +458,24 @@
   transition: background-color var(--dur-slow) var(--ease-out);
 }
 
-/* A phosphor tick that grows on hover — the list reads as selectable
-   without adding a box around each row. */
-.lab__principle::before {
+/* The indent was hanging on nothing at rest — a 32px gutter with no marker in
+   it reads as a mistake. A permanent rail occupies it, and a phosphor tick
+   runs down that rail on hover. */
+.lab__principle::before,
+.lab__principle::after {
   content: '';
   position: absolute;
   left: 0;
   top: var(--space-l);
   bottom: var(--space-l);
   width: 1px;
+}
+
+.lab__principle::before {
+  background: var(--line-strong);
+}
+
+.lab__principle::after {
   background: var(--phosphor);
   transform: scaleY(0);
   transform-origin: top;
@@ -358,7 +486,7 @@
   background: var(--ink-100);
 }
 
-.lab__principle:hover::before {
+.lab__principle:hover::after {
   transform: scaleY(1);
 }
 
@@ -389,6 +517,12 @@
   border-top: 1px solid var(--line);
 }
 
+.lab__stat dt {
+  /* The longest label wraps at phone widths, and .label sets line-height 1 —
+     two lines of tracked mono then collide. */
+  line-height: 1.35;
+}
+
 .lab__stat dd {
   margin: 0;
   font-size: var(--step-4);
@@ -401,14 +535,40 @@
 
 @media (min-width: 64rem) {
   .lab__layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
     gap: var(--space-3xl);
     align-items: start;
   }
 
+  /* A single column reads as a spec sheet and, more usefully, brings the
+     right-hand column down to roughly the height of the principles beside it.
+     As a 2×2 it stopped 140px short and left a hole under the section. The
+     block is ruled top and bottom like the principles, so both columns open
+     and close on the same two lines. */
   .lab__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-xl) var(--space-l);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    border-block: 1px solid var(--line-weak);
+  }
+
+  .lab__stat {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-m);
+    padding-block: var(--space-m);
+    border-top: 1px solid var(--line-weak);
+  }
+
+  .lab__stat:first-child {
+    border-top: 0;
+  }
+
+  .lab__stat dt {
+    order: -1;
+  }
+
+  .lab__stat dd {
+    text-align: right;
   }
 }
 
@@ -451,20 +611,26 @@
     linear-gradient(90deg, rgba(8, 9, 11, 0.72) 0%, rgba(8, 9, 11, 0.28) 60%, transparent 100%);
 }
 
+/* The closing row is ruled off like every other block on the page, so it
+   reads as the last line of the argument rather than as a CTA banner bolted
+   to the bottom. */
 .contact__close {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-m);
-  margin-top: var(--space-2xl);
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-l);
+  border-top: 1px solid var(--line-weak);
 }
 
 .contact__close-line {
-  color: var(--grey-300);
-  font-size: var(--step--1);
-  max-width: 42ch;
-  line-height: 1.5;
+  color: var(--grey-200);
+  font-size: var(--step-0);
+  max-width: 38ch;
+  line-height: 1.45;
+  text-wrap: balance;
 }
 
 .contact__headline {
@@ -479,12 +645,14 @@
   border-block: 1px solid var(--line-weak);
 }
 
+/* The address is pinned to the bottom of the cell so all three sit on one
+   line however the descriptions wrap. */
 .channel {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-l) var(--space-m) var(--space-l) 0;
   background: var(--ink-050);
-  align-content: start;
 }
 
 .channel__kind {
@@ -500,11 +668,14 @@
   font-size: var(--step--1);
   line-height: 1.5;
   max-width: 32ch;
+  text-wrap: pretty;
 }
 
 .channel__action {
+  align-self: flex-start;
   min-height: 24px;
-  margin-top: 0.25rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
   font-family: var(--font-mono);
   font-size: var(--step--1);
   word-break: break-word;
@@ -624,5 +795,88 @@
   .cap,
   .app {
     padding-block: var(--space-l);
+  }
+}
+
+/* --- Lab: open roles ----------------------------------------------------- */
+/* The section's human element. Built from the same ruled-grid parts as the
+   rest of the page so it reads as another instrument panel, not a careers
+   widget bolted on the end. */
+.lab__roles {
+  margin-top: var(--space-2xl);
+}
+
+.lab__roles-head {
+  display: grid;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-m);
+  border-bottom: 1px solid var(--line);
+}
+
+.lab__roles-note {
+  color: var(--grey-200);
+  font-size: var(--step--1);
+  line-height: 1.55;
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+.lab__roles ul {
+  display: grid;
+  gap: 1px;
+  background: var(--line-weak);
+}
+
+.lab__role {
+  display: grid;
+  gap: 0.4rem;
+  padding: var(--space-m) 0;
+  background: var(--ink-050);
+  transition: background-color var(--dur-slow) var(--ease-out);
+}
+
+.lab__role:hover {
+  background: var(--ink-100);
+}
+
+.lab__role-code {
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--grey-300);
+}
+
+.lab__role-title {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 106;
+  font-weight: 470;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+}
+
+.lab__role-note {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+@media (min-width: 48rem) {
+  .lab__roles-head {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-l);
+  }
+
+  .lab__role {
+    grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: baseline;
+    gap: var(--space-l);
+    padding: var(--space-l) 0;
+  }
+
+  .lab__role-code {
+    padding-top: 0.15rem;
   }
 }

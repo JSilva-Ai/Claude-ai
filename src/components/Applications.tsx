@@ -12,7 +12,7 @@ function App({ item, i }: { item: (typeof applications.items)[number]; i: number
       style={{ '--reveal-delay': `${(i % 2) * 80}ms` } as React.CSSProperties}
     >
       <p className="app__sector">
-        <span className="label label--phosphor">{String(i + 1).padStart(2, '0')}</span>
+        <span className="label app__no">{String(i + 1).padStart(2, '0')}</span>
         <span className="label">{item.sector}</span>
       </p>
       <h3 className="app__claim">{item.claim}</h3>

@@ -18,6 +18,7 @@
   max-width: 60ch;
   line-height: 1.5;
   letter-spacing: 0.1em;
+  text-wrap: balance;
 }
 
 /* --- Motion toggle ------------------------------------------------------- */
@@ -40,27 +41,30 @@
   color: inherit;
 }
 
+/* A hard-cornered throw switch, not the iOS pill. Everything phosphor in this
+   section belongs inside a monitor bezel; the chrome around the wall stays
+   achromatic so the ten screens are the only thing glowing. */
 .grounds__toggle-track {
   position: relative;
   display: block;
   width: 30px;
-  height: 16px;
+  height: 15px;
   border: 1px solid var(--line-strong);
-  border-radius: var(--r-full);
+  border-radius: 1px;
   transition: border-color var(--dur-base) var(--ease-out);
 }
 
-.grounds__toggle[aria-pressed='true'] .grounds__toggle-track {
-  border-color: var(--phosphor-a40);
+.grounds__toggle:hover .grounds__toggle-track {
+  border-color: var(--grey-400);
 }
 
 .grounds__toggle-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 11px;
+  height: 9px;
+  border-radius: 0;
   background: var(--grey-400);
   transition:
     transform var(--dur-base) var(--ease-out),
@@ -69,7 +73,7 @@
 
 .grounds__toggle[aria-pressed='true'] .grounds__toggle-thumb {
   transform: translateX(14px);
-  background: var(--phosphor);
+  background: var(--porcelain);
 }
 
 /* --- Grid ---------------------------------------------------------------- */
@@ -79,10 +83,14 @@
   margin: 0;
 }
 
+/* Two rows: the monitor, then a caption block that fills whatever height the
+   tallest card in the row takes. Without this the metric rule sits wherever a
+   blurb happens to stop wrapping, and a row of monitors ends on three
+   different baselines. */
 .env {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: var(--space-s);
-  align-content: start;
   min-width: 0;
 }
 
@@ -205,7 +213,8 @@
 
 /* --- Meta ---------------------------------------------------------------- */
 .env__meta {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   padding-inline: 0.15rem;
 }
@@ -235,6 +244,7 @@
   font-size: var(--step--1);
   line-height: 1.5;
   max-width: 46ch;
+  text-wrap: pretty;
 }
 
 .env__metric {
@@ -243,14 +253,17 @@
   justify-content: space-between;
   gap: var(--space-s);
   padding-top: 0.55rem;
-  margin-top: 0.15rem;
+  margin-top: auto;
   border-top: 1px solid var(--line-weak);
 }
 
+/* Ten glowing numbers under ten glowing monitors is twenty accents. Phosphor
+   in this section is what the model sees — it lives inside the bezel. The
+   caption is a readout, set in porcelain. */
 .env__metric-value {
   font-size: var(--step--1);
   font-weight: 600;
-  color: var(--phosphor);
+  color: var(--porcelain);
   white-space: nowrap;
 }
 

@@ -14,8 +14,10 @@ export const nav = [
 ] as const;
 
 export const hero = {
-  eyebrow: 'New AI Vision Labs',
   status: 'Ten worlds running',
+  /** Second half of the eyebrow. The lab's name is already in the nav one row
+   *  above; repeating it there spent a phosphor label on nothing. */
+  mode: 'Field live · scanning',
   headline: ['We build the worlds', 'where machines', 'learn to see.'],
   accentWord: 'see',
   lede: 'A machine perception research lab. We author synthetic worlds, raise vision systems inside them, and attack those systems until they break. Failure is cheaper in simulation than on a live camera.',
@@ -40,7 +42,19 @@ export const thesis = {
     'So we manufacture the experience. Ten environments render continuously, producing the cases reality supplies about once a year: the occlusion at the worst moment, the sensor that drops out mid-turn, the object that resembles nothing in the training set. A model should meet its worst day early, and often.',
   ],
   pullQuote: 'A model is only as honest as the world that tested it.',
-  attribution: 'Operating principle · New AI Vision Labs',
+  attribution: 'Operating principle',
+  /**
+   * The three failure cases named in the third paragraph, each against the
+   * environment that manufactures it. A cross-reference into the Proving
+   * Grounds, so the argument in this section resolves to a mechanism further
+   * down the page rather than ending on an assertion.
+   */
+  casesLabel: 'Cases, manufactured on demand',
+  cases: [
+    { case: 'Occlusion at the worst moment', env: 'Drift', code: '01' },
+    { case: 'Sensor drops out mid-turn', env: 'Relay', code: '07' },
+    { case: 'Object outside the training set', env: 'Parse', code: '10' },
+  ],
 };
 
 export const capabilities = {
@@ -299,6 +313,31 @@ export const lab = {
     { label: 'Founded', value: '2021' },
     { label: 'Papers published', value: '31' },
     { label: 'GPU-hours / week', value: '180k' },
+  ],
+  rolesLabel: 'Open roles',
+  rolesNote:
+    'We read every application. Send work — a paper, a repository, a demo that failed interestingly — rather than a cover letter.',
+  roles: [
+    {
+      code: 'GP',
+      title: 'Perception researcher',
+      note: 'Depth and pose under motion. You have shipped something that ran on a real camera.',
+    },
+    {
+      code: 'WG',
+      title: 'Renderer engineer',
+      note: 'You care what a shading model costs, and whether that cost buys any transfer.',
+    },
+    {
+      code: 'EC',
+      title: 'Controls engineer',
+      note: 'Closing loops inside a latency budget, on hardware that will not wait for you.',
+    },
+    {
+      code: 'EV',
+      title: 'Evaluation lead',
+      note: 'You would rather find the failure than the headline. This role reports the bad numbers.',
+    },
   ],
 };
 
