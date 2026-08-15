@@ -57,9 +57,15 @@ for (const name of wanted) {
     if (m.type() === 'error') problems.push(`[${name}] console: ${m.text()}`);
   });
   page.on('pageerror', (e) => problems.push(`[${name}] pageerror: ${e.message}`));
-  page.on('requestfailed', (r) =>
-    problems.push(`[${name}] request failed: ${r.url()} — ${r.failure()?.errorText}`),
-  );
+  page.on('requestfailed', (r) => {
+    // A cancelled media fetch is teardown, not a broken asset. The lead
+    // monitors auto-play, so closing the context aborts whatever clip is
+    // still buffering — and the narrow viewports, shot last, race it most
+    // often. A genuinely missing clip still surfaces: as a 404 poster in the
+    // broken-image check, or as a NaN duration in video-check.mjs.
+    if (r.resourceType() === 'media' && r.failure()?.errorText === 'net::ERR_ABORTED') return;
+    problems.push(`[${name}] request failed: ${r.url()} — ${r.failure()?.errorText}`);
+  });
 
   await page.goto(URL, { waitUntil: 'networkidle' });
   await page.waitForTimeout(2200); // let the hero choreography resolve
