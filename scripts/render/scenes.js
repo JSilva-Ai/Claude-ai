@@ -1384,15 +1384,18 @@ const relay = (() => {
         }
       }
 
-      // Trail — where the puck has been
+      // Trail — a motion streak, not a path history. The puck crosses the
+      // arena in about a second, so a longer tail draws most of a circuit and
+      // the panel reads as a closed diagonal shape rather than a rally.
+      const TR = 10;
       ctx.lineWidth = 2.4;
       ctx.strokeStyle = C.porcelain;
-      for (let i = 0; i < 26; i++) {
-        const a = puck(t - i * 0.03);
+      for (let i = 0; i < TR; i++) {
+        const a = puck(t - i * 0.022);
         const ax = a[0];
         const ay = a[1];
-        const b = puck(t - (i + 1) * 0.03);
-        ctx.globalAlpha = 0.55 * (1 - i / 26);
+        const b = puck(t - (i + 1) * 0.022);
+        ctx.globalAlpha = 0.5 * (1 - i / TR);
         ctx.beginPath();
         ctx.moveTo(ax, ay);
         ctx.lineTo(b[0], b[1]);

@@ -44,44 +44,18 @@
         byId[id].draw(ctx, t);
       };
 
-      /** Render one full loop and capture it as a webm. */
-      window.__record = async (id, fps = 30) => {
-        const scene = byId[id];
-        const stream = canvas.captureStream(0);
-        const track = stream.getVideoTracks()[0];
-        const rec = new MediaRecorder(stream, {
-          mimeType: 'video/webm;codecs=vp9',
-          videoBitsPerSecond: 780_000,
-        });
-        const chunks = [];
-        rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-
-        const frames = Math.round(LOOP * fps);
-        // Warm the first frame before the recorder starts so frame 0 is clean.
-        scene.draw(ctx, 0);
-        rec.start();
-
-        for (let f = 0; f < frames; f++) {
-          scene.draw(ctx, (f / fps) % LOOP);
-          track.requestFrame();
-          // Yield so the encoder drains; keeps memory flat on long loops.
-          await new Promise((r) => setTimeout(r, 1000 / fps));
-        }
-
-        await new Promise((res) => {
-          rec.onstop = res;
-          rec.stop();
-        });
-
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const buf = await blob.arrayBuffer();
-        let bin = '';
-        const bytes = new Uint8Array(buf);
-        const CH = 0x8000;
-        for (let i = 0; i < bytes.length; i += CH) {
-          bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
-        }
-        return btoa(bin);
+      /**
+       * Draw one frame of a scene's loop and hand it back as a PNG.
+       *
+       * Frames are pulled one at a time rather than recorded: MediaRecorder
+       * timestamps by wall clock and silently drops frames when the encoder
+       * falls behind, which under software rasterisation cost about a third
+       * of them — the clip then ended mid-cycle and never closed its loop.
+       * Pulling frame by frame is slower and exact.
+       */
+      window.__frame = (id, index, fps = 30) => {
+        byId[id].draw(ctx, index / fps);
+        return canvas.toDataURL('image/png').split(',')[1];
       };
 
       /** Poster frame, chosen at a composed moment in the loop. */
