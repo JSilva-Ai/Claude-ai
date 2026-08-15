@@ -18,7 +18,14 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      # .gitattributes routes *.webm and *.mp4 through Git LFS. The clips
+      # committed before that rule are still ordinary blobs, so this is a
+      # no-op today — but the next re-render commits them as pointers, and
+      # checkout defaults to lfs:false. CI would then test 130-byte text files
+      # and the deploy would publish them as "videos".
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - uses: actions/setup-node@v4
         with:
