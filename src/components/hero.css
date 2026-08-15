@@ -1,0 +1,550 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(var(--nav-h) + var(--space-2xl));
+  padding-bottom: 8.5rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* --- Field -------------------------------------------------------------- */
+.hero__field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Scrim keeps the copy legible over the field without dimming the whole
+   composition. Directional, so the field stays bright where it is empty. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      100deg,
+      var(--ink-050) 0%,
+      rgba(8, 9, 11, 0.92) 26%,
+      rgba(8, 9, 11, 0.55) 52%,
+      rgba(8, 9, 11, 0.2) 78%,
+      rgba(8, 9, 11, 0.45) 100%
+    ),
+    linear-gradient(180deg, var(--ink-050) 0%, transparent 22%, transparent 62%, var(--ink-050) 100%);
+}
+
+/* The sensor horizon. It lives in the field, on the right — starting it at 35%
+   ran a hairline straight across the copy column and read as a stray divider
+   under the buttons rather than as part of the picture. */
+.hero__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 26%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 40%,
+    var(--phosphor-a20) 58%,
+    var(--phosphor-a40) 74%,
+    transparent
+  );
+  opacity: 0;
+  transform: scaleX(0.4);
+  transform-origin: 60% 50%;
+  transition:
+    opacity 1.6s var(--ease-out) 500ms,
+    transform 2s var(--ease-out) 500ms;
+}
+
+.hero[data-lit='true'] .hero__horizon {
+  opacity: 0.55;
+  transform: scaleX(1);
+}
+
+/* --- Load choreography --------------------------------------------------- */
+/* Each element declares its position in the sequence via --i. One rule, one
+   timing curve, no per-element animation code. */
+.hero__eyebrow,
+.hero__lede,
+.hero__actions,
+.hero__telemetry {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  /* Deliberately quicker than the scroll-reveal duration. The lede is the LCP
+     element, so the length of this fade sets Largest Contentful Paint — the
+     sequence has to read as choreography, not as a wait. */
+  transition:
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out);
+  transition-delay: calc(var(--i) * 55ms + 80ms);
+}
+
+.hero[data-lit='true'] .hero__eyebrow,
+.hero[data-lit='true'] .hero__lede,
+.hero[data-lit='true'] .hero__actions,
+.hero[data-lit='true'] .hero__telemetry {
+  opacity: 1;
+  transform: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: var(--z-content);
+  width: 100%;
+}
+
+/* --- Eyebrow ------------------------------------------------------------- */
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: var(--space-l);
+  flex-wrap: wrap;
+}
+
+.hero__eyebrow-sep {
+  width: 1px;
+  height: 11px;
+  background: var(--line-strong);
+}
+
+/* --- Headline ------------------------------------------------------------ */
+.hero__headline {
+  max-width: 19ch;
+  margin-bottom: var(--space-l);
+}
+
+.hero__line {
+  display: block;
+  overflow: hidden;
+  /* Padding stops descenders being clipped by the overflow mask. */
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.hero__line-inner {
+  display: block;
+  transform: translate3d(0, 105%, 0);
+  transition: transform 0.82s var(--ease-out);
+  transition-delay: calc(var(--i) * 72ms);
+}
+
+.hero[data-lit='true'] .hero__line-inner {
+  transform: none;
+}
+
+.hero__headline em {
+  font-style: normal;
+}
+
+.hero__lede {
+  max-width: 46ch;
+  margin-bottom: var(--space-xl);
+  color: var(--grey-100);
+}
+
+/* --- Actions ------------------------------------------------------------- */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* --- Telemetry ----------------------------------------------------------- */
+.hero__telemetry {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-content);
+  border-top: 1px solid var(--line-weak);
+  background: linear-gradient(180deg, transparent, rgba(8, 9, 11, 0.7));
+  backdrop-filter: blur(2px);
+}
+
+.hero__telemetry-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-l);
+  padding-block: var(--space-m);
+}
+
+.hero__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-l);
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.hero__stat {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.hero__stat dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero__stat-value {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  color: var(--porcelain);
+  font-size: var(--step-2);
+  font-variation-settings: 'wdth' 112;
+  font-weight: 480;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.hero__stat-unit {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  color: var(--grey-300);
+  letter-spacing: 0;
+}
+
+/* --- Scroll cue ---------------------------------------------------------- */
+.hero__scroll {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.hero__scroll:hover {
+  color: var(--phosphor);
+}
+
+.hero__scroll:hover .label {
+  color: inherit;
+}
+
+.hero__scroll-rail {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 34px;
+  background: var(--line-strong);
+  overflow: hidden;
+}
+
+.hero__scroll-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 12px;
+  background: var(--porcelain);
+  animation: scroll-run 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes scroll-run {
+  0% {
+    transform: translateY(-14px);
+  }
+  60%,
+  100% {
+    transform: translateY(36px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll-dot {
+    animation: none;
+    height: 34px;
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================================================
+   Breakpoints — each is a composition decision, not a shrink
+   ========================================================================== */
+
+/* Tablet and up: the scroll cue earns its space. */
+@media (min-width: 48rem) {
+  .hero__scroll {
+    display: flex;
+  }
+}
+
+/* Below the laptop breakpoint four telemetry columns force the longest label
+   to ellipsis. Two columns, two rows — the strip stays readable instead of
+   staying four-across at any cost. */
+@media (max-width: 63.99rem) {
+  .hero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-s) var(--space-xl);
+  }
+}
+
+/* Laptop and up: the field is wide enough to hold the right half, so the
+   copy column narrows and the composition becomes asymmetric on purpose. */
+@media (min-width: 64rem) {
+  .hero {
+    padding-bottom: 7.5rem;
+  }
+
+  .hero__headline {
+    max-width: 15ch;
+  }
+}
+
+/* Laptops are wide but short. At 1280×800 the display scale is driven by
+   width alone, so the composition outgrows the viewport and pushes the
+   telemetry strip below the fold. Height has to be part of the decision. */
+@media (min-width: 48rem) and (max-height: 54rem) {
+  .hero {
+    padding-top: calc(var(--nav-h) + var(--space-m));
+    padding-bottom: 6.75rem;
+  }
+
+  .hero__headline {
+    font-size: clamp(2.6rem, 0.9rem + 3.9vw, 4.25rem);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__lede {
+    font-size: var(--step-0);
+    margin-bottom: var(--space-l);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: var(--space-s);
+  }
+}
+
+/* Large desktop: cap the headline so it never becomes a billboard. */
+@media (min-width: 100rem) {
+  .hero__headline {
+    max-width: 14ch;
+  }
+}
+
+/* --- Mobile: a deliberately different composition ------------------------ */
+@media (max-width: 47.99rem) {
+  .hero {
+    min-height: 100svh;
+    padding-top: calc(var(--nav-h) + var(--space-xl));
+    padding-bottom: 10.5rem;
+    justify-content: flex-end;
+  }
+
+  /* The field moves behind and above the copy rather than beside it, and is
+     pushed back so small type stays legible on a phone screen. */
+  .hero__scrim {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(8, 9, 11, 0.62) 0%,
+        rgba(8, 9, 11, 0.42) 26%,
+        rgba(8, 9, 11, 0.8) 52%,
+        rgba(8, 9, 11, 0.95) 74%,
+        var(--ink-050) 88%
+      );
+  }
+
+  /* Clear of the copy: at 42% the horizon ran straight through the gap
+     between the headline and the lede and read as a stray divider. It belongs
+     in the field, above the type. */
+  .hero__horizon {
+    bottom: 62%;
+  }
+
+  /* The three authored lines become five at phone widths, so the display
+     size is set for this breakpoint rather than inherited from the scale. */
+  .hero__headline {
+    max-width: 100%;
+    font-size: clamp(2.5rem, 1.1rem + 5.6vw, 3.25rem);
+  }
+
+  /* Two mono strings do not fit one phone line; the mode reading is the one
+     that can be inferred from the field itself. */
+  .hero__eyebrow-sep,
+  .hero__eyebrow .label:last-child {
+    display: none;
+  }
+
+  .hero__lede {
+    font-size: var(--step-0);
+    margin-bottom: var(--space-l);
+  }
+
+  .hero__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xs);
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+  }
+
+  /* Two-up stat grid; four columns is unreadable at this width. The row gap
+     has to clearly beat the 6px inside each pair or the strip reads as four
+     loose lines instead of two rows. */
+  .hero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-m) var(--space-m);
+  }
+
+  .hero__stat-value {
+    font-size: var(--step-1);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: var(--space-s);
+  }
+}
+
+/* --- Small mobile -------------------------------------------------------- */
+/* At 320x640 the five headline lines plus a six-line lede push the telemetry
+   strip off the bottom of the screen. The display scale steps down again so
+   the whole composition — including the strip — fits one viewport. */
+@media (max-width: 26rem) {
+  .hero {
+    padding-bottom: 8.25rem;
+  }
+
+  /* At 320×640 the copy fills the frame; there is no band of field left for
+     the horizon to sit in, so it would only cross the headline. */
+  .hero__horizon {
+    display: none;
+  }
+
+  .hero__headline {
+    font-size: clamp(1.95rem, 1.1rem + 3.6vw, 2.4rem);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__lede {
+    font-size: var(--step--1);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__eyebrow {
+    gap: 0.5rem;
+    margin-bottom: var(--space-m);
+  }
+
+  /* The strip still has to hold two rows inside the remaining band, so it
+     takes its own compact scale rather than inheriting the phone one. */
+  .hero__stats {
+    gap: 0.55rem var(--space-m);
+  }
+
+  .hero__stat-value {
+    font-size: var(--step-0);
+  }
+
+  .hero__telemetry-inner {
+    padding-block: 0.7rem;
+  }
+}
+
+/* --- Short landscape phones: the field would crush the copy -------------- */
+@media (max-height: 34rem) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+    padding-block: calc(var(--nav-h) + var(--space-l)) var(--space-3xl);
+  }
+
+  .hero__telemetry {
+    position: static;
+    margin-top: var(--space-l);
+  }
+}
+
+/* --- Field readout ------------------------------------------------------- */
+/* The field is an instrument, and an instrument annotates its own display.
+   These are the renderer's real values, so the hero's right half carries
+   information rather than only atmosphere. Sits low and quiet — it is a
+   margin note on the field, not a second headline. */
+.hero__readout {
+  position: absolute;
+  /* Aligned to the container's inner right edge, not the viewport's. The
+     field is full-bleed but the readout is content, and every other element
+     on the page hangs off the same rule. */
+  right: max(var(--gutter), calc(50vw - var(--container) / 2 + var(--gutter)));
+  bottom: 31%;
+  z-index: 1;
+  display: none;
+  margin: 0;
+  padding-left: var(--space-m);
+  border-left: 1px solid var(--line);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 900ms var(--ease-out) 900ms,
+    transform 900ms var(--ease-out) 900ms;
+}
+
+.hero[data-lit='true'] .hero__readout {
+  opacity: 1;
+  transform: none;
+}
+
+.hero__readout > div {
+  display: grid;
+  grid-template-columns: 9.5rem 7.5rem;
+  gap: var(--space-s);
+  align-items: baseline;
+  padding-block: 0.5rem;
+}
+
+.hero__readout > div + div {
+  border-top: 1px solid var(--line-weak);
+}
+
+.hero__readout dt {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-400);
+  line-height: 1.3;
+}
+
+.hero__readout dd {
+  margin: 0;
+  font-size: var(--step--2);
+  font-variant-numeric: tabular-nums;
+  color: var(--grey-200);
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* Only where there is field to annotate. Below this the copy owns the width
+   and a readout would be clutter. */
+@media (min-width: 78rem) {
+  .hero__readout {
+    display: block;
+  }
+}
+
+@media (min-width: 78rem) and (max-height: 46rem) {
+  .hero__readout {
+    display: none;
+  }
+}

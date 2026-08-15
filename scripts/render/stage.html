@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Proving Grounds — capture stage</title>
+    <style>
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: url('/node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2')
+          format('woff2-variations');
+        font-weight: 100 800;
+        font-display: block;
+      }
+      html,
+      body {
+        margin: 0;
+        background: #08090b;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+    <script type="module">
+      import { SCENES, LOOP, W, H } from '/scripts/render/scenes.js';
+
+      const canvas = document.getElementById('stage');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      const byId = Object.fromEntries(SCENES.map((s) => [s.id, s]));
+      window.__scenes = SCENES.map((s) => ({
+        id: s.id,
+        code: s.code,
+        title: s.title,
+        task: s.task,
+      }));
+
+      window.__drawAt = (id, t) => {
+        byId[id].draw(ctx, t);
+      };
+
+      /**
+       * Draw one frame of a scene's loop and hand it back as a PNG.
+       *
+       * Frames are pulled one at a time rather than recorded: MediaRecorder
+       * timestamps by wall clock and silently drops frames when the encoder
+       * falls behind, which under software rasterisation cost about a third
+       * of them — the clip then ended mid-cycle and never closed its loop.
+       * Pulling frame by frame is slower and exact.
+       */
+      window.__frame = (id, index, fps = 30) => {
+        byId[id].draw(ctx, index / fps);
+        return canvas.toDataURL('image/png').split(',')[1];
+      };
+
+      /** Poster frame, chosen at a composed moment in the loop. */
+      window.__poster = (id, t, quality = 0.86) => {
+        byId[id].draw(ctx, t);
+        return canvas.toDataURL('image/jpeg', quality).split(',')[1];
+      };
+
+      document.fonts.ready.then(() => {
+        window.__ready = true;
+      });
+    </script>
+  </body>
+</html>

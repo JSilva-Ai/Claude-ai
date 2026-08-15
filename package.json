@@ -1,0 +1,38 @@
+{
+  "name": "claude-ai",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "check": "npm run typecheck && npm run lint",
+    "qa": "node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --sections",
+    "qa:a11y": "node scripts/a11y.mjs",
+    "qa:perf": "node scripts/perf.mjs --cpu=4",
+    "qa:video": "node scripts/video-check.mjs",
+    "qa:seam": "node scripts/render/seam.mjs",
+    "render": "node scripts/render/capture.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "axe-core": "^4.13.0",
+    "ffmpeg-static": "^5.3.0",
+    "oxlint": "^1.75.0",
+    "playwright": "^1.56.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0"
+  }
+}

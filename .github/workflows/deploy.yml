@@ -1,0 +1,91 @@
+name: deploy
+
+# Publishes the built site to GitHub Pages from whichever branch is the
+# repository default, so this keeps working after the branch is merged and
+# renamed. Enable it once under Settings → Pages → Source: GitHub Actions.
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; queue instead of cancelling, so a run that is
+# already publishing is allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # The media is committed as ordinary blobs — the ten clips are ~13 MB
+      # total and only change when the environments are re-rendered, so LFS
+      # earns nothing here. lfs:true is kept purely as a safety net: if anyone
+      # does route *.webm/*.mp4 through LFS later, checkout defaults to false
+      # and CI would silently test 130-byte pointer files while the deploy
+      # published them as "videos".
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # A Pages project site is served from /<repo>/, so the build needs that
+      # prefix or every runtime-built media URL 404s. A CNAME in public/ means
+      # a custom domain is in use and the site sits at the root instead.
+      - name: Resolve base path
+        id: base
+        run: |
+          if [ -f public/CNAME ]; then
+            echo "path=/" >> "$GITHUB_OUTPUT"
+            echo "Custom domain present — building for the domain root."
+          else
+            echo "path=/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_OUTPUT"
+            echo "Project site — building for /${GITHUB_REPOSITORY#*/}/"
+          fi
+
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: ${{ steps.base.outputs.path }}
+
+      # `enablement: true` was tried and cannot work here: creating a Pages
+      # site is a repository-admin action, and GITHUB_TOKEN is refused with
+      # "Resource not accessible by integration" no matter what `permissions:`
+      # grants. Turning Pages on is a genuine one-time manual step.
+      - uses: actions/configure-pages@v5
+
+      - name: How to fix a Pages failure
+        if: failure()
+        run: |
+          echo "::error title=GitHub Pages is not enabled::Open Settings → Pages"\
+               " on this repository and set Source to 'GitHub Actions', then"\
+               " re-run this workflow. It only has to be done once."
+          exit 1
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

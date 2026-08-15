@@ -1,0 +1,301 @@
+/* ==========================================================================
+   Shared UI primitives — buttons, tags, rules, reveals
+   ========================================================================== */
+
+/* --- Reveal ------------------------------------------------------------- */
+/* Translation of a few pixels + opacity. Never a scale-up from 0.8. */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal='in'] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+/* An action on this page is a key on a panel, not a pill: hard corners, a
+   tracked mono legend, and the arrow in its own ruled cell. Rounded surfaces
+   are reserved for the environment monitors, which hold video. */
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--porcelain);
+  --btn-border: var(--line-strong);
+  --btn-rule: var(--line-strong);
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  min-height: 3rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 550;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
+  transition:
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out);
+}
+
+/* The legend sits in its own cell so the arrow cell can be ruled off it. */
+.btn__label {
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.btn__arrow {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  flex: none;
+  border-left: 1px solid var(--btn-rule);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.btn:hover .btn__arrow svg {
+  transform: translate(2px, -2px);
+}
+
+.btn__arrow svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* Primary — highest value contrast on the page, no accent spent. The accent
+   arrives on intent instead, so only one thing glows at a time. */
+.btn--primary {
+  --btn-bg: var(--porcelain);
+  --btn-fg: var(--ink-000);
+  --btn-border: var(--porcelain);
+  --btn-rule: rgba(8, 9, 11, 0.22);
+  font-weight: 620;
+}
+
+.btn--primary:hover {
+  --btn-bg: var(--phosphor);
+  --btn-border: var(--phosphor);
+  --btn-rule: rgba(8, 9, 11, 0.28);
+}
+
+.btn--ghost {
+  --btn-border: var(--line-strong);
+  --btn-rule: var(--line-strong);
+}
+
+.btn--ghost:hover {
+  --btn-bg: var(--fill-strong);
+  --btn-fg: var(--porcelain);
+  --btn-border: rgba(237, 238, 240, 0.3);
+  --btn-rule: rgba(237, 238, 240, 0.3);
+}
+
+.btn--sm {
+  min-height: 2.375rem;
+  font-size: 0.65rem;
+}
+
+.btn--sm .btn__label {
+  padding-inline: 0.9rem;
+}
+
+/* --- Text link with rule ------------------------------------------------ */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--porcelain);
+  font-size: var(--step--1);
+  font-weight: 520;
+  padding-bottom: 2px;
+  background-image: linear-gradient(var(--phosphor), var(--phosphor));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    background-size var(--dur-slow) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--phosphor);
+  background-size: 100% 1px;
+}
+
+/* --- Tag ---------------------------------------------------------------- */
+/* Classification, not a chip. Boxed pills read as a CMS taxonomy widget; a
+   tracked mono string separated by a rule reads as a filing code. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grey-300);
+  white-space: nowrap;
+}
+
+/* --- Live dot ----------------------------------------------------------- */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  color: var(--phosphor);
+  flex: none;
+  animation: dot-pulse 2.8s var(--ease-in-out) infinite;
+}
+
+.dot--ember {
+  background: var(--ember);
+}
+
+/* The halo is derived from the dot's own colour, so a plasma or grey status
+   dot no longer pulses phosphor. */
+@keyframes dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}
+
+/* --- Section header ----------------------------------------------------- */
+.section-head {
+  display: grid;
+  gap: var(--space-m);
+  margin-bottom: var(--space-2xl);
+}
+
+.section-head__index {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-head__index::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  max-width: 8rem;
+  background: linear-gradient(90deg, var(--line-strong), transparent);
+}
+
+/* The index is set by value, not by hue. Spending the accent on an ordinal
+   in every section is how a page ends up with seven things glowing. */
+.section-head__no {
+  color: var(--porcelain);
+}
+
+@media (min-width: 60rem) {
+  .section-head--split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+    align-items: end;
+    gap: var(--space-3xl);
+  }
+
+  /* The display line needs room to breathe away from the lede beside it. */
+  .section-head--split .section-head__title {
+    max-width: 17ch;
+  }
+}
+
+/* --- Card --------------------------------------------------------------- */
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--fill) 0%, var(--fill-weak) 100%);
+  border: 1px solid var(--line-weak);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-slow) var(--ease-out),
+    background-color var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+/* Corner ticks — instrument framing, used instead of heavy borders. */
+.ticks::before,
+.ticks::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--phosphor-a40);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+
+.ticks::before {
+  top: 10px;
+  left: 10px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.ticks::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: 0;
+  border-top: 0;
+}
+
+.ticks:hover::before,
+.ticks:hover::after,
+.ticks:focus-within::before,
+.ticks:focus-within::after {
+  opacity: 1;
+}
+
+/* --- Grain -------------------------------------------------------------- */
+/* Scoped to the hero and not fixed. A page-wide fixed grain in
+   mix-blend-mode: overlay costs roughly 60% of scroll frame rate, because
+   every scrolled frame has to recomposite the whole document through the
+   blend. The texture is not worth that, and over the field is the only place
+   it reads anyway. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: var(--grain-url);
+  background-size: 180px 180px;
+}

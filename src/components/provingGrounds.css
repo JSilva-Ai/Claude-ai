@@ -1,0 +1,323 @@
+/* ==========================================================================
+   Proving Grounds — a wall of live monitors
+   ========================================================================== */
+
+.grounds__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-bottom: var(--space-s);
+  margin-bottom: var(--space-l);
+  border-bottom: 1px solid var(--line-weak);
+}
+
+.grounds__note {
+  color: var(--grey-300);
+  max-width: 60ch;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-wrap: balance;
+}
+
+/* --- Motion toggle ------------------------------------------------------- */
+.grounds__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  /* Touch target without visual bulk. */
+  padding: 0.6rem 0;
+  min-height: 44px;
+  color: var(--grey-200);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.grounds__toggle:hover {
+  color: var(--porcelain);
+}
+
+.grounds__toggle .label {
+  color: inherit;
+}
+
+/* A hard-cornered throw switch, not the iOS pill. Everything phosphor in this
+   section belongs inside a monitor bezel; the chrome around the wall stays
+   achromatic so the ten screens are the only thing glowing. */
+.grounds__toggle-track {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 15px;
+  border: 1px solid var(--line-strong);
+  border-radius: 1px;
+  transition: border-color var(--dur-base) var(--ease-out);
+}
+
+.grounds__toggle:hover .grounds__toggle-track {
+  border-color: var(--grey-400);
+}
+
+.grounds__toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 9px;
+  border-radius: 0;
+  background: var(--grey-400);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out);
+}
+
+.grounds__toggle[aria-pressed='true'] .grounds__toggle-thumb {
+  transform: translateX(14px);
+  background: var(--porcelain);
+}
+
+/* --- Grid ---------------------------------------------------------------- */
+.grounds__grid {
+  display: grid;
+  gap: var(--space-m);
+  margin: 0;
+}
+
+/* Two rows: the monitor, then a caption block that fills whatever height the
+   tallest card in the row takes. Without this the metric rule sits wherever a
+   blurb happens to stop wrapping, and a row of monitors ends on three
+   different baselines. */
+.env {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+/* --- Monitor ------------------------------------------------------------- */
+.env__frame {
+  position: relative;
+  border: 1px solid var(--line-weak);
+  border-radius: var(--r-m);
+  overflow: hidden;
+  background: var(--ink-100);
+  transition:
+    border-color var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.env__frame:hover,
+.env__frame:focus-within {
+  border-color: var(--line-strong);
+}
+
+.env__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.env__poster,
+.env__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.env__poster {
+  transition: opacity var(--dur-base) var(--ease-linear);
+}
+
+/* Cross-fade rather than a hard swap — a hard swap reads as a glitch. */
+.env__poster[data-hidden='true'] {
+  opacity: 0;
+}
+
+.env__video {
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-linear);
+}
+
+.env__video[data-visible='true'] {
+  opacity: 1;
+}
+
+/* A single travelling scanline: the monitor reads as powered, at almost no
+   cost. Hidden under reduced motion. */
+.env__scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(212, 248, 92, 0.045), transparent);
+  animation: scan 7s var(--ease-linear) infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(560%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .env__scanline {
+    display: none;
+  }
+}
+
+/* --- Monitor chrome ------------------------------------------------------ */
+.env__chrome {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: 0.55rem 0.7rem;
+  background: linear-gradient(180deg, transparent, rgba(5, 6, 9, 0.85));
+  pointer-events: none;
+}
+
+.env__code {
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--phosphor);
+}
+
+.env__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.env__state .label {
+  color: var(--grey-300);
+  font-size: 0.625rem;
+}
+
+.env__state-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--grey-500);
+  flex: none;
+}
+
+/* --- Meta ---------------------------------------------------------------- */
+.env__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-inline: 0.15rem;
+}
+
+.env__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.env__name {
+  font-size: var(--step-1);
+  font-variation-settings: 'wdth' 110;
+  font-weight: 480;
+  letter-spacing: -0.026em;
+  line-height: 1;
+  color: var(--porcelain);
+}
+
+.env__discipline {
+  color: var(--grey-300);
+}
+
+.env__blurb {
+  color: var(--grey-300);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+.env__metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-top: 0.55rem;
+  margin-top: auto;
+  border-top: 1px solid var(--line-weak);
+}
+
+/* Ten glowing numbers under ten glowing monitors is twenty accents. Phosphor
+   in this section is what the model sees — it lives inside the bezel. The
+   caption is a readout, set in porcelain. */
+.env__metric-value {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--porcelain);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Breakpoints
+   ========================================================================== */
+
+/* Tablet: two up. */
+@media (min-width: 40rem) {
+  .grounds__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-l) var(--space-m);
+  }
+}
+
+/* Desktop: a six-column grid read as four rows — two large monitors, two
+   rows of three, then two large again. Every card in a row spans the same
+   number of columns, so media heights match across the row; varying the span
+   *between* rows is what gives the wall its cadence. Mixing spans within a
+   row leaves one card short and opens a void beneath it. */
+@media (min-width: 68rem) {
+  .grounds__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-xl) var(--space-m);
+  }
+
+  .env:nth-child(-n + 2),
+  .env:nth-child(n + 9) {
+    grid-column: span 3;
+  }
+
+  .env:nth-child(n + 3):nth-child(-n + 8) {
+    grid-column: span 2;
+  }
+
+  .env:nth-child(-n + 2) .env__name,
+  .env:nth-child(n + 9) .env__name {
+    font-size: var(--step-2);
+  }
+}
+
+/* --- Mobile: full-width monitors, stacked ------------------------------- */
+@media (max-width: 39.99rem) {
+  .grounds__grid {
+    gap: var(--space-xl);
+  }
+
+  .env__media {
+    aspect-ratio: 16 / 10;
+  }
+
+  .grounds__bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+}
