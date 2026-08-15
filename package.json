@@ -14,7 +14,8 @@
     "qa:a11y": "node scripts/a11y.mjs",
     "qa:perf": "node scripts/perf.mjs --cpu=4",
     "brand": "node scripts/render/brand.mjs",
-    "demo": "node scripts/install-demo.mjs"
+    "demo": "node scripts/install-demo.mjs",
+    "capture": "node scripts/render/capture-game.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

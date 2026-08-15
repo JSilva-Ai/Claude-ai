@@ -1,5 +1,6 @@
 import type { App } from '../content/site';
 import { asset, url } from '../lib/url';
+import { GameClip } from './GameClip';
 import { useReveal } from '../lib/hooks';
 
 /**
@@ -38,7 +39,9 @@ export function AppCard({
       style={{ '--reveal-delay': `${i * 80}ms` } as React.CSSProperties}
     >
       <div className="appcard__art">
-        {shot ? (
+        {app.clip ? (
+          <GameClip clip={app.clip} alt={`${app.name} gameplay`} eager={i < 2} />
+        ) : shot ? (
           <img
             src={asset(shot.src)}
             alt={shot.alt}
@@ -54,12 +57,15 @@ export function AppCard({
             <span className="appcard__empty-mark" />
           </div>
         )}
-        <span className={`pill pill--${app.status === 'In development' ? 'dev' : 'live'}`}>
-          {app.status}
-        </span>
       </div>
 
       <div className="appcard__meta">
+        {/* The status sits here rather than over the art: a clip fills the slot
+            edge to edge and every corner of it is game HUD, so an overlay pill
+            covers the score or the credits whichever corner it takes. */}
+        <span className={`pill pill--${app.status === 'In development' ? 'dev' : 'live'}`}>
+          {app.status}
+        </span>
         <H className="appcard__name">
           <a className="appcard__link" href={url(`apps/${app.slug}`)}>
             {app.name}

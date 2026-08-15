@@ -2,6 +2,7 @@ import { PageHead } from './Shell';
 import { StoreBadge } from './StoreBadge';
 import { apps, appsPage, routes, site, ui } from '../content/site';
 import { asset, url } from '../lib/url';
+import { GameClip } from './GameClip';
 
 /**
  * The per-app page template.
@@ -93,9 +94,11 @@ export function AppPage({ slug }: { slug: string }) {
       <section className="section" aria-labelledby="shots-title">
         <div className="container">
           <h2 className="head__title head__title--sm" id="shots-title">
-            {ui.screenshotsLabel}
+            {app.clip ? ui.gameplayLabel : ui.screenshotsLabel}
           </h2>
-          {app.screenshots.length === 0 ? (
+          {app.clip ? (
+            <GameClip clip={app.clip} alt={`${app.name} gameplay`} />
+          ) : app.screenshots.length === 0 ? (
             <p className="todo">{ui.noScreenshots}</p>
           ) : (
             <ul className="shots">

@@ -97,7 +97,43 @@ Headings are heavy and condensed on Archivo's width axis (`wdth` 76, `wght`
 800) rather than by transform — scaling a letterform horizontally thins its
 horizontals unevenly.
 
-## The playable demo
+## Game media
+
+**Every piece of game media on this site is 520×720.** That is the size VOID
+STRIKER's canvas is authored at, adopted as the house format: a clip, a
+screenshot and an empty slot are then interchangeable, and a grid never reflows
+when one replaces another. The size lives in `--media-w` / `--media-h` /
+`--media-ratio` in `tokens.css`, and `capture-game.mjs` writes at exactly it.
+The width is a cap rather than a fixed size — it has to shrink on a 320px
+phone — but the ratio always holds.
+
+`GameClip.tsx` is the one component that fills the slot. Under reduced motion
+it renders the poster and nothing else: no decoder, no source elements, no play
+control to argue with.
+
+### Recording a clip
+
+```bash
+npm run demo       # build the game into public/ (needed by the capture)
+npm run capture    # record public/media/games/void-striker/{clip.webm,clip.mp4,poster.jpg}
+```
+
+Frames are pulled one at a time rather than screen-recorded. The game's loop is
+`update(); draw(); requestAnimationFrame(loop)` with `gs.t++` as its only clock,
+so one rAF is one game step and nothing reads wall-clock time — the capture
+replaces rAF with a queue it drains by hand. The result is exact at any capture
+speed, and a headless machine rendering at 6 fps still produces a clip that
+plays at the right speed. A MediaRecorder capture cannot: it timestamps by wall
+clock, which is what produced several-times-too-long clips the last time this
+repo tried it.
+
+The clip fades from and to black, because gameplay state cannot match across a
+loop seam — the seam is hidden rather than pretended away. The upgrade shop is
+dismissed by pressing `1` on a timer: it is drawn on the canvas and the game
+state is inside an IIFE, so there is nothing to detect from outside, and the
+key is inert except during the upgrade phase.
+
+### The game itself
 
 `game/void_striker.html` is the game, exactly as authored, and
 `game/VOID_STRIKER.md` is its handoff notes. `npm run demo` builds the
@@ -112,11 +148,10 @@ would make the studio's one piece of proof depend on a CDN being up.
 **Edit `game/void_striker.html` and re-run `npm run demo`. Never edit the copy
 under `public/`** — it is generated and will be overwritten.
 
-Self-hosting also keeps the embed same-origin, which the game needs: its
-leaderboard, achievements, and volume setting are all `localStorage`.
-
-The frame is set to the game's own 520×720 ratio, because its `resize()` fits
-to `min(vw/520, vh/720)` and would otherwise letterbox inside a wider box.
+The playable build is still shipped, because the capture reads from it, and
+`/demo` offers it as a secondary link. `/demo` itself shows the clip — delete
+`demo.playable` in `src/content/site.ts` if you would rather the game were not
+reachable at all.
 
 ## The hero
 
@@ -136,7 +171,8 @@ npm run qa         # eight routes × six viewports
 npm run qa:a11y    # axe-core, keyboard walk, touch targets
 npm run qa:perf    # Core Web Vitals and measured frame rate
 npm run brand      # regenerate og.jpg and brand/mark-512.png
-npm run demo       # rebuild the playable demo from game/void_striker.html
+npm run demo       # rebuild the game into public/ from game/void_striker.html
+npm run capture    # re-record the 520x720 gameplay clip
 ```
 
 Everything except `check` and `brand` needs the built site being served:

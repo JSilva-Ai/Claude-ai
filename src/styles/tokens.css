@@ -94,6 +94,17 @@
   --container-text: 42rem;
   --nav-h: 4.25rem;
 
+  /* --- Game media ---------------------------------------------------------
+     Every clip, screenshot and empty slot on this site is 520×720 — the size
+     VOID STRIKER's canvas is authored at, adopted as the house format so the
+     three are interchangeable and a grid never reflows when one replaces
+     another. scripts/render/capture-game.mjs writes at exactly this size.
+     The width is a cap, not a fixed size: below it the slot shrinks and the
+     ratio holds, because 520px does not fit a 320px phone. */
+  --media-w: 520px;
+  --media-h: 720px;
+  --media-ratio: 520 / 720;
+
   /* --- Radii -------------------------------------------------------------
      Slightly softer than the old lab language: this site's subject is phone
      software, and a card that holds a screenshot should echo the device. */

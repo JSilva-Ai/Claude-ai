@@ -97,6 +97,13 @@ export interface StoreLink {
   href: string;
 }
 
+/** A recorded clip, at the house 520x720. Paths are under public/. */
+export interface GameClipSources {
+  webm: string;
+  mp4: string;
+  poster: string;
+}
+
 export interface Screenshot {
   /** Path under public/, e.g. 'media/apps/void-striker/01.png'. */
   src: string;
@@ -116,6 +123,8 @@ export interface App {
   /** Longer description for the app's own page. Paragraphs. */
   description: string[];
   screenshots: Screenshot[];
+  /** Shown on the card and on the app page in place of a screenshot. */
+  clip?: GameClipSources;
   stores: StoreLink[];
   /** Set when the app has a playable web build. Route, not a full URL. */
   demoRoute?: string;
@@ -145,6 +154,11 @@ export const apps: App[] = [
       'The browser build is finished and playable on the demo page. [TODO] Say what the iOS and Android plan actually is — a wrapper around this build, a native rewrite, or undecided — and whether there is a release window you are willing to commit to. "In development" with no date is more honest than a date you will move.',
     ],
     screenshots: [],
+    clip: {
+      webm: 'media/games/void-striker/clip.webm',
+      mp4: 'media/games/void-striker/clip.mp4',
+      poster: 'media/games/void-striker/poster.jpg',
+    },
     stores: [
       { store: 'appStore', href: '' },
       { store: 'googlePlay', href: '' },
@@ -169,34 +183,43 @@ export const appsPage = {
    ------------------------------------------------------------------------- */
 
 export const demo = {
-  label: 'Playable demo',
+  label: 'Gameplay',
   headline: 'VOID STRIKER',
-  lede: 'The real game, running in this page. Not a trailer and not a recording — it is the same build, and your score goes on the leaderboard.',
+  lede: 'Fourteen seconds of an actual run — recorded from the game itself, not animated for the site.',
   /**
-   * The playable build, self-hosted.
+   * The clip. Recorded by `npm run capture` from the real build, frame by
+   * frame, at the house 520x720.
    *
-   * `game/void_striker.html` is the canonical source; `npm run demo` copies it
-   * to public/ and self-hosts its two Google Fonts faces on the way. Re-run
-   * that after any change to the game — do not edit the copy in public/.
-   *
-   * Self-hosting also keeps the embed same-origin, which the game needs: its
-   * leaderboard, achievements, and volume setting are all localStorage.
+   * This page used to embed the game as a playable iframe. It is a video now
+   * because a clip is the format that generalises: every future game gets one,
+   * at the same size, with no per-game embedding work and no third-party
+   * frame to sandbox.
    */
-  src: 'demo/void-striker/index.html',
-  unconfigured: {
-    title: 'Demo not connected yet',
-    body: 'The playable build has not been pointed at from the site. Set `demo.src` in src/content/site.ts to the URL of the web build.',
+  clip: {
+    webm: 'media/games/void-striker/clip.webm',
+    mp4: 'media/games/void-striker/clip.mp4',
+    poster: 'media/games/void-striker/poster.jpg',
   },
-  /** Read out of the game's own key handling, not guessed. */
-  controls: [
-    { keys: '\u2190 \u2192 \u2191 \u2193  /  WASD', action: 'Move' },
-    { keys: 'Space  /  Z', action: 'Fire' },
-    { keys: 'Q', action: 'Bomb' },
-    { keys: '1 2 3  /  4', action: 'Pick upgrade / skip' },
-    { keys: 'Drag', action: 'Move and fire, on touch' },
+  clipAlt:
+    'VOID STRIKER gameplay: the player ship firing upward through waves of enemies, with the score and wave counter across the top.',
+  /** Shown if `clip` is ever cleared. */
+  unconfigured: {
+    title: 'No clip recorded yet',
+    body: 'Run `npm run capture` to record one from the game build, or point `demo.clip` at an existing file.',
+  },
+  /**
+   * The playable build is still shipped at public/demo/void-striker/ — the
+   * capture script reads from it — so it costs nothing to offer. Delete this
+   * and the link that renders it if you would rather the game were not
+   * reachable at all.
+   */
+  playable: { label: 'Play the full game', href: 'demo/void-striker/index.html' },
+  facts: [
+    { label: 'Recorded at', value: '520 x 720, 60 fps' },
+    { label: 'Engine', value: 'None. Canvas 2D' },
+    { label: 'Audio', value: 'Synthesised, Web Audio' },
   ],
-  fullscreenLabel: 'Fullscreen',
-  note: 'Runs entirely in your browser. Scores and achievements are saved on this device only — nothing is sent anywhere.',
+  note: 'Recorded from the real build. The game runs in the browser with no engine and no libraries.',
 };
 
 /* -------------------------------------------------------------------------
@@ -237,6 +260,7 @@ export const ui = {
   close: 'Close',
   backToApps: 'All apps',
   screenshotsLabel: 'Screenshots',
+  gameplayLabel: 'Gameplay',
   noScreenshots: '[TODO] Screenshots go in public/media/apps/<slug>/ and are listed in src/content/site.ts.',
   supportShort: 'Support',
   emailUs: 'Email us',
