@@ -11,13 +11,34 @@ import './hero.css';
  */
 function Field({ animate }: { animate: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const readoutRef = useRef<HTMLDListElement>(null);
   const pointer = usePointer();
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const handle = createPerceptionField(canvas, { pointer: pointer.current, animate });
+
+    // The readout is written straight into the DOM rather than held in state:
+    // it updates several times a second and React has no reason to re-render
+    // the hero for it.
+    const cells = readoutRef.current?.querySelectorAll<HTMLElement>('[data-cell]');
+    const handle = createPerceptionField(canvas, {
+      pointer: pointer.current,
+      animate,
+      onStats: cells
+        ? (s) => {
+            const values = [
+              s.samples.toLocaleString('en-US'),
+              s.radius.toFixed(2) + ' m',
+              `${s.originX >= 0 ? '+' : ''}${s.originX.toFixed(2)}, ${s.originY >= 0 ? '+' : ''}${s.originY.toFixed(2)}`,
+            ];
+            cells.forEach((cell, i) => {
+              cell.textContent = values[i];
+            });
+          }
+        : undefined,
+    });
     if (!handle) {
       setFailed(true);
       return;
@@ -31,6 +52,21 @@ function Field({ animate }: { animate: boolean }) {
       <div className="hero__scrim" />
       <div className="grain" />
       <div className="hero__horizon" />
+
+      {/* Annotation, the way an instrument annotates its own display. These
+          are the field's real values, read out of the running renderer. */}
+      {!failed && (
+        <dl className="hero__readout" ref={readoutRef}>
+          {hero.readout.map((r) => (
+            <div key={r}>
+              <dt>{r}</dt>
+              <dd className="mono" data-cell>
+                —
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   );
 }

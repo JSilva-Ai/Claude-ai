@@ -42,6 +42,7 @@ scripts/
   shoot.mjs              visual QA screenshots across six viewports
   a11y.mjs               axe-core + keyboard walk + touch-target audit
   perf.mjs               Core Web Vitals, transfer weight, measured frame rate
+  video-check.mjs        monitor playback, gating, and the motion toggle
 ```
 
 ## The hero
@@ -56,6 +57,10 @@ measures the frame time it is actually getting and spends down to fit —
 shedding samples in steps, and settling on a single resolved frame if the
 device cannot sustain the animation. Points are shuffled at init so any prefix
 of the buffer is a spatially uniform subset rather than the top of the field.
+
+The field reads out its own state — sample budget after the adaptive
+controller has spent it, sweep radius, sensor origin — into the hero, so the
+numbers printed over the field are the running system's, not decoration.
 
 Under `prefers-reduced-motion` it draws one fully resolved frame, composed as
 a still. The same renderer runs beneath the contact section in `resolved`
@@ -112,6 +117,7 @@ node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --full --secti
 node scripts/a11y.mjs
 node scripts/perf.mjs --cpu=4
 node scripts/render/seam.mjs
+node scripts/video-check.mjs
 ```
 
 `shoot.mjs` also fails on console errors, failed requests, broken images
@@ -122,10 +128,10 @@ Current numbers, at 4× CPU throttle with software WebGL:
 
 | | |
 |---|---|
-| LCP | 1.8 s (0.35 s FCP) |
+| LCP | 1.65 s (0.50 s FCP) |
 | CLS | 0.0000 |
-| Hero / scroll frame rate | 41 / 44 fps |
-| Total transfer | 622 KB (initial view) |
+| Hero / scroll frame rate | 52 / 52 fps |
+| Total transfer | ~625 KB (initial view) |
 | axe-core | no violations, at rest and with the menu open |
 
 ## Conventions worth knowing

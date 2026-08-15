@@ -21,6 +21,8 @@ export const hero = {
   headline: ['We build the worlds', 'where machines', 'learn to see.'],
   accentWord: 'see',
   lede: 'A machine perception research lab. We author synthetic worlds, raise vision systems inside them, and attack those systems until they break. Failure is cheaper in simulation than on a live camera.',
+  /** Labels for the live readout drawn over the field. Values come from the renderer. */
+  readout: ['Samples returned', 'Sweep radius', 'Sensor origin'],
   primaryCta: { label: 'Enter the Proving Grounds', href: '#proving-grounds' },
   secondaryCta: { label: 'Read the research', href: '#research' },
   telemetry: [
@@ -108,6 +110,22 @@ export const capabilities = {
       ],
     },
   ],
+};
+
+/**
+ * The loop the Capabilities headline names. Each research line hands the next
+ * one a specific thing, and the last hands back to the first — which is the
+ * argument the section is making, drawn instead of asserted.
+ */
+export const capabilityLoop = {
+  label: 'The loop',
+  stations: [
+    { code: 'GP', hands: 'metric structure' },
+    { code: 'TU', hands: 'identity over time' },
+    { code: 'EC', hands: 'a command, and its failures' },
+    { code: 'WG', hands: 'a world that contains them' },
+  ],
+  returnLabel: 'Every failure becomes a world the next model is raised in',
 };
 
 export const provingGrounds = {

@@ -150,6 +150,16 @@ export interface FieldHandle {
   destroy(): void;
 }
 
+export interface FieldStats {
+  /** Samples currently drawn, after adaptive quality has spent the budget. */
+  samples: number;
+  /** Leading wavefront radius, in world units. */
+  radius: number;
+  /** Sensor origin on the sampled plane. */
+  originX: number;
+  originY: number;
+}
+
 export interface FieldOptions {
   /** Pointer parallax target, normalised -1..1. Read each frame. */
   pointer: { x: number; y: number };
@@ -161,6 +171,13 @@ export interface FieldOptions {
    */
   mode?: 'scan' | 'resolved';
   onReady?: () => void;
+  /**
+   * Live readout from the running field, throttled to a few times a second.
+   * The hero prints these, so they are the system's actual state — sample
+   * budget after the adaptive controller has spent it down, the real sweep
+   * radius, the real sensor origin — not decorative numbers.
+   */
+  onStats?: (stats: FieldStats) => void;
 }
 
 export function createPerceptionField(
@@ -294,6 +311,7 @@ export function createPerceptionField(
   // has to run on is enormous. Rather than guessing a safe point count, it
   // measures the frame time it is actually getting and spends down to fit.
   let activeCount = count;
+  let lastStats = -1;
   let frameAccum = 0;
   let frameSamples = 0;
   let lastFrame = 0;
@@ -380,6 +398,19 @@ export function createPerceptionField(
     // Sensor origin drifts on a lissajous so sweeps never repeat visibly.
     const ox = Math.sin(t * 0.11) * 3.1;
     const oy = Math.cos(t * 0.077) * 2.4;
+
+    // Readout, a few times a second. Every frame would be unreadable and
+    // would drag React into the render loop.
+    if (opts.onStats && t - lastStats > 0.22) {
+      lastStats = t;
+      opts.onStats({
+        samples: activeCount,
+        // Same expression the vertex shader uses for the leading front.
+        radius: (t * 0.062) % 1 * 18,
+        originX: ox,
+        originY: oy,
+      });
+    }
 
     const reveal = ready ? 1 : Math.min(1, t / 2.4);
     if (!ready && reveal >= 1) ready = true;

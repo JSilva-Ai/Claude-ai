@@ -880,3 +880,100 @@
     padding-top: 0.15rem;
   }
 }
+
+/* --- The capability loop ------------------------------------------------- */
+/* Full-bleed: the only place the container is deliberately broken. The four
+   columns above are parts of this loop, so it is drawn wider than they are,
+   and the break is what stops four ruled grids in sequence from reading as
+   one undifferentiated rhythm. */
+.loop {
+  margin-inline: calc(50% - 50vw);
+  margin-top: var(--space-3xl);
+  padding-inline: var(--gutter);
+}
+
+.loop__label {
+  margin-bottom: var(--space-m);
+  color: var(--grey-300);
+}
+
+.loop__rail {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  background: var(--line-weak);
+  border-top: 1px solid var(--line);
+}
+
+.loop__station {
+  position: relative;
+  display: grid;
+  gap: 0.4rem;
+  padding: var(--space-m) var(--space-s) var(--space-m) 0;
+  background: var(--ink-050);
+}
+
+/* The tick is the station on the rail. It sits on the top border, not inside
+   the cell, so the rail reads as one continuous track. */
+.loop__tick {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 10px;
+  height: 3px;
+  background: var(--porcelain);
+}
+
+.loop__code {
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--grey-200);
+}
+
+.loop__hands {
+  font-size: var(--step--1);
+  color: var(--porcelain);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+/* The return leg. A single hairline running back under the whole rail with an
+   arrowhead at the left end — the loop closing, stated once. */
+.loop__return {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: var(--space-s);
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--line-weak);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-300);
+  line-height: 1.4;
+}
+
+.loop__return-arrow {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-block: 4px solid transparent;
+  border-right: 6px solid var(--grey-300);
+}
+
+@media (min-width: 48rem) {
+  .loop__rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .loop__station {
+    padding-inline: var(--space-m) var(--space-l);
+  }
+
+  .loop__station:first-child {
+    padding-left: 0;
+  }
+}

@@ -475,3 +475,76 @@
     margin-top: var(--space-l);
   }
 }
+
+/* --- Field readout ------------------------------------------------------- */
+/* The field is an instrument, and an instrument annotates its own display.
+   These are the renderer's real values, so the hero's right half carries
+   information rather than only atmosphere. Sits low and quiet — it is a
+   margin note on the field, not a second headline. */
+.hero__readout {
+  position: absolute;
+  /* Aligned to the container's inner right edge, not the viewport's. The
+     field is full-bleed but the readout is content, and every other element
+     on the page hangs off the same rule. */
+  right: max(var(--gutter), calc(50vw - var(--container) / 2 + var(--gutter)));
+  bottom: 31%;
+  z-index: 1;
+  display: none;
+  margin: 0;
+  padding-left: var(--space-m);
+  border-left: 1px solid var(--line);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 900ms var(--ease-out) 900ms,
+    transform 900ms var(--ease-out) 900ms;
+}
+
+.hero[data-lit='true'] .hero__readout {
+  opacity: 1;
+  transform: none;
+}
+
+.hero__readout > div {
+  display: grid;
+  grid-template-columns: 9.5rem 7.5rem;
+  gap: var(--space-s);
+  align-items: baseline;
+  padding-block: 0.5rem;
+}
+
+.hero__readout > div + div {
+  border-top: 1px solid var(--line-weak);
+}
+
+.hero__readout dt {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-400);
+  line-height: 1.3;
+}
+
+.hero__readout dd {
+  margin: 0;
+  font-size: var(--step--2);
+  font-variant-numeric: tabular-nums;
+  color: var(--grey-200);
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* Only where there is field to annotate. Below this the copy owns the width
+   and a readout would be clutter. */
+@media (min-width: 78rem) {
+  .hero__readout {
+    display: block;
+  }
+}
+
+@media (min-width: 78rem) and (max-height: 46rem) {
+  .hero__readout {
+    display: none;
+  }
+}
