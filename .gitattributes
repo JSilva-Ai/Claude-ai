@@ -1,3 +1,0 @@
-# Git LFS configuration for large media files
-*.webm filter=lfs diff=lfs merge=lfs -text
-*.mp4 filter=lfs diff=lfs merge=lfs -text
