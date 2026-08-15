@@ -111,14 +111,21 @@ on their own. Ten mounted decoders is ten decoders, even when paused.
 ## Checks
 
 ```bash
-npm run lint
-npx tsc --noEmit -p tsconfig.app.json
-node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --full --sections
-node scripts/a11y.mjs
-node scripts/perf.mjs --cpu=4
-node scripts/render/seam.mjs
-node scripts/video-check.mjs
+npm run check      # types + lint
+npm run qa         # six viewports, per section
+npm run qa:a11y    # axe-core, keyboard walk, touch targets
+npm run qa:video   # monitor playback, gating, motion toggle
+npm run qa:seam    # every clip loops without a visible seam
+npm run qa:perf    # Core Web Vitals and measured frame rate
 ```
+
+Everything except `qa:seam` needs the built site being served: `npm run build`
+then `npm run preview`. Point any of them elsewhere with `--url=…`.
+
+`.github/workflows/checks.yml` runs all of this on every push and pull
+request, and uploads the screenshots as an artifact when something fails —
+which is usually the fastest way to see what broke. `qa:perf` reports but does
+not fail the build; frame rate on a shared runner is too noisy to gate on.
 
 `shoot.mjs` also fails on console errors, failed requests, broken images
 (which a dev server's SPA fallback happily serves as 200s), and horizontal
@@ -133,6 +140,34 @@ Current numbers, at 4× CPU throttle with software WebGL:
 | Hero / scroll frame rate | 52 / 52 fps |
 | Total transfer | ~625 KB (initial view) |
 | axe-core | no violations, at rest and with the menu open |
+
+## Deploying
+
+The build is static. `.github/workflows/deploy.yml` publishes it to GitHub
+Pages from whichever branch is the repository default — enable it once under
+**Settings → Pages → Source: GitHub Actions**.
+
+`base` is configurable because the same build has to serve from two different
+places:
+
+```bash
+npm run build                        # domain root
+BASE_PATH=/Claude-ai/ npm run build  # GitHub Pages project site
+```
+
+The deploy workflow resolves this itself: a `public/CNAME` means a custom
+domain and the site builds for the root, otherwise it builds for `/<repo>/`.
+This matters because the environment posters and clips are requested from URLs
+built at runtime, which Vite cannot rewrite for you — `src/lib/asset.ts`
+resolves them against `BASE_URL` instead.
+
+For Netlify or Vercel, build with `npm run build` and publish `dist`; no base
+path needed.
+
+**Before this goes anywhere public:** every figure in `src/content/site.ts` is
+illustrative and needs replacing with real numbers, and `newaivisionlabs.com`
+is hardcoded as the canonical URL in `index.html`, `public/sitemap.xml`,
+`public/robots.txt`, and the contact addresses.
 
 ## Conventions worth knowing
 

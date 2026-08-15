@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { SectionHead } from './SectionHead';
 import { useMediaQuery, useReducedMotion, useReveal } from '../lib/hooks';
 import { environments, provingGrounds, ui } from '../content/site';
+import { asset } from '../lib/asset';
 import './provingGrounds.css';
 
 type Env = (typeof environments)[number];
@@ -89,7 +90,7 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
         <div className="env__media">
           <img
             className="env__poster"
-            src={`/media/env/${env.id}.jpg`}
+            src={asset(`media/env/${env.id}.jpg`)}
             alt={`${env.name} environment: ${env.discipline}. ${env.blurb}`}
             width={960}
             height={600}
@@ -101,7 +102,7 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
             <video
               className="env__video"
               ref={videoRef}
-              poster={`/media/env/${env.id}.jpg`}
+              poster={asset(`media/env/${env.id}.jpg`)}
               muted
               loop
               playsInline
@@ -112,8 +113,8 @@ function EnvironmentCard({ env, i, enabled, elected, auto, onVisible, hoverToPla
             >
               {/* WebM first — it is the smaller of the two and every browser
                   that can play it should. Safari falls through to H.264. */}
-              <source src={`/media/env/${env.id}.webm`} type="video/webm" />
-              <source src={`/media/env/${env.id}.mp4`} type="video/mp4" />
+              <source src={asset(`media/env/${env.id}.webm`)} type="video/webm" />
+              <source src={asset(`media/env/${env.id}.mp4`)} type="video/mp4" />
             </video>
           )}
           <span className="env__scanline" aria-hidden="true" />

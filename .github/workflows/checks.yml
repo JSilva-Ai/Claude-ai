@@ -1,0 +1,82 @@
+name: checks
+
+# Every push and every pull request. The visual and accessibility suites are
+# the ones that actually catch regressions here — a type error is rarely how
+# this site breaks; a shifted baseline or a silent contrast drop is.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Only Chromium; the suites all drive it directly.
+      - run: npx playwright install --with-deps chromium
+
+      - name: Types and lint
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      # Needs no server: renders each scene at t and t+LOOP and diffs them.
+      - name: Loop seams
+        run: npm run qa:seam
+
+      # nohup and a redirect, not a bare &: the step's shell exits as soon as
+      # the script returns, and a child still attached to it goes with it.
+      - name: Serve the build
+        run: |
+          nohup npx vite preview --port 4173 --host 127.0.0.1 > /tmp/preview.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:4173/ && break
+            sleep 1
+          done
+          curl -sf -o /dev/null http://127.0.0.1:4173/ || {
+            echo "preview server did not come up" >&2
+            cat /tmp/preview.log >&2
+            exit 1
+          }
+
+      - name: Accessibility
+        run: npm run qa:a11y
+
+      - name: Visual QA across six viewports
+        run: npm run qa
+
+      - name: Monitor playback
+        run: npm run qa:video
+
+      # Informational: prints Core Web Vitals and measured frame rate so a
+      # regression is visible in the log without failing the run on the noise
+      # of a shared CI runner.
+      - name: Performance
+        run: npm run qa:perf
+        continue-on-error: true
+
+      # The screenshots are the useful artefact when a visual check fails.
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-screenshots
+          path: .qa/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -6,8 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "preview": "vite preview",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "check": "npm run typecheck && npm run lint",
+    "qa": "node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --sections",
+    "qa:a11y": "node scripts/a11y.mjs",
+    "qa:perf": "node scripts/perf.mjs --cpu=4",
+    "qa:video": "node scripts/video-check.mjs",
+    "qa:seam": "node scripts/render/seam.mjs",
+    "render": "node scripts/render/capture.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
