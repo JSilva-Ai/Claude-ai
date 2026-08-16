@@ -54,9 +54,9 @@ export const privacy: LegalDoc = {
     {
       heading: 'Who we are',
       body: [
-        'New AI Vision Labs is an independent app studio. We are the data controller for the personal information described in this policy.',
-        '[TODO] Add your registered legal entity name and postal address. Both stores expect a real, contactable business identity, and several privacy laws require the controller\'s address specifically — an email address alone does not satisfy them.',
-        'You can reach us at office@newaivisionlabs.com.',
+        'New AI Vision Labs is an independent app studio operated by Jorge Silva in Georgia, United States. We are the data controller for the personal information described in this policy.',
+        'You can reach us at office@newaivisionlabs.com, and we will provide a postal address on request.',
+        '[TODO] Replace that last sentence with the address itself once you have one that is not your home — see `postalAddress` in src/content/site.ts. It is not required to publish this site, and it is required before a Google Play listing or before offering the apps in the EU.',
       ],
     },
     {
@@ -237,7 +237,8 @@ export const terms: LegalDoc = {
     {
       heading: 'Governing law',
       body: [
-        '[TODO] Name the governing law and the courts that have jurisdiction — normally where your entity is established. Note that consumer-protection rules in a user\'s home country often apply regardless of what this clause says.',
+        'These terms are governed by the laws of the State of Georgia, United States, without regard to its conflict-of-laws rules. The state and federal courts located in Georgia have jurisdiction over any dispute arising from them.',
+        'This does not take away rights you have under the consumer-protection law of the country you live in. Those generally apply regardless of what this clause says.',
       ],
     },
     {

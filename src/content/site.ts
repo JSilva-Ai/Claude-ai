@@ -17,6 +17,51 @@ export const site = {
   domain: 'newaivisionlabs.com',
   origin: 'https://newaivisionlabs.com',
   email: 'office@newaivisionlabs.com',
+
+  /**
+   * Who is behind the studio.
+   *
+   * `legalName` is the trading name. If it is not a registered company, then
+   * legally the operator is the individual and this is a trading name over a
+   * sole proprietorship — which matters, because a sole proprietor has no
+   * separate business address to publish and no liability shield.
+   *
+   * [TODO] Confirm the spelling. It was given as "New Aí Vision Labs" with an
+   * accented i; the site, the domain and every other reference use "New AI
+   * Vision Labs". If the accent is intentional it needs to be consistent
+   * everywhere, including the domain and the store listings. I have assumed it
+   * was a keyboard slip.
+   */
+  legalName: 'New AI Vision Labs',
+  operator: 'Jorge Silva',
+
+  /**
+   * Deliberately empty, and deliberately not the operator's home address.
+   *
+   * A postal address is not required to publish this site, and nothing on it
+   * currently needs one. It becomes required the moment either of these is
+   * true, and at that point it is published whether or not this field is set:
+   *
+   *   - Google Play. The developer address is shown on the store listing, is
+   *     verified, and cannot be suppressed. A USPS PO box is refused; a street
+   *     address from a mailbox service or a registered agent is accepted.
+   *   - The apps are offered in the EU. Apple then publishes trader details —
+   *     name, address, phone, email — under the Digital Services Act, and the
+   *     GDPR expects the controller's address in the privacy notice.
+   *
+   * So the useful move is not to hide an address, it is to have one that is
+   * not a home. See the note in the README.
+   */
+  postalAddress: '',
+
+  /**
+   * Also empty on purpose. A number published on a website is scraped within
+   * days, and this one is a personal line. If a phone contact is wanted, put a
+   * forwarding number here (Google Voice is free in the US) rather than the
+   * personal one — and note that Google Play requires a phone number on the
+   * developer account regardless, though it is not shown publicly.
+   */
+  phone: '',
   /** The proposition, in one sentence. Read it out loud before changing it. */
   proposition:
     'We are an independent app studio. We design, build, and publish our own apps on the App Store and Google Play.',
@@ -147,11 +192,11 @@ export const apps: App[] = [
     name: 'VOID STRIKER',
     tagline: 'An arcade space shooter, playable in the browser right now.',
     status: 'In development',
-    platforms: ['Browser', 'iOS [TODO]', 'Android [TODO]'],
+    platforms: ['Browser'],
     description: [
       'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
       'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. Scores, achievements, and settings are kept on your own device.',
-      'The browser build is finished and playable on the demo page. [TODO] Say what the iOS and Android plan actually is — a wrapper around this build, a native rewrite, or undecided — and whether there is a release window you are willing to commit to. "In development" with no date is more honest than a date you will move.',
+      'The browser build is finished and you can watch a run of it on the demo page. Which stores it reaches, and in what form, is not decided yet — so there is no release date here, because we would only move it.',
     ],
     screenshots: [],
     clip: {

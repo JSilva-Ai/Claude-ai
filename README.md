@@ -204,6 +204,39 @@ the site builds for the root, otherwise it builds for `/<repo>/`. Internal
 links and runtime-built asset URLs go through `src/lib/url.ts`, which resolves
 them against `BASE_URL` — Vite cannot rewrite those for you.
 
+## The business address question
+
+The site does **not** publish a home address, and does not need to. But it is
+worth knowing exactly when that stops being a choice, because at that point an
+address gets published whether or not this repo contains one:
+
+- **Google Play.** The developer address is shown on the store listing, is
+  verified by Google, and cannot be suppressed. A USPS PO box is refused. A
+  street address from a mailbox service or a registered agent is accepted.
+- **Offering the apps in the EU.** Apple publishes trader details — name,
+  address, phone, email — under the Digital Services Act, and the GDPR expects
+  the controller's address in the privacy notice itself.
+
+So the problem to solve is not "how do I hide an address", it is "how do I have
+one that is not my house". In Georgia, the usual routes, cheapest first:
+
+1. **A commercial mailbox with a street address** (a CMRA — the UPS Store and
+   similar). Roughly $10–30/month, accepted by Google Play because it is a
+   street address rather than a PO box.
+2. **Form a Georgia LLC and use a registered agent's address.** Filing is about
+   $100, agents run $50–150/year. This also separates the business from the
+   person, which is the actual reason to do it — a sole proprietorship gives no
+   liability shield, and the operator personally *is* the legal entity.
+
+Until one of those exists, `site.postalAddress` stays empty and the privacy
+policy offers the address on request, which is a normal position for a small
+operator that has not listed yet.
+
+The same logic applies to `site.phone`, which is also empty. A number on a
+public page is scraped within days; use a forwarding number (Google Voice is
+free in the US) rather than a personal line. Google Play requires a phone on
+the developer account, but does not display it.
+
 ## Before this goes public
 
 - **Every `[TODO]` marker is visible on the live page.** That is deliberate.
@@ -211,9 +244,9 @@ them against `BASE_URL` — Vite cannot rewrite those for you.
   finished policy — nothing in them asserts what any app collects, because that
   is a fact about software that has to be checked rather than guessed. Have a
   lawyer read the privacy policy and terms before publishing.
-- **VOID STRIKER's store plan and screenshots are still open.** The description
-  is written from the game's own source; what iOS and Android actually means —
-  a wrapper, a native rewrite, or undecided — is marked inline.
+- **VOID STRIKER's store plan is undecided, and the site says so.** Platforms
+  read `Browser` only, and the copy states no release date rather than one that
+  would move. Screenshots are still to come.
 - The canonical URLs and the sitemap point at `newaivisionlabs.com` while the
   build is served from GitHub Pages. That is intended — the domain is owned and
   not yet pointed at the site.
