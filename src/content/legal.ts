@@ -205,7 +205,7 @@ export const terms: LegalDoc = {
       heading: 'Limitation of liability',
       body: [
         'To the fullest extent permitted by law, New AI Vision Labs LLC is not liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, revenue, or data, arising from your use of our apps.',
-        '[TODO] State the liability cap. It is commonly the greater of the amount you paid in the preceding twelve months or a small fixed sum — confirm what is enforceable where you are established.',
+        'Where liability cannot lawfully be excluded, our total liability to you for all claims arising out of or relating to our apps or this website is limited to the greater of: the amount you paid us in the twelve months before the claim arose, or one hundred United States dollars (US $100).',
         'Nothing in these terms excludes liability for death or personal injury caused by negligence, for fraud, or for anything else that cannot lawfully be excluded.',
       ],
     },
