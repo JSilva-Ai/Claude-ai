@@ -20,8 +20,12 @@ export const support = {
   lede: 'Email reaches the people who build the apps. There is no ticket system and no chatbot in front of it.',
   emailLabel: 'Support email',
   phoneLabel: 'Phone',
-  /** [TODO] Only state a response time you will actually meet. */
-  responseNote: '[TODO] State your real response time, e.g. "We usually reply within two business days." If you cannot commit to one, delete this line rather than promising something vague.',
+  /**
+   * Deliberately absent. No response-time commitment is made, because none can
+   * currently be met — and a promise on a support page is the kind a user holds
+   * you to. Add one here only when it is real, and it will render automatically.
+   */
+  responseNote: '',
   helpful: {
     heading: 'What to include',
     body: [
@@ -66,49 +70,52 @@ export const support = {
 export const dataDeletion = {
   title: 'Data Deletion',
   description:
-    'How to request deletion of your data from New AI Vision Labs apps, what gets deleted, and how long it takes.',
-  updated: '[TODO — date of publication]',
+    'How to delete data from New AI Vision Labs apps. Nothing is stored on our servers, so deletion happens on your device.',
+  updated: '[TODO — set on the day this is published]',
   headline: 'Deleting your data.',
-  lede: 'You can ask us to delete the personal information associated with you at any time, and you do not have to give a reason.',
+  lede: 'There is nothing on our servers to delete, because nothing is ever sent there. Everything our apps save stays on your own device, and you control it.',
   intro: [
-    '[TODO] Before publishing, check this page against what each app actually stores. If an app keeps everything on the device and sends us nothing, say so here explicitly — "there is nothing on our servers to delete, and removing the app removes the data" is a complete and honest answer, and it is the best one.',
+    'Both app stores require a page explaining how to request deletion of your data. In our case the honest answer is short: we do not have any. We run no accounts, no servers our apps talk to, and no analytics, so there is no record of you anywhere for us to erase.',
   ] as (string | string[])[],
   steps: {
-    heading: 'How to request deletion',
-    /** Numbered on the page. */
+    heading: 'Deleting what is on your device',
     items: [
       {
-        title: 'Email us',
-        body: `Write to ${site.email} with the subject "Data deletion request".`,
+        title: 'In the browser',
+        body: 'VOID STRIKER keeps your high scores, achievements and volume setting in your browser\'s local storage. Clearing site data for newaivisionlabs.com in your browser settings removes all of it immediately.',
       },
       {
-        title: 'Tell us which app',
-        body: 'Name the app you want your data deleted from, or say "all apps" if you mean all of them.',
+        title: 'On a phone',
+        body: 'Deleting an app removes its stored data along with it. On iOS you can also use Settings → General → iPhone Storage; on Android, Settings → Apps → Storage → Clear data.',
       },
       {
-        title: 'Tell us how to find you',
-        body: '[TODO] State exactly what identifier you need in order to locate an account — the email address the account was created with, a username, or an in-app ID and where to find it. If your apps have no accounts, replace this step with a note saying no identifier is needed.',
+        title: 'If you have emailed us',
+        body: `The one thing we do hold is any support correspondence you have sent us. Write to ${'office@newaivisionlabs.com'} and ask us to delete it, and we will.`,
       },
     ],
   },
   inApp: {
-    heading: 'Deleting from inside the app',
+    heading: 'Account deletion',
     body: [
-      '[TODO] If an app has accounts, Apple requires that account deletion be initiable from within the app itself — a link to this page is not sufficient on its own. Describe the in-app path here (for example: Settings → Account → Delete account), and make sure it exists.',
+      'None of our apps have accounts, so there is no account to delete. If that changes, Apple requires account deletion to be available from inside the app itself, and this page will describe where to find it.',
     ] as (string | string[])[],
   },
   whatHappens: {
-    heading: 'What happens next',
+    heading: 'What we would do with a request',
     body: [
-      '[TODO] State your real timeline for acknowledging and completing a request. Under the GDPR the outside limit is one month from receipt, extendable in limited circumstances.',
-      '[TODO] List what is deleted and what is not. Some records are kept because the law requires it — purchase and tax records are the usual example — and a deletion request does not override that. Say which, and for how long.',
-      '[TODO] State how long deleted data persists in backups before it is overwritten, if you keep backups.',
+      'If you write to us asking for your data, we will tell you plainly that we hold none, and delete the email exchange itself if you want that too. We will reply within the period the applicable law requires.',
+      /*
+       * MAINTENANCE NOTE — not rendered, and not a blocker for launch.
+       * If any future app gains a server, accounts, or analytics, this page is
+       * rewritten before that app ships: a real timeline, a list of what is and
+       * is not deleted, and how long deleted data survives in backups.
+       */
     ] as (string | string[])[],
   },
   storeNote: {
     heading: 'Purchases',
     body: [
-      'Deleting your data does not cancel a subscription, because subscriptions are held by the App Store or Google Play rather than by us. Cancel those in the store, on the account you bought them with.',
+      'If you ever buy something from us, that purchase is held by the App Store or Google Play rather than by us, and deleting data on your device does not cancel it. Cancel subscriptions in the store, on the account you bought them with.',
     ] as (string | string[])[],
   },
 };

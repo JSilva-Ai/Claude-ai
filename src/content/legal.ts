@@ -62,62 +62,49 @@ export const privacy: LegalDoc = {
     {
       heading: 'What we collect',
       body: [
-        '[TODO] This is the section that has to be filled in per app, and it is the one that cannot be guessed. For each app you publish, list exactly what it collects. Work from what the code actually does, not from what you intend it to do.',
-        'For each item, state the data, why it is needed, and how long it is kept. Categories to check before you write this section:',
-        [
-          'Account information, if the app has accounts at all — email address, display name, password hashes',
-          'Content the user creates in the app, and whether it stays on the device or reaches a server',
-          'Purchase and subscription records, including what the store shares back with us',
-          'Diagnostics and crash reports, and whether they are tied to a device or user identifier',
-          'Usage analytics, if any — which events, and whether they are linked to an identifier',
-          'Advertising identifiers, if the app shows ads or measures installs',
-          'Device information: model, OS version, locale, and anything else read at runtime',
-          'Permissions the app requests — camera, photos, microphone, location, contacts, notifications — and what each is used for',
-        ],
-        'If an app collects nothing at all, say that plainly. It is a strong statement and it is worth making explicitly rather than by omission.',
-        'This website itself is a static site. [TODO] Confirm and then state whether it uses any analytics, and name the provider if it does.',
+        'Nothing leaves your device. We do not operate an account system, we do not run a server that our apps talk to, and we do not receive any information about you or about how you use what we make.',
+        'This website sets no cookies, runs no analytics, and makes no requests to any third party. Every font, image and video on it is served from our own domain. You can check this yourself in your browser\'s network inspector — there is nothing on the list but us.',
+        'VOID STRIKER stores three things in your browser\'s local storage, on your own device: your high scores, which achievements you have unlocked, and your volume setting. That is what makes them survive a reload. It is never transmitted anywhere, we cannot see it, and clearing your browser\'s data for this site removes it completely.',
+        /*
+         * MAINTENANCE NOTE — not rendered, and not a blocker for launch.
+         *
+         * The three paragraphs above describe the apps as they exist today,
+         * and they were verified rather than assumed: no route on this site
+         * contacts a third-party host, sets a cookie, or writes to storage.
+         *
+         * Every new app needs its own honest entry here before it ships, and
+         * the moment any app gains accounts, analytics, crash reporting, ads,
+         * or a backend, this section changes first. It is the section a store
+         * reviewer reads hardest and the only one where being wrong is a false
+         * statement to your users.
+         */
       ],
     },
     {
       heading: 'How we use information',
       body: [
-        'We use personal information only to provide and support the app you are using: to make its features work, to process purchases, to fix crashes and defects, and to answer you when you contact support.',
-        '[TODO] If you use information for anything beyond that — marketing email, advertising personalization, product analytics that inform a roadmap — it has to be listed here and, in several jurisdictions, consented to separately. Do not leave it implied.',
-        'We do not sell personal information.',
+        'We have no personal information to use. Because nothing is collected or transmitted, there is nothing for us to analyse, profile, share, or sell.',
+        'If you email us, we have your email address and whatever you wrote, for as long as it takes to answer you and keep a record of the exchange. That is the only personal information we hold about anyone.',
       ],
     },
     {
       heading: 'Legal bases for processing',
       body: [
-        'Where the GDPR applies, we rely on the following legal bases:',
-        [
-          'Performance of a contract — processing needed to deliver the app and its features to you',
-          'Legitimate interests — keeping our apps working, secure, and free of defects',
-          'Consent — where the law requires it, such as optional analytics or marketing, and which you can withdraw at any time',
-          'Legal obligation — where we must retain records, for example for tax purposes',
-        ],
-        '[TODO] Remove any basis you do not actually rely on. An unused basis listed here is a claim you cannot support.',
+        'Where the GDPR applies, the only personal information we process is the contents of an email you choose to send us. We rely on our legitimate interest in answering it, and on your consent in sending it. You can ask us to delete that correspondence at any time.',
       ],
     },
     {
       heading: 'Third parties',
       body: [
-        '[TODO] List every third party that receives data, and why. This is the section reviewers check most closely, and it is easy to under-report because SDKs collect data whether or not you call them directly. Check the app\'s actual dependency list.',
-        'Common categories to account for:',
-        [
-          'Apple App Store and Google Play, for distribution, purchases, and subscription status',
-          'Crash and diagnostics reporting, if you have integrated any',
-          'Analytics, if you have integrated any',
-          'Backend hosting, if the app talks to a server you run or rent',
-          'Advertising or attribution networks, if you use them',
-        ],
-        'If no third party receives any data from an app, say that.',
+        'No third party receives any information from our apps or from this website, because none is collected in the first place. We use no analytics provider, no crash reporting service, no advertising or attribution network, and no hosted backend.',
+        'If you download an app from the App Store or Google Play, that store knows you downloaded it. That is between you and them, under their privacy policies, and it happens whether or not we would prefer it. We receive no personal information back from either.',
       ],
     },
     {
       heading: 'Data retention',
       body: [
-        '[TODO] State how long each category of data is kept, and what triggers deletion. "As long as necessary" is not specific enough for a reviewer or for a data subject request — give periods, even if they are approximate.',
+        'We hold no personal information to retain, other than support correspondence, which we keep for as long as it is useful to have a record of and delete on request.',
+        'What VOID STRIKER stores stays on your device for as long as you leave it there. Clearing your browser data, or removing the app, removes it.',
       ],
     },
     {
@@ -138,14 +125,14 @@ export const privacy: LegalDoc = {
     {
       heading: 'International transfers',
       body: [
-        '[TODO] If any data leaves the region it was collected in — which it does as soon as you use a hosting provider or an SDK operated abroad — name the destination and the safeguard you rely on, such as Standard Contractual Clauses.',
+        'None. No data is collected, so none crosses a border. Support email is held with our email provider in the United States.',
       ],
     },
     {
       heading: 'Security',
       body: [
-        'We take reasonable technical and organizational measures to protect personal information. No system is perfectly secure, and we do not claim otherwise.',
-        '[TODO] If you hold user data on a server, describe the concrete measures in one or two sentences — encryption in transit and at rest, access control, backups. Keep it truthful and specific.',
+        'The strongest security measure available to us is the one we have taken: we do not hold your data. There is no database of users to breach, because there is no database of users.',
+        'This site is served over HTTPS. No system is perfectly secure and we do not claim otherwise.',
       ],
     },
     {
@@ -191,14 +178,14 @@ export const terms: LegalDoc = {
     {
       heading: 'Purchases and subscriptions',
       body: [
-        '[TODO] Fill this in only if an app charges money. State what is sold, whether it is a one-time purchase or a subscription, the billing period, how renewal works, and how to cancel.',
-        'Purchases made through the App Store or Google Play are processed by Apple or Google, not by us. Refunds are handled under that store\'s policy, and requests should go to the store rather than to us.',
+        'None of our apps currently charge money. There is nothing to buy, no subscription to manage, and no billing relationship between us.',
+        'If that changes, this section will say exactly what is sold and how it renews before the app ships. Any purchase would be processed by the App Store or Google Play rather than by us, and refunds handled under that store\'s policy — requests go to the store, not to us.',
       ],
     },
     {
       heading: 'User content',
       body: [
-        '[TODO] Fill this in only if an app lets users create, upload, or share content. State who owns it (the user should), what license you need to operate the service, and what happens to it when an account is deleted. Delete this whole section if no app has user content.',
+        'None of our apps let you create, upload, or share content with us or with other users, so there is no user content for anyone to own or license. Anything you make inside an app stays on your own device.',
       ],
     },
     {

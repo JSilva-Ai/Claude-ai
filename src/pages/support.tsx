@@ -23,7 +23,9 @@ mount(
             {site.phone}
           </a>
           <p className="mailcard__place">{site.location}</p>
-          <p className="todo mailcard__note">{support.responseNote}</p>
+          {support.responseNote && (
+            <p className="todo mailcard__note">{support.responseNote}</p>
+          )}
         </div>
       </div>
     </section>

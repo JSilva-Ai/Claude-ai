@@ -196,7 +196,7 @@ export const apps: App[] = [
     platforms: ['Browser'],
     description: [
       'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
-      'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. Scores, achievements, and settings are kept on your own device.',
+      'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. It collects nothing: your scores, achievements and settings are saved on your own device and never sent anywhere, and there is no account to make.',
       'The browser build is finished and you can watch a run of it on the demo page. Which stores it reaches, and in what form, is not decided yet — so there is no release date here, because we would only move it.',
     ],
     screenshots: [],
