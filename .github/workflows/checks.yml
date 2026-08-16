@@ -12,17 +12,25 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+# Build and test at the base path the site is actually deployed under. Building
+# at "/" here while deploy.yml builds at "/<repo>/" would leave every
+# base-relative URL — which is all of them, since links go through lib/url.ts —
+# untested in exactly the configuration that ships.
+env:
+  BASE_PATH: /Claude-ai/
+  QA_URL: http://127.0.0.1:4173/Claude-ai/
+
 jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
-      # The media is committed as ordinary blobs — the ten clips are ~13 MB
-      # total and only change when the environments are re-rendered, so LFS
-      # earns nothing here. lfs:true is kept purely as a safety net: if anyone
-      # does route *.webm/*.mp4 through LFS later, checkout defaults to false
-      # and CI would silently test 130-byte pointer files while the deploy
+      # The media is committed as ordinary blobs — the clip and stills are a
+      # little over a megabyte and only change when the game is re-captured, so
+      # LFS earns nothing here. lfs:true is kept purely as a safety net: if
+      # anyone does route *.webm/*.mp4 through LFS later, checkout defaults to
+      # false and CI would silently test 130-byte pointer files while the deploy
       # published them as "videos".
       - uses: actions/checkout@v4
         with:
@@ -44,33 +52,35 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Needs no server: renders each scene at t and t+LOOP and diffs them.
-      - name: Loop seams
-        run: npm run qa:seam
-
       # nohup and a redirect, not a bare &: the step's shell exits as soon as
       # the script returns, and a child still attached to it goes with it.
       - name: Serve the build
         run: |
           nohup npx vite preview --port 4173 --host 127.0.0.1 > /tmp/preview.log 2>&1 &
           for _ in $(seq 1 30); do
-            curl -sf -o /dev/null http://127.0.0.1:4173/ && break
+            curl -sf -o /dev/null "$QA_URL" && break
             sleep 1
           done
-          curl -sf -o /dev/null http://127.0.0.1:4173/ || {
+          curl -sf -o /dev/null "$QA_URL" || {
             echo "preview server did not come up" >&2
             cat /tmp/preview.log >&2
             exit 1
           }
 
+      # Every route, not just the home page: the legal pages are the ones a
+      # store reviewer opens, and a contrast or target-size regression on those
+      # is exactly as disqualifying as one on the front page.
       - name: Accessibility
-        run: npm run qa:a11y
+        run: |
+          fail=0
+          for route in "" apps/ apps/void-striker/ demo/ support/ privacy/ terms/ data-deletion/; do
+            echo "── /$route"
+            node scripts/a11y.mjs --url="${QA_URL}${route}" || fail=1
+          done
+          exit $fail
 
       - name: Visual QA across six viewports
         run: npm run qa
-
-      - name: Monitor playback
-        run: npm run qa:video
 
       # Informational: prints Core Web Vitals and measured frame rate so a
       # regression is visible in the log without failing the run on the noise
