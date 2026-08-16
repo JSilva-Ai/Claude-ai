@@ -97,7 +97,9 @@ export function AppPage({ slug }: { slug: string }) {
             {app.clip ? ui.gameplayLabel : ui.screenshotsLabel}
           </h2>
 
-          {app.clip && <GameClip clip={app.clip} alt={`${app.name} gameplay`} />}
+          <div className="gameplay">
+            {app.clip && <GameClip clip={app.clip} alt={`${app.name} gameplay`} />}
+          </div>
 
           {app.screenshots.length === 0 ? (
             !app.clip && <p className="todo">{ui.noScreenshots}</p>

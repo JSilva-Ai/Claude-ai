@@ -221,6 +221,31 @@
   letter-spacing: 0.1em;
 }
 
+/* One app: a lone 17rem card in a four-up grid reads as an empty page rather
+   than as a studio with one product. While it is alone it lays out
+   horizontally, which fills the row and looks deliberate. :has means this
+   reverts by itself when a second app lands — there is no flag to remember. */
+@media (min-width: 52rem) {
+  .appgrid:has(> :only-child) {
+    grid-template-columns: minmax(0, 42rem);
+  }
+
+  .appgrid:has(> :only-child) .appcard {
+    flex-direction: row;
+  }
+
+  .appgrid:has(> :only-child) .appcard__art {
+    flex: 0 0 16rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+  }
+
+  .appgrid:has(> :only-child) .appcard__meta {
+    justify-content: center;
+    padding: var(--space-l);
+  }
+}
+
 /* --- App detail ------------------------------------------------------------ */
 .app {
   display: grid;
@@ -296,7 +321,14 @@
   text-decoration-color: currentColor;
 }
 
-.clip + .shots {
+/* The clip centres itself wherever it is dropped, which is right on the demo
+   page and wrong here: the stills grid below starts at the container's left
+   edge, and two blocks that do not share an edge read as a mistake. */
+.gameplay .clip {
+  margin-inline: 0;
+}
+
+.gameplay + .shots {
   margin-top: var(--space-xl);
 }
 
