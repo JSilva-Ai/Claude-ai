@@ -2,6 +2,7 @@ import { mount } from './mount';
 import { PageHead } from '../components/Shell';
 import { Blocks, Sections } from '../components/Prose';
 import { support } from '../content/help';
+import { site } from '../content/site';
 
 mount(
   <>
@@ -17,6 +18,11 @@ mount(
           <a className="mailcard__address" href={`mailto:${support.email}`}>
             {support.email}
           </a>
+          <p className="label mailcard__label mailcard__label--2">{support.phoneLabel}</p>
+          <a className="mailcard__phone" href={`tel:${site.phoneHref}`}>
+            {site.phone}
+          </a>
+          <p className="mailcard__place">{site.location}</p>
           <p className="todo mailcard__note">{support.responseNote}</p>
         </div>
       </div>

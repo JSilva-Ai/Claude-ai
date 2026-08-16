@@ -19,6 +19,7 @@ export const support = {
   headline: 'Talk to us.',
   lede: 'Email reaches the people who build the apps. There is no ticket system and no chatbot in front of it.',
   emailLabel: 'Support email',
+  phoneLabel: 'Phone',
   /** [TODO] Only state a response time you will actually meet. */
   responseNote: '[TODO] State your real response time, e.g. "We usually reply within two business days." If you cannot commit to one, delete this line rather than promising something vague.',
   helpful: {

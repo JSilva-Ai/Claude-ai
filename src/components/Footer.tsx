@@ -16,9 +16,17 @@ export function Footer() {
         <div className="footer__brand">
           <Logo size={30} />
           <p className="footer__blurb">{footer.blurb}</p>
-          <a className="footer__email" href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
+          <ul className="footer__contact">
+            <li>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </li>
+            <li>
+              <a href={`tel:${site.phoneHref}`}>{site.phone}</a>
+            </li>
+            {/* City and state only — the street address is a home address and
+                is deliberately not published. */}
+            <li className="footer__place">{site.location}</li>
+          </ul>
         </div>
 
         <div className="footer__cols">
