@@ -1,427 +1,369 @@
 /**
- * All visible copy lives here. Sections consume it; nothing is hardcoded in
- * JSX. Keeping it in one file is what makes a copy pass possible without
- * touching layout.
+ * Every visible string on the site, in one file, so a copy pass never has to
+ * touch layout.
+ *
+ * Nothing in here is invented. Where a real fact is needed and does not exist
+ * yet — a release date, a store URL, a screenshot — the value is an explicit
+ * [TODO] rather than a plausible placeholder, so it fails loudly in review
+ * instead of shipping as though it were true. There are no metrics, no team
+ * counts, no publication counts, and no testimonials on this site until there
+ * is something real to put in them.
  */
+
+export const site = {
+  name: 'New AI Vision Labs',
+  /** Used where the full name is too long: nav on small screens, manifest. */
+  shortName: 'NAI Labs',
+  domain: 'newaivisionlabs.com',
+  origin: 'https://newaivisionlabs.com',
+  email: 'office@newaivisionlabs.com',
+
+  /**
+   * Who is behind the studio.
+   *
+   * The entity is a Georgia limited liability company, registered with the
+   * Secretary of State and holding an EIN issued to "NEW AI VISION LABS LLC".
+   *
+   * `name` above is the trading name and is what the site says everywhere it
+   * is speaking to a visitor. `legalName` is the entity, and it belongs in the
+   * three places that are speaking to a lawyer or a store reviewer: the
+   * privacy policy, the terms, and the copyright line.
+   *
+   * The EIN itself is never stored in this repo and never goes on the site. It
+   * is required nowhere and is useful to anyone attempting fraud in the
+   * company's name.
+   */
+  legalName: 'New AI Vision Labs LLC',
+  /** The jurisdiction the entity is formed in — named in the terms. */
+  jurisdiction: 'Georgia, United States',
+  operator: 'Jorge Silva',
+
+  /**
+   * City and state only, by choice — the street address is a home address and
+   * is deliberately not published.
+   *
+   * This is enough for the privacy policy's "who we are", which has to say who
+   * the controller is and where they operate from. It is *not* a postal
+   * address, so it does not cover the two cases that need one: a Google Play
+   * listing, where the developer address is displayed and verified, and
+   * offering the apps in the EU. Both want a full street address, and neither
+   * should get a home one — see `postalAddress`.
+   */
+  location: 'Kennesaw, Georgia, United States',
+
+  /**
+   * Empty until there is an address that is not a home: a commercial mailbox
+   * with a street address, or a registered agent if the studio incorporates.
+   * The README has both options.
+   */
+  postalAddress: '',
+
+  /** Displayed on the site and linked as tel:. */
+  phone: '+1 (404) 597-3852',
+  /** The same number, dial-safe, for href="tel:". */
+  phoneHref: '+14045973852',
+
+  /** The proposition, in one sentence. Read it out loud before changing it. */
+  proposition:
+    'We are an independent app studio. We design, build, and publish our own apps on the App Store and Google Play.',
+  /** Shorter form, for meta descriptions and the footer. */
+  blurb: 'An independent app studio building for iOS and Android.',
+};
+
+/**
+ * Routes, written the way they appear in the sitemap. `url()` in lib/url.ts
+ * turns these into hrefs that survive being served from a subpath.
+ */
+export const routes = {
+  home: '',
+  apps: 'apps',
+  demo: 'demo',
+  support: 'support',
+  privacy: 'privacy',
+  terms: 'terms',
+  dataDeletion: 'data-deletion',
+} as const;
 
 export const nav = [
-  { id: 'thesis', label: 'Thesis' },
-  { id: 'capabilities', label: 'Capabilities' },
-  { id: 'proving-grounds', label: 'Proving Grounds' },
-  { id: 'research', label: 'Research' },
-  { id: 'applications', label: 'Applications' },
-  { id: 'lab', label: 'Lab' },
+  { route: routes.apps, label: 'Apps' },
+  { route: routes.demo, label: 'Demo' },
+  { route: routes.support, label: 'Support' },
 ] as const;
 
-export const hero = {
-  status: 'Ten worlds running',
-  /** Second half of the eyebrow. The lab's name is already in the nav one row
-   *  above; repeating it there spent a phosphor label on nothing. */
-  mode: 'Field live · scanning',
-  headline: ['We build the worlds', 'where machines', 'learn to see.'],
-  accentWord: 'see',
-  lede: 'A machine perception research lab. We author synthetic worlds, raise vision systems inside them, and attack those systems until they break. Failure is cheaper in simulation than on a live camera.',
-  /** Labels for the live readout drawn over the field. Values come from the renderer. */
-  readout: ['Samples returned', 'Sweep radius', 'Sensor origin'],
-  primaryCta: { label: 'Enter the Proving Grounds', href: '#proving-grounds' },
-  secondaryCta: { label: 'Read the research', href: '#research' },
-  telemetry: [
-    { label: 'Worlds running', value: '10', unit: 'live' },
-    { label: 'Frames rendered', value: '4.1M', unit: '/ day' },
-    { label: 'Pixels to command', value: '18', unit: 'ms' },
-    { label: 'Sim-to-real gap', value: '2.7', unit: '%' },
-  ],
+export const home = {
+  hero: {
+    eyebrow: 'Independent app studio',
+    /** Set as three lines so the break is authored, not left to the browser. */
+    headline: ['We build', 'the apps', 'we want to use.'],
+    accentWord: 'use.',
+    lede: site.proposition,
+    primaryCta: { label: 'See what we are building', route: routes.apps },
+    secondaryCta: { label: 'Play the demo', route: routes.demo },
+  },
+  approach: {
+    index: '01',
+    label: 'How we work',
+    headline: 'Small team. Whole product.',
+    body: [
+      'We are a small studio, and everything we publish is our own. There is no client work behind the scenes and no white-label version of what you see here.',
+      'The same people write the code, draw the interface, and answer the support email. That is a real constraint on how much we can ship at once, and it is also the reason the details hold up.',
+    ],
+    points: [
+      {
+        title: 'We ship our own work',
+        body: 'Every app under our name is designed and built in-house, start to finish.',
+      },
+      {
+        title: 'We keep data collection minimal',
+        body: 'We ask for what an app needs to function and nothing else. What each app collects is written on its own privacy page.',
+      },
+      {
+        title: 'Support is a person',
+        body: 'Email reaches us directly. There is no ticket queue and no chatbot in front of it.',
+      },
+    ],
+  },
+  demoCallout: {
+    index: '02',
+    label: 'Playable',
+    headline: 'Try something we made.',
+    body: 'VOID STRIKER runs right here in the page — the real build, not a trailer. Six weapons, boss waves, and an upgrade shop between them.',
+    cta: { label: 'Open the demo', route: routes.demo },
+  },
 };
 
-export const thesis = {
-  index: '01',
-  label: 'Thesis',
-  headline: 'Perception is the bottleneck.',
-  accentWord: 'bottleneck.',
-  body: [
-    'A machine that acts in the physical world spends almost none of its difficulty on deciding what to do. It spends its difficulty on knowing what is there: how far, how fast, how many, and whether that is the same object it saw four frames ago. Solve that and the rest is arithmetic.',
-    'The problem does not yield to more parameters. It yields to experience, and reality issues experience at one second per second. A robot arm learns from an afternoon of failures. A camera on a bridge learns from one winter.',
-    'So we manufacture the experience. Ten environments render continuously, producing the cases reality supplies about once a year: the occlusion at the worst moment, the sensor that drops out mid-turn, the object that resembles nothing in the training set. A model should meet its worst day early, and often.',
-  ],
-  pullQuote: 'A model is only as honest as the world that tested it.',
-  attribution: 'Operating principle',
+/* -------------------------------------------------------------------------
+   Apps
+   ------------------------------------------------------------------------- */
+
+export interface StoreLink {
+  /** 'appStore' | 'googlePlay' — drives which badge is drawn. */
+  store: 'appStore' | 'googlePlay';
+  /** Empty string means "not published yet"; the badge renders as unavailable. */
+  href: string;
+}
+
+/** A recorded clip, at the house 520x720. Paths are under public/. */
+export interface GameClipSources {
+  webm: string;
+  mp4: string;
+  poster: string;
+}
+
+export interface Screenshot {
+  /** Path under public/, e.g. 'media/apps/void-striker/01.png'. */
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+export interface App {
+  slug: string;
+  name: string;
+  /** One line, shown on the card and under the title. */
+  tagline: string;
+  /** 'In development' | 'On the stores' — drives the status pill. */
+  status: 'In development' | 'On the stores';
+  platforms: string[];
+  /** Longer description for the app's own page. Paragraphs. */
+  description: string[];
+  screenshots: Screenshot[];
+  /** Shown on the card and on the app page in place of a screenshot. */
+  clip?: GameClipSources;
+  stores: StoreLink[];
+  /** Set when the app has a playable web build. Route, not a full URL. */
+  demoRoute?: string;
+}
+
+/**
+ * The studio's apps. One entry today.
+ *
+ * VOID STRIKER's description is written from the game's own source, which is
+ * vendored at game/void_striker.html — every feature named below was read out
+ * of it rather than assumed. What is still open is the store plan, and that is
+ * marked inline.
+ *
+ * Adding an app also means adding its page: copy apps/void-striker/index.html
+ * to apps/<slug>/index.html and change the slug it imports. See README.
+ */
+export const apps: App[] = [
+  {
+    slug: 'void-striker',
+    name: 'VOID STRIKER',
+    tagline: 'An arcade space shooter, playable in the browser right now.',
+    status: 'In development',
+    platforms: ['Browser'],
+    description: [
+      'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
+      'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. It collects nothing: your scores, achievements and settings are saved on your own device and never sent anywhere, and there is no account to make.',
+      'The browser build is finished and you can watch a run of it on the demo page. Which stores it reaches, and in what form, is not decided yet — so there is no release date here, because we would only move it.',
+    ],
+    screenshots: [
+      {
+        src: 'media/apps/void-striker/01.jpg',
+        alt: 'VOID STRIKER title screen: the game name in blue and violet over a dark starfield, above a list reading six weapon types, homing missiles, boss battles, combo system, sixteen achievements.',
+        width: 520,
+        height: 720,
+      },
+      {
+        src: 'media/apps/void-striker/02.jpg',
+        alt: 'Wave four in progress: the player ship at the bottom firing upward, enemies and a destroyed target scoring 2,800 points, with a four-times combo running.',
+        width: 520,
+        height: 720,
+      },
+      {
+        src: 'media/apps/void-striker/03.jpg',
+        alt: 'The upgrade station between waves, offering three cards to spend credits on, each priced.',
+        width: 520,
+        height: 720,
+      },
+      {
+        src: 'media/apps/void-striker/04.jpg',
+        alt: 'Later in wave four: a kill in progress and the Combo King achievement unlocking at the bottom of the screen.',
+        width: 520,
+        height: 720,
+      },
+    ],
+    clip: {
+      webm: 'media/games/void-striker/clip.webm',
+      mp4: 'media/games/void-striker/clip.mp4',
+      poster: 'media/games/void-striker/poster.jpg',
+    },
+    stores: [
+      { store: 'appStore', href: '' },
+      { store: 'googlePlay', href: '' },
+    ],
+    demoRoute: routes.demo,
+  },
+];
+
+export const appsPage = {
+  index: '',
+  label: 'Apps',
+  headline: 'What we are building.',
+  lede: 'Everything here is our own work. This page will grow as things ship; right now there is one.',
+  /** Shown when an app has no store links yet. */
+  notYetOnStores: 'Not on the stores yet',
+  inDevelopmentNote:
+    'This app is still in development. There is no download link because there is nothing to download yet.',
+};
+
+/* -------------------------------------------------------------------------
+   Demo
+   ------------------------------------------------------------------------- */
+
+export const demo = {
+  label: 'Gameplay',
+  headline: 'VOID STRIKER',
+  lede: 'Fourteen seconds of an actual run — recorded from the game itself, not animated for the site.',
   /**
-   * The three failure cases named in the third paragraph, each against the
-   * environment that manufactures it. A cross-reference into the Proving
-   * Grounds, so the argument in this section resolves to a mechanism further
-   * down the page rather than ending on an assertion.
+   * The clip. Recorded by `npm run capture` from the real build, frame by
+   * frame, at the house 520x720.
+   *
+   * This page used to embed the game as a playable iframe. It is a video now
+   * because a clip is the format that generalises: every future game gets one,
+   * at the same size, with no per-game embedding work and no third-party
+   * frame to sandbox.
    */
-  casesLabel: 'Cases, manufactured on demand',
-  cases: [
-    { case: 'Occlusion at the worst moment', env: 'Drift', code: '01' },
-    { case: 'Sensor drops out mid-turn', env: 'Relay', code: '07' },
-    { case: 'Object outside the training set', env: 'Parse', code: '10' },
+  clip: {
+    webm: 'media/games/void-striker/clip.webm',
+    mp4: 'media/games/void-striker/clip.mp4',
+    poster: 'media/games/void-striker/poster.jpg',
+  },
+  clipAlt:
+    'VOID STRIKER gameplay: the player ship firing upward through waves of enemies, with the score and wave counter across the top.',
+  /** Shown if `clip` is ever cleared. */
+  unconfigured: {
+    title: 'No clip recorded yet',
+    body: 'Run `npm run capture` to record one from the game build, or point `demo.clip` at an existing file.',
+  },
+  /**
+   * The playable build is still shipped at public/demo/void-striker/ — the
+   * capture script reads from it — so it costs nothing to offer. Delete this
+   * and the link that renders it if you would rather the game were not
+   * reachable at all.
+   */
+  playable: { label: 'Play the full game', href: 'demo/void-striker/index.html' },
+  facts: [
+    { label: 'Recorded at', value: '520 x 720, 60 fps' },
+    { label: 'Engine', value: 'None. Canvas 2D' },
+    { label: 'Audio', value: 'Synthesised, Web Audio' },
   ],
+  note: 'Recorded from the real build. The game runs in the browser with no engine and no libraries.',
 };
 
-export const capabilities = {
-  index: '02',
-  label: 'Capabilities',
-  headline: 'Four research lines, one loop.',
-  lede: 'Each line owns a segment of the path from photons to actuation. All four share a codebase, an evaluation harness, and the same ten worlds.',
-  items: [
-    {
-      code: 'GP',
-      title: 'Geometric perception',
-      summary:
-        'Metric structure — depth, pose, scale — recovered from ordinary cameras, with no depth sensor to lean on.',
-      points: [
-        'Monocular depth with calibrated uncertainty, not a pretty heatmap',
-        'Six-degree-of-freedom pose under motion blur and rolling shutter',
-        'Absolute scale from a single moving camera',
-      ],
-    },
-    {
-      code: 'TU',
-      title: 'Temporal understanding',
-      summary:
-        'Identity held across time — through occlusion, through crowds, through the frames where the object simply is not there.',
-      points: [
-        'Tracking that survives eleven frames of total occlusion',
-        'Trajectory forecasting to a three-second horizon',
-        'Event detection on continuous, unsegmented video',
-      ],
-    },
-    {
-      code: 'EC',
-      title: 'Embodied control',
-      summary:
-        'Pixels to actuation inside a latency budget that does not forgive a late answer, however correct it is.',
-      points: [
-        'Perception to command in 18 ms on commodity silicon',
-        'Policies that degrade predictably when a sensor drops out',
-        'Hard envelopes on what the controller is permitted to do',
-      ],
-    },
-    {
-      code: 'WG',
-      title: 'World generation',
-      summary:
-        'The simulators themselves — and the harder question of which synthetic experience survives contact with reality.',
-      points: [
-        'Procedural worlds with ground truth for every pixel',
-        'Adversarial scenario search: the failure, found on purpose',
-        'Domain gap measured as a first-class metric',
-      ],
-    },
-  ],
+/* -------------------------------------------------------------------------
+   Testimonials — built, switched off, and empty.
+
+   This component exists so that turning it on later is a one-line change, and
+   it renders nothing at all while `enabled` is false. Do not put anything in
+   `items` that is not a real review a real person wrote. Store reviews are the
+   intended source.
+   ------------------------------------------------------------------------- */
+
+export interface Testimonial {
+  quote: string;
+  author: string;
+  /** Where the review was left, e.g. 'App Store'. */
+  source: string;
+}
+
+export const testimonials: {
+  enabled: boolean;
+  label: string;
+  headline: string;
+  items: Testimonial[];
+} = {
+  enabled: false,
+  label: 'Reviews',
+  headline: 'What people say.',
+  items: [],
 };
 
-/**
- * The loop the Capabilities headline names. Each research line hands the next
- * one a specific thing, and the last hands back to the first — which is the
- * argument the section is making, drawn instead of asserted.
- */
-export const capabilityLoop = {
-  label: 'The loop',
-  stations: [
-    { code: 'GP', hands: 'metric structure' },
-    { code: 'TU', hands: 'identity over time' },
-    { code: 'EC', hands: 'a command, and its failures' },
-    { code: 'WG', hands: 'a world that contains them' },
-  ],
-  returnLabel: 'Every failure becomes a world the next model is raised in',
-};
+/* -------------------------------------------------------------------------
+   Interface strings
+   ------------------------------------------------------------------------- */
 
-export const provingGrounds = {
-  index: '03',
-  label: 'Proving Grounds',
-  headline: 'Ten worlds. Running now.',
-  lede: 'Each environment isolates one way perception fails. All ten render continuously, with ground truth for every pixel, and all are built to be hostile. A world nothing fails in teaches nothing.',
-  note: 'World in grey. Model output in phosphor. What you see is what the model sees.',
-};
-
-/** Detail for each of the ten captured environments. Ids match public/media/env. */
-export const environments = [
-  {
-    id: 'drift',
-    code: '01',
-    name: 'Drift',
-    discipline: 'Multi-object tracking',
-    blurb:
-      'An aerial grid at rush hour, where a bridge hides every vehicle for eleven frames and every identity has to survive it.',
-    metric: { label: 'ID switches / 10k frames', value: '0' },
-  },
-  {
-    id: 'canopy',
-    code: '02',
-    name: 'Canopy',
-    discipline: 'Monocular depth',
-    blurb:
-      'Flight through dense foliage, where every cue for scale is self-similar and half of them are moving.',
-    metric: { label: 'δ < 1.25', value: '0.962' },
-  },
-  {
-    id: 'hallway',
-    code: '03',
-    name: 'Hallway',
-    discipline: 'Visual SLAM',
-    blurb:
-      'Deliberately repeating architecture, where the map is only correct if the loop closes on the right corridor.',
-    metric: { label: 'Trajectory drift', value: '0.31%' },
-  },
-  {
-    id: 'swarm',
-    code: '04',
-    name: 'Swarm',
-    discipline: 'Trajectory forecasting',
-    blurb:
-      'Forty-six agents whose futures depend on one another, so predicting any single one means predicting all of them.',
-    metric: { label: 'Average displacement error', value: '0.14 m' },
-  },
-  {
-    id: 'lattice',
-    code: '05',
-    name: 'Lattice',
-    discipline: 'Instance segmentation',
-    blurb:
-      'Identical parts stacked in contact, where the boundary between two objects is the only thing worth getting right.',
-    metric: { label: 'mAP', value: '0.891' },
-  },
-  {
-    id: 'tide',
-    code: '06',
-    name: 'Tide',
-    discipline: 'Optical flow',
-    blurb:
-      'Non-rigid motion across low-texture surfaces — the case where feature matching has nothing to match.',
-    metric: { label: 'End-point error', value: '0.62 px' },
-  },
-  {
-    id: 'relay',
-    code: '07',
-    name: 'Relay',
-    discipline: 'Predictive control',
-    blurb:
-      'A closed loop carrying 90 ms of injected latency, where the only way to be on time is to have been early.',
-    metric: { label: 'Return rate', value: '99.1%' },
-  },
-  {
-    id: 'quarry',
-    code: '08',
-    name: 'Quarry',
-    discipline: 'Volumetric occupancy',
-    blurb:
-      'Sparse returns over terrain that shifts under the sensor, where free space has to be proven rather than assumed.',
-    metric: { label: 'Voxel IoU', value: '0.847' },
-  },
-  {
-    id: 'orbit',
-    code: '09',
-    name: 'Orbit',
-    discipline: 'Collision avoidance',
-    blurb:
-      'Thirty tracks and a two-second decision window, scored by the one miss that matters rather than the average.',
-    metric: { label: 'Minimum separation', value: '41 m' },
-  },
-  {
-    id: 'parse',
-    code: '10',
-    name: 'Parse',
-    discipline: 'Symbol recognition',
-    blurb:
-      'Glyphs the model has never seen, under noise authored by a second model whose only job is defeating the first.',
-    metric: { label: 'Top-1 accuracy', value: '97.4%' },
-  },
-] as const;
-
-export const research = {
-  index: '04',
-  label: 'Research',
-  headline: 'Open problems we are stuck on.',
-  lede: 'Published where publishing helps, and stated plainly where nothing works yet. A lab that reports only its wins is not reporting.',
-  items: [
-    {
-      status: 'Active',
-      title: 'Calibrated uncertainty in monocular depth',
-      abstract:
-        'A depth network that is confidently wrong is more dangerous than one that abstains, so we train the abstention directly. The open question is whether the confidence still means anything out of distribution. So far, beyond thirty meters, it does not.',
-      tags: ['Geometric perception', 'Uncertainty'],
-    },
-    {
-      status: 'Active',
-      title: 'What actually transfers from simulation',
-      abstract:
-        'Photorealism is expensive and, we suspect, mostly beside the point. We ablate renderer fidelity against real-world performance to find which visual properties carry the transfer and which are decoration.',
-      tags: ['World generation', 'Sim-to-real'],
-    },
-    {
-      status: 'Preprint',
-      title: 'Identity through total occlusion',
-      abstract:
-        'Re-identifying an object that has been entirely absent for a second or more, from motion priors rather than appearance. Appearance is the easy signal and the first one to go.',
-      tags: ['Temporal understanding'],
-    },
-    {
-      status: 'Early',
-      title: 'Adversarial scenario search',
-      abstract:
-        'Instead of sampling environments uniformly, we search them for the configuration that breaks the current policy, then add it to the curriculum. The search is the contribution; the failures are the dataset.',
-      tags: ['World generation', 'Evaluation'],
-    },
-    {
-      status: 'Active',
-      title: 'Perception under a fixed latency budget',
-      abstract:
-        'Accuracy is a curve against compute, and every deployed system reads a single point on it. We are working out where that point belongs when arriving late is indistinguishable from being wrong.',
-      tags: ['Embodied control'],
-    },
-  ],
-};
-
-export const applications = {
-  index: '05',
-  label: 'Applications',
-  headline: 'Where perception becomes consequence.',
-  lede: 'A small number of partners, taken on for problems that are physical, measurable, and expensive to get wrong.',
-  items: [
-    {
-      sector: 'Industrial inspection',
-      claim: 'The defect with no examples',
-      detail:
-        'A good production line produces defects too rarely to learn from. We generate the negative class reality withholds, then check the model against the handful of real failures that exist.',
-    },
-    {
-      sector: 'Robotics',
-      claim: 'Manipulation in clutter',
-      detail:
-        'Grasping identical parts in contact is the Lattice problem with a gripper attached. Instance boundaries under contact are the difference between a pick and a jam.',
-    },
-    {
-      sector: 'Earth observation',
-      claim: 'Change seen through cloud',
-      detail:
-        'The signal is small, the revisit is irregular, and the ground truth arrives months late. We train temporal models on synthetic revisit schedules, including the passes that are lost.',
-    },
-    {
-      sector: 'Medical imaging',
-      claim: 'Uncertainty a clinician can act on',
-      detail:
-        'A model that says "I do not know" at the right moment beats a model with a better average. Calibration is the deliverable; accuracy is the by-product.',
-    },
-  ],
-};
-
-export const lab = {
-  index: '06',
-  label: 'The Lab',
-  headline: 'Small, senior, and slow on purpose.',
-  lede: 'Twenty-six people. No growth target. We hire when a problem needs a person, not when a quarter needs headcount.',
-  principles: [
-    {
-      title: 'Publish the failure',
-      body: 'Internal reviews open with what broke. A result nobody tried to break is not a result.',
-    },
-    {
-      title: 'Measure the gap',
-      body: 'Every synthetic number carries a real-world number beside it, or it does not ship.',
-    },
-    {
-      title: 'Own the stack',
-      body: 'Renderer, training harness, evaluation, deployment. A borrowed abstraction hides the failure inside someone else\'s code.',
-    },
-  ],
-  stats: [
-    { label: 'Researchers & engineers', value: '26' },
-    { label: 'Founded', value: '2021' },
-    { label: 'Papers published', value: '31' },
-    { label: 'GPU-hours / week', value: '180k' },
-  ],
-  rolesLabel: 'Open roles',
-  rolesNote:
-    'We read every application. Send work — a paper, a repository, a demo that failed interestingly — rather than a cover letter.',
-  roles: [
-    {
-      code: 'GP',
-      title: 'Perception researcher',
-      note: 'Depth and pose under motion. You have shipped something that ran on a real camera.',
-    },
-    {
-      code: 'WG',
-      title: 'Renderer engineer',
-      note: 'You care what a shading model costs, and whether that cost buys any transfer.',
-    },
-    {
-      code: 'EC',
-      title: 'Controls engineer',
-      note: 'Closing loops inside a latency budget, on hardware that will not wait for you.',
-    },
-    {
-      code: 'EV',
-      title: 'Evaluation lead',
-      note: 'You would rather find the failure than the headline. This role reports the bad numbers.',
-    },
-  ],
-};
-
-export const contact = {
-  index: '07',
-  label: 'Contact',
-  headline: 'If perception is the bottleneck, we should talk.',
-  accentWord: 'talk.',
-  lede: 'We take on a handful of engagements a year. Every application to work here is read by someone you would work with.',
-  channels: [
-    {
-      kind: 'Partnerships',
-      detail: 'Bring a problem that is physical, measurable, and currently unsolved.',
-      action: 'partners@newaivisionlabs.com',
-    },
-    {
-      kind: 'Research',
-      detail: 'Collaborations, datasets, and reproductions of published work. Reproductions especially.',
-      action: 'research@newaivisionlabs.com',
-    },
-    {
-      kind: 'Careers',
-      detail: 'Four open roles across perception, simulation, and systems. Send work, not a cover letter.',
-      action: 'careers@newaivisionlabs.com',
-    },
-  ],
-};
-
-/**
- * Interface strings. These were previously hardcoded in JSX, which put the
- * page's closing line and its final CTA outside copy control.
- */
 export const ui = {
   skipToContent: 'Skip to content',
-  navContact: 'Contact',
-  sheetCta: 'Contact the lab',
-  scroll: 'Scroll',
-  scrollLabel: 'Scroll to the thesis',
-  running: 'Running',
-  standby: 'Standby',
-  motionOn: 'Motion on',
-  motionOff: 'Motion off',
-  closingLine: 'The field above is the one you arrived on, finished resolving.',
-  closingCta: 'Send us the problem',
+  menu: 'Menu',
+  close: 'Close',
+  backToApps: 'All apps',
+  screenshotsLabel: 'Screenshots',
+  gameplayLabel: 'Gameplay',
+  noScreenshots: '[TODO] Screenshots go in public/media/apps/<slug>/ and are listed in src/content/site.ts.',
+  supportShort: 'Support',
+  emailUs: 'Email us',
+  onThisPage: 'On this page',
+  lastUpdated: 'Last updated',
 };
 
 export const footer = {
-  blurb: 'A machine perception research lab. Synthetic worlds, honest evaluation.',
-  location: 'Lisbon · Zürich',
+  blurb: site.blurb,
   columns: [
     {
-      title: 'Lab',
+      title: 'Studio',
       links: [
-        { label: 'Thesis', href: '#thesis' },
-        { label: 'Capabilities', href: '#capabilities' },
-        { label: 'Research', href: '#research' },
-        { label: 'Careers', href: '#contact' },
+        { label: 'Apps', route: routes.apps },
+        { label: 'Demo', route: routes.demo },
       ],
     },
     {
-      title: 'Environments',
+      title: 'Help',
       links: [
-        { label: 'Proving Grounds', href: '#proving-grounds' },
-        { label: 'Applications', href: '#applications' },
-        { label: 'How we evaluate', href: '#research' },
+        { label: 'Support', route: routes.support },
+        { label: 'Data deletion', route: routes.dataDeletion },
+      ],
+    },
+    {
+      title: 'Legal',
+      links: [
+        { label: 'Privacy Policy', route: routes.privacy },
+        { label: 'Terms of Use', route: routes.terms },
       ],
     },
   ],
+  /** Rendered as "© <year> New AI Vision Labs LLC" with the year filled at run time. */
+  copyright: site.legalName,
 };

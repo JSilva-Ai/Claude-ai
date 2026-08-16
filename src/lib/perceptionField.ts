@@ -106,8 +106,8 @@ in float v_intensity;
 in float v_conf;
 in float v_depth;
 
-uniform vec3 u_phosphor;
-uniform vec3 u_plasma;
+uniform vec3 u_signal;
+uniform vec3 u_signal_deep;
 uniform vec3 u_rest;
 
 out vec4 outColor;
@@ -119,11 +119,12 @@ void main() {
   if (r2 > 1.0) discard;
   float alpha = smoothstep(1.0, 0.15, r2);
 
-  // Unresolved points sit near the ground colour. Returns run phosphor.
-  // Plasma appears only in the mid band, as depth cue — never as a gradient.
+  // Points at rest sit near the ground colour, achromatic. A point that has
+  // returned runs the brand blue, and the deeper blue appears only in the mid
+  // band as a depth cue — so the gradient in the mark is the gradient here.
   vec3 col = u_rest;
-  col = mix(col, u_plasma, smoothstep(0.05, 0.45, v_intensity) * 0.5);
-  col = mix(col, u_phosphor, smoothstep(0.35, 1.0, v_intensity));
+  col = mix(col, u_signal_deep, smoothstep(0.05, 0.45, v_intensity) * 0.5);
+  col = mix(col, u_signal, smoothstep(0.35, 1.0, v_intensity));
 
   // Distance fog to ink keeps the horizon from forming a hard edge.
   float fog = 1.0 - smoothstep(16.0, 46.0, v_depth);
@@ -270,8 +271,8 @@ export function createPerceptionField(
     reveal: gl.getUniformLocation(prog, 'u_reveal'),
     aspect: gl.getUniformLocation(prog, 'u_aspect'),
     resolved: gl.getUniformLocation(prog, 'u_resolved'),
-    phosphor: gl.getUniformLocation(prog, 'u_phosphor'),
-    plasma: gl.getUniformLocation(prog, 'u_plasma'),
+    signal: gl.getUniformLocation(prog, 'u_signal'),
+    signalDeep: gl.getUniformLocation(prog, 'u_signal_deep'),
     rest: gl.getUniformLocation(prog, 'u_rest'),
   };
 
@@ -425,11 +426,13 @@ export function createPerceptionField(
     gl!.uniform1f(u.reveal, reveal);
     gl!.uniform1f(u.aspect, Math.max(aspect, 1.0));
     gl!.uniform1f(u.resolved, opts.mode === 'resolved' ? 1 : 0);
-    gl!.uniform3f(u.phosphor, 0.831, 0.973, 0.361);
-    gl!.uniform3f(u.plasma, 0.482, 0.361, 1.0);
-    // Cool-neutral, not blue: at 0.55/0.60/0.69 the unreturned points read as
-    // a blue haze, which is the one hue the identity is defined against.
-    gl!.uniform3f(u.rest, 0.6, 0.62, 0.64);
+    // The mark's two blues, as the returned signal. #0A84FF and #1E6FFF.
+    gl!.uniform3f(u.signal, 0.039, 0.518, 1.0);
+    gl!.uniform3f(u.signalDeep, 0.118, 0.435, 1.0);
+    // Points at rest stay achromatic and slightly cool. Tinting them blue too
+    // would turn the whole field into a wash and leave the returns with
+    // nothing to read against — the blue has to mean something.
+    gl!.uniform3f(u.rest, 0.55, 0.57, 0.60);
     gl!.drawArrays(gl!.POINTS, 0, activeCount);
   }
 

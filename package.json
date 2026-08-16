@@ -1,5 +1,5 @@
 {
-  "name": "claude-ai",
+  "name": "new-ai-vision-labs",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,12 +10,12 @@
     "lint": "oxlint",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "check": "npm run typecheck && npm run lint",
-    "qa": "node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --sections",
+    "qa": "node scripts/shoot.mjs --vp=xl,desktop,laptop,tablet,mobile,small --full",
     "qa:a11y": "node scripts/a11y.mjs",
     "qa:perf": "node scripts/perf.mjs --cpu=4",
-    "qa:video": "node scripts/video-check.mjs",
-    "qa:seam": "node scripts/render/seam.mjs",
-    "render": "node scripts/render/capture.mjs"
+    "brand": "node scripts/render/brand.mjs",
+    "demo": "node scripts/install-demo.mjs",
+    "capture": "node scripts/render/capture-game.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

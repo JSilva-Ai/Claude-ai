@@ -1,301 +1,209 @@
 /* ==========================================================================
-   Shared UI primitives — buttons, tags, rules, reveals
+   Buttons, pills, badges, cards, the lockup, and the [TODO] marker
    ========================================================================== */
 
-/* --- Reveal ------------------------------------------------------------- */
-/* Translation of a few pixels + opacity. Never a scale-up from 0.8. */
-[data-reveal] {
-  opacity: 0;
-  transform: translate3d(0, 14px, 0);
-  transition:
-    opacity var(--dur-reveal) var(--ease-out),
-    transform var(--dur-reveal) var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
+/* --- Lockup --------------------------------------------------------------- */
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  color: var(--white);
 }
 
-[data-reveal='in'] {
-  opacity: 1;
-  transform: none;
-  will-change: auto;
+.lockup__word {
+  font-size: var(--step--1);
+  font-variation-settings: 'wdth' 108, 'wght' 600;
+  letter-spacing: 0.17em;
+  /* Tracking adds space after the last letter too; pulling it back keeps the
+     optical right edge where the glyph ends. */
+  margin-right: -0.17em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
+@media (max-width: 26rem) {
+  .lockup__word {
+    display: none;
   }
 }
 
-/* --- Buttons ------------------------------------------------------------ */
-/* An action on this page is a key on a panel, not a pill: hard corners, a
-   tracked mono legend, and the arrow in its own ruled cell. Rounded surfaces
-   are reserved for the environment monitors, which hold video. */
+/* --- Buttons -------------------------------------------------------------- */
 .btn {
   --btn-bg: transparent;
-  --btn-fg: var(--porcelain);
-  --btn-border: var(--line-strong);
-  --btn-rule: var(--line-strong);
-  position: relative;
+  --btn-fg: var(--white);
   display: inline-flex;
-  align-items: stretch;
-  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  /* 44px min target: the WCAG 2.2 minimum is 24px, but this is a site about
+     phone software and a thumb is not a cursor. */
+  min-height: 2.875rem;
+  padding: 0.6rem 1.15rem;
   background: var(--btn-bg);
   color: var(--btn-fg);
-  border: 1px solid var(--btn-border);
-  border-radius: var(--r-xs);
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  font-weight: 550;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-s);
+  font-size: var(--step--1);
+  font-variation-settings: 'wdth' 100, 'wght' 600;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  isolation: isolate;
   transition:
-    color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out);
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
-/* The legend sits in its own cell so the arrow cell can be ruled off it. */
-.btn__label {
-  display: flex;
-  align-items: center;
-  padding: 0 1.25rem;
-  flex: 1;
-  justify-content: center;
+.btn:hover {
+  border-color: var(--blue-a60);
+  box-shadow: var(--glow-blue);
 }
 
-.btn__arrow {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  flex: none;
-  border-left: 1px solid var(--btn-rule);
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
+.btn:active {
+  transform: translateY(1px);
 }
 
-.btn:hover .btn__arrow svg {
-  transform: translate(2px, -2px);
-}
-
-.btn__arrow svg {
-  transition: transform var(--dur-base) var(--ease-out);
-}
-
-/* Primary — highest value contrast on the page, no accent spent. The accent
-   arrives on intent instead, so only one thing glows at a time. */
 .btn--primary {
-  --btn-bg: var(--porcelain);
-  --btn-fg: var(--ink-000);
-  --btn-border: var(--porcelain);
-  --btn-rule: rgba(8, 9, 11, 0.22);
-  font-weight: 620;
+  --btn-bg: var(--gradient-blue);
+  --btn-fg: var(--white);
+  border-color: transparent;
 }
 
 .btn--primary:hover {
-  --btn-bg: var(--phosphor);
-  --btn-border: var(--phosphor);
-  --btn-rule: rgba(8, 9, 11, 0.28);
-}
-
-.btn--ghost {
-  --btn-border: var(--line-strong);
-  --btn-rule: var(--line-strong);
-}
-
-.btn--ghost:hover {
-  --btn-bg: var(--fill-strong);
-  --btn-fg: var(--porcelain);
-  --btn-border: rgba(237, 238, 240, 0.3);
-  --btn-rule: rgba(237, 238, 240, 0.3);
+  border-color: transparent;
+  box-shadow: var(--glow-strong);
 }
 
 .btn--sm {
   min-height: 2.375rem;
-  font-size: 0.65rem;
+  padding: 0.4rem 0.85rem;
+  font-size: var(--step--2);
 }
 
-.btn--sm .btn__label {
-  padding-inline: 0.9rem;
+.btn--block {
+  width: 100%;
 }
 
-/* --- Text link with rule ------------------------------------------------ */
-.link {
+.btn__arrow {
+  font-size: 0.85em;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.btn:hover .btn__arrow {
+  transform: translate(2px, -2px);
+}
+
+/* --- Pills ---------------------------------------------------------------- */
+.pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--porcelain);
-  font-size: var(--step--1);
-  font-weight: 520;
-  padding-bottom: 2px;
-  background-image: linear-gradient(var(--phosphor), var(--phosphor));
-  background-size: 0% 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition:
-    background-size var(--dur-slow) var(--ease-out),
-    color var(--dur-base) var(--ease-out);
-}
-
-.link:hover {
-  color: var(--phosphor);
-  background-size: 100% 1px;
-}
-
-/* --- Tag ---------------------------------------------------------------- */
-/* Classification, not a chip. Boxed pills read as a CMS taxonomy widget; a
-   tracked mono string separated by a rule reads as a filing code. */
-.tag {
-  display: inline-flex;
-  align-items: center;
+  gap: 0.5em;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
   font-family: var(--font-mono);
   font-size: var(--step--2);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--grey-300);
-  white-space: nowrap;
+  color: var(--chrome);
+  width: fit-content;
 }
 
-/* --- Live dot ----------------------------------------------------------- */
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  color: var(--phosphor);
-  flex: none;
-  animation: dot-pulse 2.8s var(--ease-in-out) infinite;
+.pill--dev {
+  border-color: var(--blue-a35);
+  color: var(--blue-lift);
+  background: var(--blue-a10);
 }
 
-.dot--ember {
-  background: var(--ember);
+.pill--live {
+  border-color: var(--line-strong);
+  color: var(--white);
 }
 
-/* The halo is derived from the dot's own colour, so a plasma or grey status
-   dot no longer pulses phosphor. */
-@keyframes dot-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 5px transparent;
-  }
+/* --- Store badges ---------------------------------------------------------
+   Sized like the real Apple / Google badges so swapping in the official
+   artwork later does not move the layout. */
+.badge {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-m);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dot {
-    animation: none;
-  }
+a.badge:hover {
+  border-color: var(--blue-a60);
+  box-shadow: var(--glow-blue);
 }
 
-/* --- Section header ----------------------------------------------------- */
-.section-head {
-  display: grid;
-  gap: var(--space-m);
-  margin-bottom: var(--space-2xl);
+.badge--pending {
+  opacity: 0.62;
+  border-style: dashed;
 }
 
-.section-head__index {
+.badge__store {
+  font-variation-settings: 'wdth' 100, 'wght' 700;
+  font-size: var(--step--1);
+  line-height: 1.2;
+}
+
+.badge__note {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  color: var(--chrome-dim);
+  letter-spacing: 0.06em;
+}
+
+/* --- The [TODO] marker ----------------------------------------------------
+   Deliberately loud. These pages are templates and the unfinished parts have
+   to be impossible to miss, including by whoever ships the site in a hurry.
+   The colour is not the brand blue precisely so it never reads as a design
+   element that belongs there. */
+.todo {
+  border-left: 2px solid #ffb020;
+  background: rgba(255, 176, 32, 0.07);
+  color: #ffce7a;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: 0 var(--r-s) var(--r-s) 0;
+  font-size: var(--step--1);
+  margin-block: var(--space-s);
+}
+
+/* --- Section heads --------------------------------------------------------- */
+.head {
+  max-width: var(--container-text);
+  margin-bottom: var(--space-xl);
+}
+
+.head__label {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.75em;
+  margin-bottom: var(--space-s);
 }
 
-.section-head__index::after {
-  content: '';
-  height: 1px;
-  flex: 1;
-  max-width: 8rem;
-  background: linear-gradient(90deg, var(--line-strong), transparent);
+.head__index {
+  color: var(--blue);
 }
 
-/* The index is set by value, not by hue. Spending the accent on an ordinal
-   in every section is how a page ends up with seven things glowing. */
-.section-head__no {
-  color: var(--porcelain);
+.head__title {
+  font-size: var(--step-4);
+  margin-bottom: var(--space-s);
 }
 
-@media (min-width: 60rem) {
-  .section-head--split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
-    align-items: end;
-    gap: var(--space-3xl);
-  }
-
-  /* The display line needs room to breathe away from the lede beside it. */
-  .section-head--split .section-head__title {
-    max-width: 17ch;
-  }
+.head__title--sm {
+  font-size: var(--step-3);
+  margin-bottom: var(--space-m);
 }
 
-/* --- Card --------------------------------------------------------------- */
-.card {
-  position: relative;
-  background: linear-gradient(180deg, var(--fill) 0%, var(--fill-weak) 100%);
-  border: 1px solid var(--line-weak);
-  border-radius: var(--r-l);
-  overflow: hidden;
-  transition:
-    border-color var(--dur-slow) var(--ease-out),
-    background-color var(--dur-slow) var(--ease-out),
-    transform var(--dur-slow) var(--ease-out);
-}
-
-.card:hover {
-  border-color: var(--line-strong);
-}
-
-/* Corner ticks — instrument framing, used instead of heavy borders. */
-.ticks::before,
-.ticks::after {
-  content: '';
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border: 1px solid var(--phosphor-a40);
-  opacity: 0;
-  transition: opacity var(--dur-slow) var(--ease-out);
-  pointer-events: none;
-}
-
-.ticks::before {
-  top: 10px;
-  left: 10px;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.ticks::after {
-  bottom: 10px;
-  right: 10px;
-  border-left: 0;
-  border-top: 0;
-}
-
-.ticks:hover::before,
-.ticks:hover::after,
-.ticks:focus-within::before,
-.ticks:focus-within::after {
-  opacity: 1;
-}
-
-/* --- Grain -------------------------------------------------------------- */
-/* Scoped to the hero and not fixed. A page-wide fixed grain in
-   mix-blend-mode: overlay costs roughly 60% of scroll frame rate, because
-   every scrolled frame has to recomposite the whole document through the
-   blend. The texture is not worth that, and over the field is the only place
-   it reads anyway. */
-.grain {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0.055;
-  background-image: var(--grain-url);
-  background-size: 180px 180px;
+.head__lede {
+  color: var(--chrome);
+  font-size: var(--step-1);
+  max-width: var(--measure);
 }

@@ -4,73 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#08090b" />
+    <meta name="theme-color" content="#050507" />
 
-    <title>New AI Vision Labs — Machine perception, trained in synthetic worlds</title>
-    <meta
-      name="description"
-      content="New AI Vision Labs is a machine perception research lab. We author synthetic worlds, train vision systems inside them, and break those systems on purpose — so perception is proven before it meets a real camera."
-    />
+    <title>New AI Vision Labs — independent app studio</title>
+    <meta name="description" content="New AI Vision Labs is an independent app studio. We design, build, and publish our own apps on the App Store and Google Play." />
     <link rel="canonical" href="https://newaivisionlabs.com/" />
 
-    <!-- Icons -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/brand/mark-512.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- The display font is the first thing painted; preloading it removes the
+    <!-- The display face is the first thing painted; preloading it removes the
          width-axis reflow on the headline. -->
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      href="/fonts/archivo-latin-wdth-normal.woff2"
-      crossorigin
-    />
+    <link rel="preload" as="font" type="font/woff2"
+          href="/fonts/archivo-latin-wdth-normal.woff2" crossorigin />
 
-    <!-- Social -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="New AI Vision Labs" />
-    <meta property="og:title" content="New AI Vision Labs — Machine perception, trained in synthetic worlds" />
-    <meta
-      property="og:description"
-      content="Ten synthetic environments, running continuously, where vision systems are trained and broken on purpose."
-    />
+    <meta property="og:title" content="New AI Vision Labs — independent app studio" />
+    <meta property="og:description" content="New AI Vision Labs is an independent app studio. We design, build, and publish our own apps on the App Store and Google Play." />
     <meta property="og:url" content="https://newaivisionlabs.com/" />
     <meta property="og:image" content="https://newaivisionlabs.com/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="New AI Vision Labs — machine perception, trained in synthetic worlds" />
+    <meta property="og:image:alt" content="New AI Vision Labs — independent app studio" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="New AI Vision Labs" />
-    <meta
-      name="twitter:description"
-      content="Ten synthetic environments, running continuously, where vision systems are trained and broken on purpose."
-    />
+    <meta name="twitter:title" content="New AI Vision Labs — independent app studio" />
+    <meta name="twitter:description" content="New AI Vision Labs is an independent app studio. We design, build, and publish our own apps on the App Store and Google Play." />
     <meta name="twitter:image" content="https://newaivisionlabs.com/og.jpg" />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ResearchOrganization",
-        "name": "New AI Vision Labs",
-        "url": "https://newaivisionlabs.com/",
-        "logo": "https://newaivisionlabs.com/brand/mark-512.png",
-        "description": "A machine perception research lab. We author synthetic worlds, train vision systems inside them, and measure what transfers to reality.",
-        "foundingDate": "2021",
-        "knowsAbout": [
-          "Machine perception",
-          "Computer vision",
-          "Monocular depth estimation",
-          "Visual SLAM",
-          "Multi-object tracking",
-          "Sim-to-real transfer"
-        ],
-        "email": "research@newaivisionlabs.com"
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/pages/home.tsx"></script>
   </body>
 </html>

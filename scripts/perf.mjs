@@ -16,7 +16,7 @@ const args = Object.fromEntries(
     return [k, v ?? true];
   }),
 );
-const URL = args.url ?? 'http://127.0.0.1:4173';
+const URL = args.url ?? 'http://127.0.0.1:4173/Claude-ai/';
 const cpuThrottle = Number(args.cpu ?? 4);
 
 const browser = await chromium.launch({
