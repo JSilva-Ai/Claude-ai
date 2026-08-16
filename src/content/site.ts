@@ -21,17 +21,21 @@ export const site = {
   /**
    * Who is behind the studio.
    *
-   * Registered at county and federal level, in the operator's own name.
+   * The entity is a Georgia limited liability company, registered with the
+   * Secretary of State and holding an EIN issued to "NEW AI VISION LABS LLC".
    *
-   * `legalName` carries no corporate suffix on purpose. County registration in
-   * Georgia is a trade-name filing with the Superior Court clerk, and a federal
-   * registration at this stage is normally an EIN — neither creates a separate
-   * legal entity. A Georgia LLC or corporation is filed with the Secretary of
-   * State, which is a different thing. Until that is confirmed, writing "LLC"
-   * or "Inc." here would be a false statement on a legal page, so the name
-   * stands as registered. See the README.
+   * `name` above is the trading name and is what the site says everywhere it
+   * is speaking to a visitor. `legalName` is the entity, and it belongs in the
+   * three places that are speaking to a lawyer or a store reviewer: the
+   * privacy policy, the terms, and the copyright line.
+   *
+   * The EIN itself is never stored in this repo and never goes on the site. It
+   * is required nowhere and is useful to anyone attempting fraud in the
+   * company's name.
    */
-  legalName: 'New AI Vision Labs',
+  legalName: 'New AI Vision Labs LLC',
+  /** The jurisdiction the entity is formed in — named in the terms. */
+  jurisdiction: 'Georgia, United States',
   operator: 'Jorge Silva',
 
   /**
@@ -335,6 +339,6 @@ export const footer = {
       ],
     },
   ],
-  /** Rendered as "© <year> New AI Vision Labs" with the year filled at build. */
-  copyright: site.name,
+  /** Rendered as "© <year> New AI Vision Labs LLC" with the year filled at run time. */
+  copyright: site.legalName,
 };

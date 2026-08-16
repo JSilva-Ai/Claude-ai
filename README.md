@@ -226,40 +226,30 @@ one that is not my house". In Georgia, the usual routes, cheapest first:
 2. **A registered agent's address**, if the studio is or becomes an LLC.
    Agents run $50–150/year.
 
-### What "registered" means here
+### The entity
 
-The studio is registered at county and federal level in the operator's own
-name. Worth being precise about what that does and does not give you, because
-the site's legal pages depend on it:
+**New AI Vision Labs LLC** — a Georgia limited liability company, registered
+with the Secretary of State, holding an EIN issued in that name.
 
-- **County**, in Georgia, is a trade-name (DBA) filing with the Superior Court
-  clerk. It reserves the name for use in that county. It does not create an
-  entity.
-- **Federal**, at this stage, is normally an EIN from the IRS. That is a tax
-  identifier. A sole proprietor can hold one. It does not create an entity
-  either. (A federal *trademark* is a different filing and would be worth
-  saying so explicitly.)
-- **An entity** — a Georgia LLC or corporation — is filed with the **Secretary
-  of State**, not the county. If that has not happened, the operator personally
-  is the legal entity: no liability shield, and business debts and claims reach
-  personal assets.
+That matters in three places in this repo:
 
-Two consequences for this repo. `legalName` carries no "LLC" or "Inc." suffix,
-because writing one on a privacy policy or terms page that is not true is a
-false statement on a legal document. And the liability cap in the terms matters
-more, not less, while there is no entity behind it.
+- `site.legalName` is the entity and appears in the privacy policy, the terms,
+  and the copyright line. `site.name` is the trading name and is what the site
+  says everywhere it is talking to a visitor rather than to a lawyer.
+- The terms name Georgia as the governing law, which is where the entity is
+  formed. Those now agree, which they must.
+- The liability cap in the terms is still `[TODO]` and is now worth setting
+  properly, because there is an entity for it to protect.
 
-Never put the EIN on the site. It is not required anywhere, and it is a useful
-number to anyone attempting fraud in the business's name.
+**The EIN is not in this repo and must never be.** It is required nowhere on a
+website and is useful to anyone attempting fraud in the company's name. The
+same is true of the formation documents.
 
-Until one of those exists, `site.postalAddress` stays empty and the privacy
-policy offers the address on request, which is a normal position for a small
-operator that has not listed yet.
-
-The same logic applies to `site.phone`, which is also empty. A number on a
-public page is scraped within days; use a forwarding number (Google Voice is
-free in the US) rather than a personal line. Google Play requires a phone on
-the developer account, but does not display it.
+One thing worth checking outside this repo: a Georgia LLC's registered agent
+and registered office address are public record on the Secretary of State's
+searchable database. If the home address was used there, it is already public
+independently of this website, and switching to a commercial registered agent
+(around $50–150/year) is what takes it off that record.
 
 ## Before this goes public
 

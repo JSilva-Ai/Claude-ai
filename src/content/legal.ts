@@ -54,7 +54,7 @@ export const privacy: LegalDoc = {
     {
       heading: 'Who we are',
       body: [
-        'New AI Vision Labs is a registered independent app studio, operated by Jorge Silva in Kennesaw, Georgia, United States. We are the data controller for the personal information described in this policy.',
+        'New AI Vision Labs is an independent app studio. The legal entity behind it is New AI Vision Labs LLC, a limited liability company registered in Georgia, United States, based in Kennesaw and operated by Jorge Silva. New AI Vision Labs LLC is the data controller for the personal information described in this policy.',
         'You can reach us by email at office@newaivisionlabs.com or by phone at +1 (404) 597-3852. A full postal address is available on request.',
         '[TODO] Replace "available on request" with the address once there is a business one — see `postalAddress` in src/content/site.ts. City and state are enough for this page today; a full street address is required before a Google Play listing or before offering the apps in the EU.',
       ],
@@ -170,7 +170,7 @@ export const terms: LegalDoc = {
   description: 'The terms that apply to New AI Vision Labs apps and this website.',
   updated: UPDATED,
   intro: [
-    'These terms apply to the apps published by New AI Vision Labs and to this website. By installing an app or using the site, you agree to them.',
+    'These terms apply to the apps published by New AI Vision Labs LLC, a Georgia limited liability company ("New AI Vision Labs", "we", "us"), and to this website. By installing an app or using the site, you agree to them.',
     '[TODO] Have a lawyer in your jurisdiction review this document before you publish it. The structure below is conventional, but the enforceability of several clauses — the liability cap in particular — depends entirely on local law.',
   ],
   sections: [
@@ -217,7 +217,7 @@ export const terms: LegalDoc = {
     {
       heading: 'Limitation of liability',
       body: [
-        'To the fullest extent permitted by law, New AI Vision Labs is not liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, revenue, or data, arising from your use of our apps.',
+        'To the fullest extent permitted by law, New AI Vision Labs LLC is not liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, revenue, or data, arising from your use of our apps.',
         '[TODO] State the liability cap. It is commonly the greater of the amount you paid in the preceding twelve months or a small fixed sum — confirm what is enforceable where you are established.',
         'Nothing in these terms excludes liability for death or personal injury caused by negligence, for fraud, or for anything else that cannot lawfully be excluded.',
       ],
