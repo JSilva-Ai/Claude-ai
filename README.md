@@ -223,10 +223,34 @@ one that is not my house". In Georgia, the usual routes, cheapest first:
 1. **A commercial mailbox with a street address** (a CMRA — the UPS Store and
    similar). Roughly $10–30/month, accepted by Google Play because it is a
    street address rather than a PO box.
-2. **Form a Georgia LLC and use a registered agent's address.** Filing is about
-   $100, agents run $50–150/year. This also separates the business from the
-   person, which is the actual reason to do it — a sole proprietorship gives no
-   liability shield, and the operator personally *is* the legal entity.
+2. **A registered agent's address**, if the studio is or becomes an LLC.
+   Agents run $50–150/year.
+
+### What "registered" means here
+
+The studio is registered at county and federal level in the operator's own
+name. Worth being precise about what that does and does not give you, because
+the site's legal pages depend on it:
+
+- **County**, in Georgia, is a trade-name (DBA) filing with the Superior Court
+  clerk. It reserves the name for use in that county. It does not create an
+  entity.
+- **Federal**, at this stage, is normally an EIN from the IRS. That is a tax
+  identifier. A sole proprietor can hold one. It does not create an entity
+  either. (A federal *trademark* is a different filing and would be worth
+  saying so explicitly.)
+- **An entity** — a Georgia LLC or corporation — is filed with the **Secretary
+  of State**, not the county. If that has not happened, the operator personally
+  is the legal entity: no liability shield, and business debts and claims reach
+  personal assets.
+
+Two consequences for this repo. `legalName` carries no "LLC" or "Inc." suffix,
+because writing one on a privacy policy or terms page that is not true is a
+false statement on a legal document. And the liability cap in the terms matters
+more, not less, while there is no entity behind it.
+
+Never put the EIN on the site. It is not required anywhere, and it is a useful
+number to anyone attempting fraud in the business's name.
 
 Until one of those exists, `site.postalAddress` stays empty and the privacy
 policy offers the address on request, which is a normal position for a small

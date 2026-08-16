@@ -21,10 +21,15 @@ export const site = {
   /**
    * Who is behind the studio.
    *
-   * If "New AI Vision Labs" is not a registered company then legally the
-   * operator is the individual, and this is a trading name over a sole
-   * proprietorship — which matters, because that gives no liability shield and
-   * makes the person the legal entity. See the README.
+   * Registered at county and federal level, in the operator's own name.
+   *
+   * `legalName` carries no corporate suffix on purpose. County registration in
+   * Georgia is a trade-name filing with the Superior Court clerk, and a federal
+   * registration at this stage is normally an EIN — neither creates a separate
+   * legal entity. A Georgia LLC or corporation is filed with the Secretary of
+   * State, which is a different thing. Until that is confirmed, writing "LLC"
+   * or "Inc." here would be a false statement on a legal page, so the name
+   * stands as registered. See the README.
    */
   legalName: 'New AI Vision Labs',
   operator: 'Jorge Silva',
