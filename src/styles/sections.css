@@ -296,6 +296,10 @@
   text-decoration-color: currentColor;
 }
 
+.clip + .shots {
+  margin-top: var(--space-xl);
+}
+
 .shots {
   display: grid;
   gap: var(--space-m);

@@ -96,10 +96,11 @@ export function AppPage({ slug }: { slug: string }) {
           <h2 className="head__title head__title--sm" id="shots-title">
             {app.clip ? ui.gameplayLabel : ui.screenshotsLabel}
           </h2>
-          {app.clip ? (
-            <GameClip clip={app.clip} alt={`${app.name} gameplay`} />
-          ) : app.screenshots.length === 0 ? (
-            <p className="todo">{ui.noScreenshots}</p>
+
+          {app.clip && <GameClip clip={app.clip} alt={`${app.name} gameplay`} />}
+
+          {app.screenshots.length === 0 ? (
+            !app.clip && <p className="todo">{ui.noScreenshots}</p>
           ) : (
             <ul className="shots">
               {app.screenshots.map((s) => (

@@ -2,11 +2,19 @@
  * Records a game to a looping clip at the site's standard media size.
  *
  *   node scripts/render/capture-game.mjs [--seconds=14] [--fps=60] [--keep-frames]
+ *   node scripts/render/capture-game.mjs --shots
  *
  * Output, into public/media/games/void-striker/:
  *   clip.webm    VP9
  *   clip.mp4     H.264, for Safari
  *   poster.jpg   first drawn frame, for the <video> poster
+ *
+ * With --shots, into public/media/apps/void-striker/:
+ *   01..04.jpg   stills, pulled from the same stepped run
+ *
+ * The stills are frames of the same take rather than a separate staged
+ * session, which is the point: they cannot drift out of sync with the clip or
+ * show a version of the game that no longer exists.
  *
  * ---
  *
@@ -78,6 +86,28 @@ const page = await browser.newPage({
  * own `gs.t` clock — advances only when __step() is called.
  */
 await page.addInitScript(() => {
+  /*
+   * Seed the game's randomness.
+   *
+   * The game calls Math.random() for spawn positions, enemy types and particle
+   * jitter, so two captures of "the same" run are different runs: the first
+   * pass at picking still frames by index chose a dense wave, and the identical
+   * command a minute later put the upgrade shop at both of those indices.
+   *
+   * mulberry32 with a fixed seed makes the whole take reproducible — same
+   * clip, same frames, same stills, every time and on every machine. It also
+   * means the frame numbers chosen for the stills below stay meaningful
+   * instead of silently pointing at whatever happens to be there next time.
+   */
+  let seed = 0x9e3779b9;
+  Math.random = () => {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+
   const queue = [];
   let now = 0;
   // @ts-expect-error - replacing a host API on purpose
@@ -103,6 +133,7 @@ await page.evaluate(() => document.fonts.ready);
 
 // Draw the title screen, then open the menu and start a NORMAL run.
 await page.evaluate(() => window.__step(30));
+await page.screenshot({ path: join(TMP, 'title.png') });
 await page.click('canvas', { position: { x: W / 2, y: H / 2 } });
 await page.waitForTimeout(250);
 for (const b of await page.$$('#modal button')) {
@@ -175,12 +206,44 @@ console.log(` done (${readdirSync(TMP).length} frames)`);
 
 await browser.close();
 
+const run = (a) => execFileSync(ffmpeg, a, { stdio: ['ignore', 'ignore', 'pipe'] });
+
+/* --- Stills --------------------------------------------------------------
+   Frame numbers chosen by looking at the take, not by dividing the runtime:
+   an evenly spaced sample of a shooter gives four near-identical pictures of
+   an empty starfield. These are the title, a dense wave, the upgrade shop —
+   a real feature, worth one of the four slots — and a late-game moment.
+
+   These indices only mean anything because the run is seeded. Before that they
+   pointed at whatever happened to be there, and two identical commands a
+   minute apart produced different pictures.
+
+   They were found by measuring rather than by scrubbing a contact sheet: mean
+   luma per frame over the whole take, then the brightest frames (the upgrade
+   shop, which is a full-screen lit UI) and the busiest gameplay frames after
+   the third wave. Re-run that measurement if the take ever changes. */
+if (args.shots) {
+  const SHOTS = join(ROOT, 'public', 'media', 'apps', 'void-striker');
+  mkdirSync(SHOTS, { recursive: true });
+  const picks = [
+    ['title.png', '01'],
+    [`f${pad(618)}.png`, '02'],
+    [`f${pad(322)}.png`, '03'],
+    [`f${pad(663)}.png`, '04'],
+  ];
+  for (const [src, n] of picks) {
+    run(['-y', '-i', join(TMP, src), '-vf', `scale=${W}:${H}:flags=lanczos`,
+         '-q:v', '4', join(SHOTS, `${n}.jpg`)]);
+    console.log(`  media/apps/void-striker/${n}.jpg`);
+  }
+  if (!args['keep-frames']) rmSync(TMP, { recursive: true, force: true });
+  process.exit(0);
+}
+
 /* --- Encode ------------------------------------------------------------- */
 const fade = `fade=t=in:st=0:d=0.5,fade=t=out:st=${SECONDS - 0.6}:d=0.6`;
 const scale = `scale=${W}:${H}:flags=lanczos`;
 const input = ['-framerate', String(FPS), '-i', join(TMP, 'f%05d.png')];
-
-const run = (a) => execFileSync(ffmpeg, a, { stdio: ['ignore', 'ignore', 'pipe'] });
 
 run([
   '-y',
