@@ -67,9 +67,30 @@
 }
 
 @media (min-width: 62rem) {
+  /* Not 1fr 1fr. The left column holds two paragraphs capped at 62ch and the
+     right holds three ruled points, so equal columns left the prose short of
+     its own column's width and the points cramped — and, because the left ran
+     out first, an empty quadrant at the bottom left of the section. */
   .approach {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
     gap: var(--space-3xl);
+    align-items: start;
+  }
+
+  /* The intro tracks the points instead of scrolling away above them. This is
+     what fills the space the short column used to leave behind: the column is
+     no longer empty, it is holding position. */
+  .approach__body {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--space-l));
+  }
+}
+
+/* A sticky element inside a scroll container that respects reduced motion
+   still moves relative to the page. Position it statically instead. */
+@media (prefers-reduced-motion: reduce) {
+  .approach__body {
+    position: static;
   }
 }
 
@@ -240,9 +261,20 @@
     border-right: 1px solid var(--line);
   }
 
+  /* Top-aligned, not centred. Centring parked the name, tagline and platform
+     line as a small island halfway down a 20rem card with dead space above and
+     below it — the text read as floating in the panel rather than sitting in
+     it. Aligned to the top it shares a baseline with the artwork beside it. */
   .appgrid:has(> :only-child) .appcard__meta {
-    justify-content: center;
+    justify-content: flex-start;
     padding: var(--space-l);
+  }
+
+  /* Push the platform line to the foot of the panel so the card is anchored at
+     both ends instead of trailing off. */
+  .appgrid:has(> :only-child) .appcard__platforms {
+    margin-top: auto;
+    padding-top: var(--space-l);
   }
 }
 
@@ -788,11 +820,14 @@
 }
 
 /* --- Footer ----------------------------------------------------------------- */
+/* No margin-top. The footer already carries a rule and 4rem of padding above
+   its own content, and the last section carries its own padding below. A
+   margin on top of both stacked three separate spacings into one gap — 200px
+   of unbroken black between the final callout and the footer rule. */
 .footer {
   border-top: 1px solid var(--line);
   padding-top: var(--space-2xl);
   padding-bottom: var(--space-l);
-  margin-top: var(--space-2xl);
 }
 
 .footer__inner {

@@ -85,7 +85,13 @@
   --space-2xl: 4rem;
   --space-3xl: 6rem;
   --space-4xl: 8rem;
-  --section-y: clamp(4.5rem, 3rem + 7vw, 8.5rem);
+  /* Section padding, top and bottom. Two stacked sections put this gap twice
+     between their content, so the number that looks right in isolation is
+     roughly double what belongs here — 8.5rem read as 272px of black between
+     every block, which is what made the page feel like content adrift rather
+     than content composed. The rule drawn by .section--ruled does the
+     separating; the padding only has to keep the rule off the text. */
+  --section-y: clamp(3.25rem, 2.2rem + 5vw, 6rem);
 
   /* --- Layout ------------------------------------------------------------ */
   --gutter: clamp(1.25rem, 0.9rem + 1.8vw, 2.75rem);
