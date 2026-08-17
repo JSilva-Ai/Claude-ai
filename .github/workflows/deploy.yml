@@ -1,11 +1,22 @@
 name: deploy
 
-# Publishes the built site to GitHub Pages from whichever branch is the
-# repository default, so this keeps working after the branch is merged and
-# renamed. Enable it once under Settings → Pages → Source: GitHub Actions.
+# Publishes the built site to GitHub Pages from main. Enable it once under
+# Settings → Pages → Source: GitHub Actions.
+#
+# This used to run on every branch and gate the build on
+# `github.ref_name == github.event.repository.default_branch`, on the theory
+# that following the default branch was more robust than naming one. It was
+# the opposite. The repository default was moved off main, so every push to
+# main reported "skipped" — a green tick, no deploy — and the site quietly
+# served a build from whichever branch happened to be default. It took two
+# screen recordings to notice, because a skipped run does not look like a
+# failure anywhere in the UI.
+#
+# main is named here on purpose. If the publishing branch ever changes, this
+# line should change with it, visibly, in a commit.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -21,15 +32,14 @@ concurrency:
 
 jobs:
   build:
-    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      # The media is committed as ordinary blobs — the ten clips are ~13 MB
-      # total and only change when the environments are re-rendered, so LFS
-      # earns nothing here. lfs:true is kept purely as a safety net: if anyone
-      # does route *.webm/*.mp4 through LFS later, checkout defaults to false
+      # The media is committed as ordinary blobs — the clip and stills are a
+      # little over a megabyte and only change when the game is re-captured,
+      # so LFS earns nothing here. lfs:true is kept purely as a safety net: if
+      # anyone routes *.webm/*.mp4 through LFS later, checkout defaults to false
       # and CI would silently test 130-byte pointer files while the deploy
       # published them as "videos".
       - uses: actions/checkout@v4
