@@ -38,6 +38,19 @@ export function GameClip({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [visible, setVisible] = useState(eager);
   const [playing, setPlaying] = useState(false);
+  /**
+   * Autoplay was refused.
+   *
+   * A muted inline video is allowed to start on its own almost everywhere, but
+   * "almost" is doing real work: iOS Low Power Mode blocks it outright, Safari
+   * blocks it when the tab is in the background at load, and any browser with
+   * autoplay disabled by the visitor blocks it too. Left alone, the failure is
+   * silent and indistinguishable from a still image — the page just shows a
+   * frozen frame of a game that is supposed to be running, with nothing to
+   * click. This is the one state a headless check cannot reproduce, so it is
+   * handled rather than assumed away.
+   */
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -54,16 +67,36 @@ export function GameClip({
     const v = videoRef.current;
     if (!v) return;
     if (visible) {
-      // play() rejects if the element is removed mid-flight or autoplay is
-      // refused; neither is worth surfacing to the visitor.
       v.play()
-        .then(() => setPlaying(true))
-        .catch(() => setPlaying(false));
+        .then(() => {
+          setPlaying(true);
+          setBlocked(false);
+        })
+        .catch(() => {
+          setPlaying(false);
+          // Only offer the control while the clip is actually on screen. A
+          // rejection during teardown, when the element is being removed, is
+          // not a blocked autoplay and must not leave a button behind.
+          setBlocked(true);
+        });
     } else {
       v.pause();
       setPlaying(false);
+      setBlocked(false);
     }
   }, [visible]);
+
+  /** Started from a real click, which is the gesture the policy was waiting for. */
+  const start = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.play()
+      .then(() => {
+        setPlaying(true);
+        setBlocked(false);
+      })
+      .catch(() => setBlocked(true));
+  };
 
   return (
     <div className="clip" ref={wrapRef}>
@@ -93,6 +126,13 @@ export function GameClip({
           <source src={asset(clip.webm)} type="video/webm" />
           <source src={asset(clip.mp4)} type="video/mp4" />
         </video>
+      )}
+
+      {blocked && (
+        <button type="button" className="clip__play" onClick={start}>
+          <span className="clip__play-icon" aria-hidden="true" />
+          <span className="clip__play-label">Play {alt.split(':')[0]}</span>
+        </button>
       )}
     </div>
   );

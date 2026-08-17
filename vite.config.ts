@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,6 +37,38 @@ const input = Object.fromEntries(
   }),
 );
 
+/**
+ * Stamp the build into every page.
+ *
+ * Without this there is no way to tell which build a browser is actually
+ * showing, which is not hypothetical: a cached copy of an older build was
+ * mistaken for a broken deploy, and the only thing that settled it was
+ * spotting a fixed typo still present in a screen recording.
+ *
+ * `View source` on any page now answers it in one line. GITHUB_SHA is set by
+ * Actions; locally it falls back to the checked-out commit.
+ */
+function buildStamp() {
+  let sha = process.env.GITHUB_SHA ?? '';
+  if (!sha) {
+    try {
+      sha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+    } catch {
+      sha = 'unknown';
+    }
+  }
+  const built = new Date().toISOString();
+  return {
+    name: 'build-stamp',
+    transformIndexHtml() {
+      return [
+        { tag: 'meta', attrs: { name: 'build-sha', content: sha.slice(0, 12) }, injectTo: 'head' as const },
+        { tag: 'meta', attrs: { name: 'build-time', content: built }, injectTo: 'head' as const },
+      ];
+    },
+  };
+}
+
 export default defineConfig({
   /**
    * `base` is configurable because the same build has to serve from a domain
@@ -43,7 +76,7 @@ export default defineConfig({
    * Set BASE_PATH at build time; it must carry a trailing slash.
    */
   base: process.env.BASE_PATH ?? '/',
-  plugins: [react()],
+  plugins: [react(), buildStamp()],
   build: {
     rollupOptions: { input },
     // Small assets inline; anything larger stays a request the browser can

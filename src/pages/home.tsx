@@ -28,7 +28,9 @@ function DemoCallout() {
     <section className="section demo-callout" aria-labelledby="demo-callout-title">
       <div className="container demo-callout__inner">
         <div>
-          <p className="label">
+          {/* head__label, not label: the index and the word are a flex row with
+              a gap. A bare .label renders them touching — "02PLAYABLE". */}
+          <p className="label head__label">
             <span className="head__index mono">{c.index}</span>
             {c.label}
           </p>
