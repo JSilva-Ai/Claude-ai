@@ -55,8 +55,7 @@ export const privacy: LegalDoc = {
       heading: 'Who we are',
       body: [
         'New AI Vision Labs is an independent app studio. The legal entity behind it is New AI Vision Labs LLC, a limited liability company registered in Georgia, United States, based in Kennesaw and operated by Jorge Silva. New AI Vision Labs LLC is the data controller for the personal information described in this policy.',
-        'You can reach us by email at office@newaivisionlabs.com or by phone at +1 (404) 597-3852. A full postal address is available on request.',
-        '[TODO] Replace "available on request" with the address once there is a business one — see `postalAddress` in src/content/site.ts. City and state are enough for this page today; a full street address is required before a Google Play listing or before offering the apps in the EU.',
+        'You can reach us by email at office@newaivisionlabs.com, by phone at +1 (404) 597-3852, or by post at 1926 Barrett Knoll Circle NW, Kennesaw, GA 30152, United States.',
       ],
     },
     {

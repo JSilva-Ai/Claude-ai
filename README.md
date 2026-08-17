@@ -206,9 +206,14 @@ them against `BASE_URL` — Vite cannot rewrite those for you.
 
 ## The business address question
 
-The site does **not** publish a home address, and does not need to. But it is
-worth knowing exactly when that stops being a choice, because at that point an
-address gets published whether or not this repo contains one:
+The site **publishes the operator's home address**, in `site.postalAddress` and
+in the privacy policy's "Who we are". That was decided deliberately, with the
+alternatives priced and the consequence stated, and it is recorded here so that
+nobody later mistakes it for something that slipped through.
+
+The reasoning that made it a real choice rather than a default: withholding the
+address from this site would not have kept it private, because a store listing
+publishes one anyway.
 
 - **Google Play.** The developer address is shown on the store listing, is
   verified by Google, and cannot be suppressed. A USPS PO box is refused. A
@@ -217,14 +222,17 @@ address gets published whether or not this repo contains one:
   address, phone, email — under the Digital Services Act, and the GDPR expects
   the controller's address in the privacy notice itself.
 
-So the problem to solve is not "how do I hide an address", it is "how do I have
-one that is not my house". In Georgia, the usual routes, cheapest first:
+If that trade-off is ever revisited, the routes in Georgia, cheapest first:
 
 1. **A commercial mailbox with a street address** (a CMRA — the UPS Store and
    similar). Roughly $10–30/month, accepted by Google Play because it is a
    street address rather than a PO box.
 2. **A registered agent's address**, if the studio is or becomes an LLC.
    Agents run $50–150/year.
+
+Switching is a one-line change to `site.postalAddress` plus the matching
+sentence in the privacy policy's "Who we are", and then the same address in
+the Play Console and App Store Connect. Nothing else reads it.
 
 ### The entity
 

@@ -46,17 +46,25 @@ export const site = {
    * the controller is and where they operate from. It is *not* a postal
    * address, so it does not cover the two cases that need one: a Google Play
    * listing, where the developer address is displayed and verified, and
-   * offering the apps in the EU. Both want a full street address, and neither
-   * should get a home one — see `postalAddress`.
+   * offering the apps in the EU. Both want a full street address, which is
+   * `postalAddress` below.
    */
   location: 'Kennesaw, Georgia, United States',
 
   /**
-   * Empty until there is an address that is not a home: a commercial mailbox
-   * with a street address, or a registered agent if the studio incorporates.
-   * The README has both options.
+   * The operator's home address, published deliberately.
+   *
+   * This is a decision, not an oversight, and it was taken with the trade-off
+   * stated: Google Play displays the developer address on the store listing,
+   * and the EU trader rules oblige Apple to show it too, so withholding it
+   * from this site would not have kept it private once an app is listed. A
+   * registered agent or a commercial mailbox would have avoided that; the
+   * owner weighed both and chose to use the home address.
+   *
+   * Swapping in a business address later is a one-line change here plus the
+   * matching sentence in the privacy policy's "Who we are".
    */
-  postalAddress: '',
+  postalAddress: '1926 Barrett Knoll Circle NW, Kennesaw, GA 30152, United States',
 
   /** Displayed on the site and linked as tel:. */
   phone: '+1 (404) 597-3852',
