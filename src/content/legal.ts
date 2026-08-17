@@ -169,6 +169,38 @@ export const terms: LegalDoc = {
         'Apps downloaded from the App Store or Google Play are also subject to that store\'s own terms. Where a store\'s terms conflict with these, the store\'s terms govern the distribution of the app.',
       ],
     },
+    /*
+     * Apple's minimum EULA terms.
+     *
+     * Apple offers a standard EULA, and an app that says nothing gets it. The
+     * moment you supply your own — which is what this page is, the moment its
+     * URL goes in the App Store Connect "License Agreement" field — Apple
+     * requires it to contain the terms below, near enough verbatim in effect.
+     * They exist to put Apple outside the contract: the license is ours, the
+     * support obligation is ours, the liability is ours, and Apple can enforce
+     * that fact against a user directly.
+     *
+     * Leaving them out is a review rejection, and it is the kind that comes
+     * back after you think you are finished.
+     *
+     * The alternative is to supply no custom EULA at all and let Apple's
+     * standard one apply. That is a legitimate choice and a simpler one; it is
+     * not the choice this page makes, so the terms are here.
+     */
+    {
+      heading: 'If you got the app from the App Store',
+      body: [
+        'This agreement is between you and New AI Vision Labs LLC only. It is not with Apple, and Apple is not responsible for the app or its contents. We are.',
+        'Your license to use the app runs on any Apple-branded device you own or control, under the Usage Rules in Apple\'s Media Services Terms of Use.',
+        'We are solely responsible for support and maintenance. Apple has no obligation to provide either, and you should not ask them for it — email us.',
+        'We are solely responsible for any warranty, express or implied. If the app fails to conform to a warranty, you may tell Apple, and Apple will refund the purchase price if you paid one. To the maximum extent permitted by law, that is the whole of Apple\'s warranty obligation. Everything else is ours.',
+        'We, not Apple, are responsible for handling any claim about the app: product liability, a failure to meet a legal or regulatory requirement, a consumer protection or privacy claim, or anything similar.',
+        'If someone claims the app infringes their intellectual property, we, not Apple, are solely responsible for investigating, defending, settling, and discharging that claim.',
+        'By using the app you confirm you are not in a country subject to a United States embargo or designated by the U.S. Government as supporting terrorism, and that you are not on any U.S. Government list of prohibited or restricted parties.',
+        'Questions, complaints or claims about the app go to office@newaivisionlabs.com.',
+        'Apple and Apple\'s subsidiaries are third-party beneficiaries of these terms, and Apple has the right to enforce them against you directly.',
+      ],
+    },
     {
       heading: 'Acceptable use',
       body: [

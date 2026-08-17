@@ -6,8 +6,14 @@
     "types": ["node"],
     "skipLibCheck": true,
 
-    /* Bundler mode */
-    "module": "nodenext",
+    /* Bundler mode.
+       Vite bundles vite.config.ts with esbuild before running it, so bundler
+       resolution is what actually happens. It was set to nodenext, which only
+       went unnoticed while the config imported nothing from src/ — the moment
+       it did, every extensionless import in the app tripped TS2835 against a
+       resolution mode the file is never actually loaded under. */
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

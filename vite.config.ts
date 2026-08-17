@@ -4,6 +4,8 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { privacy, terms } from './src/content/legal';
+import { support, dataDeletion } from './src/content/help';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 
@@ -69,6 +71,75 @@ function buildStamp() {
   };
 }
 
+/**
+ * Put the legal text in the HTML, for readers that do not run JavaScript.
+ *
+ * /privacy, /terms, /support and /data-deletion are real files answering 200 —
+ * that was the reason for a multi-page build. But the *text* was rendered by
+ * React on the client, so `curl` on any of the four returned a document with
+ * exactly zero characters of body text. A reviewer opening it in Safari sees
+ * the policy; Google Play's automated check on the privacy policy URL does not
+ * run scripts, and an empty policy page is a documented rejection.
+ *
+ * <noscript> is the right tool: a browser with JavaScript never renders it, so
+ * real visitors are unaffected and there is nothing to keep in sync visually,
+ * while anything fetching the URL without a script engine gets the full text.
+ *
+ * Pre-rendering the React tree would be better still — one source of truth
+ * rather than two renderings of it — but it needs the components to survive
+ * SSR, and this closes the compliance hole today.
+ */
+function legalNoscript() {
+  const docs: Record<string, unknown> = {
+    privacy,
+    terms,
+    support,
+    'data-deletion': dataDeletion,
+  };
+
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  /** Walk the content object in key order, which is document order. */
+  const render = (node: unknown, depth = 0): string => {
+    if (typeof node === 'string') return node.trim() ? `<p>${esc(node)}</p>` : '';
+    if (Array.isArray(node)) {
+      // A nested array of strings is a list in the page; a list of blocks is not.
+      if (node.every((n) => typeof n === 'string')) {
+        return `<ul>${node.map((n) => `<li>${esc(n as string)}</li>`).join('')}</ul>`;
+      }
+      return node.map((n) => render(n, depth)).join('');
+    }
+    if (node && typeof node === 'object') {
+      return Object.entries(node as Record<string, unknown>)
+        .map(([key, value]) => {
+          if (key === 'title' && typeof value === 'string') return `<h1>${esc(value)}</h1>`;
+          if (key === 'heading' && typeof value === 'string') return `<h2>${esc(value)}</h2>`;
+          return render(value, depth + 1);
+        })
+        .join('');
+    }
+    return '';
+  };
+
+  return {
+    name: 'legal-noscript',
+    transformIndexHtml(_html: string, ctx: { filename: string }) {
+      const key = Object.keys(docs).find((k) =>
+        ctx.filename.replace(/\\/g, '/').includes(`/${k}/index.html`),
+      );
+      if (!key) return;
+      return [
+        {
+          tag: 'noscript',
+          children: render(docs[key]),
+          injectTo: 'body' as const,
+        },
+      ];
+    },
+  };
+}
+
 export default defineConfig({
   /**
    * `base` is configurable because the same build has to serve from a domain
@@ -76,7 +147,7 @@ export default defineConfig({
    * Set BASE_PATH at build time; it must carry a trailing slash.
    */
   base: process.env.BASE_PATH ?? '/',
-  plugins: [react(), buildStamp()],
+  plugins: [react(), buildStamp(), legalNoscript()],
   build: {
     rollupOptions: { input },
     // Small assets inline; anything larger stays a request the browser can
