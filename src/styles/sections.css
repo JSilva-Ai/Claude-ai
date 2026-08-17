@@ -394,6 +394,58 @@
   opacity: 1;
 }
 
+/* Shown only when autoplay was refused. Covers the slot so the whole picture
+   is the target — on a phone, where this state is most likely, a small button
+   in a corner is the wrong thing to ask for. */
+.clip__play {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  border: 0;
+  background: rgba(5, 5, 7, 0.55);
+  backdrop-filter: blur(2px);
+  color: var(--white);
+  cursor: pointer;
+}
+
+.clip__play-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--gradient-blue);
+  box-shadow: var(--glow-strong);
+  /* A triangle, drawn rather than set as a glyph: ▶ renders as an emoji on
+     several platforms and picks up its own colour. */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  position: relative;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.clip__play-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--white);
+  clip-path: polygon(38% 30%, 72% 50%, 38% 70%);
+}
+
+.clip__play:hover .clip__play-icon {
+  transform: scale(1.06);
+}
+
+.clip__play-label {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome);
+}
+
 /* --- Demo page ------------------------------------------------------------- */
 .demo {
   display: grid;
