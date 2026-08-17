@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 .qa/
+
+# Scratch frames pulled out of screen recordings while diagnosing what a
+# browser was actually showing. Working material, and they are pictures of
+# somebody's screen — bookmarks bar, adjacent tabs and all. This is a public
+# repository; they do not belong in it.
+.rec*/
