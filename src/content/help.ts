@@ -90,7 +90,7 @@ export const dataDeletion = {
       },
       {
         title: 'If you have emailed us',
-        body: `The one thing we do hold is any support correspondence you have sent us. Write to ${'office@newaivisionlabs.com'} and ask us to delete it, and we will.`,
+        body: `The one thing we do hold is any support correspondence you have sent us. Write to ${'support@newaivisionlabs.com'} and ask us to delete it, and we will.`,
       },
     ],
   },

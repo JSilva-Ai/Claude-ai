@@ -55,7 +55,7 @@ export const privacy: LegalDoc = {
       heading: 'Who we are',
       body: [
         'New AI Vision Labs is an independent app studio. The legal entity behind it is New AI Vision Labs LLC, a limited liability company registered in Georgia, United States, based in Kennesaw and operated by Jorge Silva. New AI Vision Labs LLC is the data controller for the personal information described in this policy.',
-        'You can reach us by email at office@newaivisionlabs.com, by phone at +1 (404) 597-3852, or by post at 1926 Barrett Knoll Circle NW, Kennesaw, GA 30152, United States.',
+        'You can reach us by email at support@newaivisionlabs.com, by phone at +1 (404) 597-3852, or by post at 1926 Barrett Knoll Circle NW, Kennesaw, GA 30152, United States.',
       ],
     },
     {
@@ -110,7 +110,7 @@ export const privacy: LegalDoc = {
       heading: 'Your rights',
       body: [
         'Depending on where you live, you may have the right to request access to the personal information we hold about you, to have it corrected or deleted, to object to or restrict how we use it, to receive a copy in a portable format, and to withdraw consent where our use is based on consent.',
-        'To exercise any of these, email office@newaivisionlabs.com. We will respond within the period the applicable law requires. For deletion specifically, see the data deletion page, which sets out exactly what to send.',
+        'To exercise any of these, email support@newaivisionlabs.com. We will respond within the period the applicable law requires. For deletion specifically, see the data deletion page, which sets out exactly what to send.',
         'If you are in the EU or UK and you believe we have handled your information improperly, you may complain to your local supervisory authority.',
       ],
     },
@@ -143,7 +143,7 @@ export const privacy: LegalDoc = {
     {
       heading: 'Contact',
       body: [
-        'Questions about this policy or about your information: office@newaivisionlabs.com.',
+        'Questions about this policy or about your information: support@newaivisionlabs.com.',
       ],
     },
   ],
@@ -196,7 +196,7 @@ export const terms: LegalDoc = {
         'We, not Apple, are responsible for handling any claim about the app: product liability, a failure to meet a legal or regulatory requirement, a consumer protection or privacy claim, or anything similar.',
         'If someone claims the app infringes their intellectual property, we, not Apple, are solely responsible for investigating, defending, settling, and discharging that claim.',
         'By using the app you confirm you are not in a country subject to a United States embargo or designated by the U.S. Government as supporting terrorism, and that you are not on any U.S. Government list of prohibited or restricted parties.',
-        'Questions, complaints or claims about the app go to office@newaivisionlabs.com.',
+        'Questions, complaints or claims about the app go to support@newaivisionlabs.com.',
         'Apple and Apple\'s subsidiaries are third-party beneficiaries of these terms, and Apple has the right to enforce them against you directly.',
       ],
     },
@@ -261,7 +261,7 @@ export const terms: LegalDoc = {
     },
     {
       heading: 'Contact',
-      body: ['Questions about these terms: office@newaivisionlabs.com.'],
+      body: ['Questions about these terms: support@newaivisionlabs.com.'],
     },
   ],
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Lockup } from './Logo';
-import { nav, routes, ui } from '../content/site';
+import { nav, routes, site, ui } from '../content/site';
 import { isCurrent, url } from '../lib/url';
 import { useMediaQuery, useScrollY } from '../lib/hooks';
 import './nav.css';
@@ -92,7 +92,7 @@ export function Nav() {
             {open ? ui.close : ui.menu}
           </button>
         ) : (
-          <a className="btn btn--sm" href={`mailto:office@newaivisionlabs.com`}>
+          <a className="btn btn--sm" href={`mailto:${site.email}`}>
             {ui.emailUs}
           </a>
         )}
@@ -109,7 +109,7 @@ export function Nav() {
           <nav className="nav__sheet-links" aria-label="Primary">
             {links}
           </nav>
-          <a className="btn btn--block" href="mailto:office@newaivisionlabs.com">
+          <a className="btn btn--block" href={`mailto:${site.email}`}>
             {ui.emailUs}
           </a>
         </div>

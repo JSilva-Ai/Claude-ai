@@ -16,7 +16,7 @@ export const site = {
   shortName: 'NAI Labs',
   domain: 'newaivisionlabs.com',
   origin: 'https://newaivisionlabs.com',
-  email: 'office@newaivisionlabs.com',
+  email: 'support@newaivisionlabs.com',
 
   /**
    * Who is behind the studio.
@@ -39,8 +39,9 @@ export const site = {
   operator: 'Jorge Silva',
 
   /**
-   * City and state only, by choice — the street address is a home address and
-   * is deliberately not published.
+   * City and state, for the places that only need to say where the studio
+   * operates from — the footer, and prose that would read badly with a street
+   * address dropped into it.
    *
    * This is enough for the privacy policy's "who we are", which has to say who
    * the controller is and where they operate from. It is *not* a postal
