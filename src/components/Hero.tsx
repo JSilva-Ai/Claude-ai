@@ -96,8 +96,12 @@ export function Hero() {
         */}
         {featured?.clip && (
           <div className="hero__stage">
-            <div className="hero__device">
-              <GameClip clip={featured.clip} alt={`${featured.name} gameplay`} eager />
+            <div className="hero__phone">
+              <span className="hero__phone-island" aria-hidden="true" />
+              <span className="hero__phone-button" aria-hidden="true" />
+              <div className="hero__screen">
+                <GameClip clip={featured.clip} alt={`${featured.name} gameplay`} eager />
+              </div>
             </div>
             <p className="hero__caption">
               <a className="hero__caption-link" href={url(`${routes.apps}${featured.slug}/`)}>
