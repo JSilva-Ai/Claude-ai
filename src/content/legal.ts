@@ -3,19 +3,24 @@
  * a privacy policy, terms of use, a support page with a working contact, and
  * data-deletion instructions.
  *
- * These are honest templates, not finished policy. Two rules were followed
- * while writing them and should be followed while editing them:
+ * Two rules were followed while writing these and should be followed while
+ * editing them:
  *
- *   1. Nothing here asserts what any app collects, stores, or shares. Those
- *      are facts about software I cannot inspect, and a privacy policy that
- *      guesses is worse than no policy — it is a false statement to your users
- *      and to the stores. Every such point is a [TODO] with a note on what
- *      belongs there.
+ *   1. Nothing here asserts what any app collects, stores, or shares unless it
+ *      was verified against the software. A privacy policy that guesses is
+ *      worse than no policy — it is a false statement to your users and to the
+ *      stores. The claims that are here were checked: no route in this site
+ *      contacts a third-party host, sets a cookie, or writes to storage, and
+ *      VOID STRIKER keeps its scores and settings on the player's own device.
  *   2. Nothing here is legal advice. The structure and the general language
- *      are conventional and will look familiar to a reviewer, but a lawyer in
- *      your jurisdiction should read both documents before you publish them.
+ *      are conventional and will look familiar to a reviewer. The owner has
+ *      published these on his own judgement; a lawyer in the jurisdiction has
+ *      not read them, and that remains worth doing.
  *
- * A [TODO] left in place is visible on the live page. That is deliberate.
+ * The mechanism that renders any string containing "[TODO" as a loud orange
+ * box on the live page is still in place (see src/components/Prose.tsx). It is
+ * there so that an unfinished passage fails visibly in review rather than
+ * shipping as though it were true. There are none in these documents now.
  */
 
 /** A paragraph, or a bullet list. */
@@ -31,13 +36,21 @@ export interface LegalDoc {
   title: string;
   /** Meta description. */
   description: string;
-  /** [TODO] Set to the date you actually publish, and update it on every edit. */
+  /** Shown under the <h1>. Update it on every substantive edit. */
   updated: string;
   intro: Block[];
   sections: Section[];
 }
 
-const UPDATED = '[TODO — date of publication]';
+/**
+ * The publication date, shown under the <h1> on both documents.
+ *
+ * One constant rather than two values, because the two documents were
+ * published together and a reader comparing them should not have to wonder
+ * why the dates differ. Update it on every substantive edit — that is what
+ * the line is for, and a stale date on a policy is a small dishonesty.
+ */
+const UPDATED = 'August 21, 2026';
 
 /* ------------------------------------------------------------------ privacy */
 
@@ -117,7 +130,8 @@ export const privacy: LegalDoc = {
     {
       heading: 'Children',
       body: [
-        '[TODO] State the intended audience of each app and the age rating you have declared to the stores. If an app is directed to children, Apple\'s Kids Category rules, Google Play\'s Families policy, and COPPA all impose requirements well beyond this document — get those reviewed specifically.',
+        'Age ratings are set per app rather than across the studio. Each app is rated on its own content, and the rating that applies to it is the one shown on its App Store and Google Play listing. VOID STRIKER is rated for ages 10 and up, for infrequent mild science-fiction violence.',
+        'Where an app of ours is directed to children, requirements beyond this policy apply to it — Apple\'s Kids Category rules, Google Play\'s Families policy, and, in the United States, COPPA. An app published under those rules says so on its own listing.',
         'We do not knowingly collect personal information from children where doing so would require verifiable parental consent we have not obtained. If you believe a child has provided us with personal information, email us and we will delete it.',
       ],
     },
@@ -157,7 +171,6 @@ export const terms: LegalDoc = {
   updated: UPDATED,
   intro: [
     'These terms apply to the apps published by New AI Vision Labs LLC, a Georgia limited liability company ("New AI Vision Labs", "we", "us"), and to this website. By installing an app or using the site, you agree to them.',
-    '[TODO] Have a lawyer in your jurisdiction review this document before you publish it. The structure below is conventional, but the enforceability of several clauses — the liability cap in particular — depends entirely on local law.',
   ],
   sections: [
     {
