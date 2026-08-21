@@ -74,9 +74,10 @@ draws a frame — `npm run verify` there, in Chromium.
 ## State
 
 Everything is committed and pushed to `main`, which is both the default
-branch and what deploys. `https://jsilva-ai.github.io/Claude-ai/`. Every page
-carries `<meta name="build-sha">` — that settles which build a browser is
-showing, which is not hypothetical.
+branch and what deploys. The site is at `https://newaivisionlabs.com/`; the
+`github.io` URL now redirects there. Every page carries
+`<meta name="build-sha">` — that settles which build a browser is showing,
+which is not hypothetical.
 
 Verify with: `npm run check`, `npm run qa`, and `node scripts/a11y.mjs --url=…`
 per route. All were passing at the last commit.
@@ -85,25 +86,41 @@ per route. All were passing at the last commit.
 
 Apple rejected the Developer Program enrollment (ID TZRBLU4CMC) because the
 website they were given "directs me to a domain placeholder page rather than an
-active website". This was not a fault in the site. `newaivisionlabs.com`
-resolves to `2.57.91.91`, which is Hostinger's parking page; the built site is
-at `https://jsilva-ai.github.io/Claude-ai/` and has never been connected to the
+active website". This was not a fault in the site: `newaivisionlabs.com`
+resolved to `2.57.91.91`, Hostinger's parking page, while the built site sat at
+`https://jsilva-ai.github.io/Claude-ai/` and had never been connected to the
 domain. Apple looked at the domain.
 
-`public/CNAME` now names `newaivisionlabs.com`, which is what flips the deploy
-to the domain root — the whole site was already written for that domain, so
-every canonical, the sitemap, robots and the manifest are wrong until it moves.
+**Done.** The site now serves from `newaivisionlabs.com`:
 
-**Order matters, and getting it backwards takes the site down.** With a CNAME
-in the artifact, Pages redirects the `github.io` URL to the custom domain; if
-the domain is not pointed yet, that redirect lands on the registrar's parking
-page — which is exactly what Apple complained about. So: the `A` records and
-the `www` CNAME first, then merge to `main`, then Enforce HTTPS once the
-certificate is issued. The records are in the README under "The domain".
+```
+@     A       185.199.108.153 .109.153 .110.153 .111.153
+www   CNAME   jsilva-ai.github.io.
+```
 
-The three `[TODO]` markers below are the other half of this. They render as
-loud orange boxes on `/privacy` and `/terms`, and `Last updated: [TODO — date
-of publication]` sits directly under the `<h1>` on both — the pages a store
+and `public/CNAME` names the domain, which is what makes the deploy build for
+the domain root rather than the `/Claude-ai/` subpath. The MX, SPF and DMARC
+records came through the change untouched — that was the one thing that could
+have broken silently, and it was checked before and after.
+
+Two things about that cutover are worth keeping, because they are not obvious
+and the second one cost a confused ten minutes:
+
+- **The order is load-bearing.** With a CNAME in the artifact, Pages redirects
+  the `github.io` URL to the custom domain. Merge before the DNS is pointed and
+  that redirect lands on the registrar's parking page — the original problem,
+  with the working URL gone too. DNS first, then merge, then Enforce HTTPS.
+- **The `www` record did not survive.** Removing the apex `A` record at
+  Hostinger also took the existing `www` CNAME with it, so `www` had to be
+  created rather than edited. Worth checking for by name after any change to
+  that zone.
+
+What is left is his: resubmit the enrollment with `https://newaivisionlabs.com`,
+replying against ID TZRBLU4CMC so it reaches the same reviewer.
+
+The `[TODO]` markers below are the other half of this. They render as loud
+orange boxes on `/privacy` and `/terms`, and `Last updated: [TODO — date of
+publication]` sits directly under the `<h1>` on both — the pages a store
 reviewer opens first. They are deliberate and they are his; they are also the
 first thing anyone assessing whether this is a real company will read.
 
@@ -115,8 +132,8 @@ His:
 - Age rating, once the store questionnaires are filled — closes the `[TODO]`
   in the policy's "Children" section.
 - A lawyer to read the terms; the publication date.
-- Pointing `newaivisionlabs.com` — now the one thing standing between the site
-  and the Apple resubmission. **Change only the `A` records and the `www`
+- Resubmitting the Apple enrollment now that the domain serves the site.
+- Any future change to the DNS zone: **only the `A` records and the `www`
   CNAME.** Touching nameservers, or any "connect a website" / "reset DNS"
   button the registrar offers, takes the MX with them and support email dies
   silently.

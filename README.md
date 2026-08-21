@@ -234,8 +234,12 @@ written for that domain — every canonical URL, `public/sitemap.xml`,
 `https://newaivisionlabs.com/`, and they are simply wrong for as long as the
 site is served from the `github.io` subpath instead.
 
-**The DNS has to be pointed before this reaches `main`.** With a CNAME in the
-artifact, GitHub Pages sets the custom domain and redirects the `github.io`
+This is done — the domain resolves to Pages and the site serves from it. What
+follows is the record of how, because it is the part that is easy to get
+backwards.
+
+**The DNS has to be pointed before the CNAME reaches `main`.** With a CNAME in
+the artifact, GitHub Pages sets the custom domain and redirects the `github.io`
 URL to it. If the domain is not pointed at Pages yet, that redirect leads to
 whatever the registrar is still serving — so publishing the CNAME first takes
 the working site *down* rather than moving it.
@@ -251,6 +255,11 @@ www    CNAME   jsilva-ai.github.io.
 ```
 
 `AAAA` records for the same four hosts are optional and can be added later.
+
+Deleting the apex `A` record at Hostinger also removed the existing `www`
+CNAME, so `www` had to be created rather than edited. Check for it by name
+after any change to that zone — a missing `www` is invisible until someone
+types it.
 
 **Change only those records.** Do not switch nameservers and do not use any
 "reset/clear DNS" or "connect a website" button the registrar offers: those
