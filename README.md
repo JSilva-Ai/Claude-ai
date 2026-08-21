@@ -210,9 +210,10 @@ Current numbers on the home page, at 4× CPU throttle with software WebGL:
 
 ## Deploying
 
-`.github/workflows/deploy.yml` publishes to GitHub Pages from whichever branch
-is the repository default. `base` is configurable because the same build serves
-from a domain root and from a subpath:
+`.github/workflows/deploy.yml` publishes to GitHub Pages from `main`, which is
+named literally in the workflow — see the comment at the top of that file for
+why following `repository.default_branch` is a trap. `base` is configurable
+because the same build serves from a domain root and from a subpath:
 
 ```bash
 npm run build                        # domain root
@@ -223,6 +224,45 @@ The workflow resolves this itself: a `public/CNAME` means a custom domain and
 the site builds for the root, otherwise it builds for `/<repo>/`. Internal
 links and runtime-built asset URLs go through `src/lib/url.ts`, which resolves
 them against `BASE_URL` — Vite cannot rewrite those for you.
+
+### The domain
+
+`public/CNAME` names `newaivisionlabs.com`, so the deploy publishes there and
+the build switches to the domain root. Everything else in the site was already
+written for that domain — every canonical URL, `public/sitemap.xml`,
+`public/robots.txt` and the manifest's `start_url` all say
+`https://newaivisionlabs.com/`, and they are simply wrong for as long as the
+site is served from the `github.io` subpath instead.
+
+**The DNS has to be pointed before this reaches `main`.** With a CNAME in the
+artifact, GitHub Pages sets the custom domain and redirects the `github.io`
+URL to it. If the domain is not pointed at Pages yet, that redirect leads to
+whatever the registrar is still serving — so publishing the CNAME first takes
+the working site *down* rather than moving it.
+
+At the registrar, four `A` records on the apex and one `CNAME` on `www`:
+
+```
+@      A       185.199.108.153
+@      A       185.199.109.153
+@      A       185.199.110.153
+@      A       185.199.111.153
+www    CNAME   jsilva-ai.github.io.
+```
+
+`AAAA` records for the same four hosts are optional and can be added later.
+
+**Change only those records.** Do not switch nameservers and do not use any
+"reset/clear DNS" or "connect a website" button the registrar offers: those
+rewrite the whole zone, which takes the `MX`, `SPF` and `DMARC` records with
+them, and support email stops being delivered without anything appearing to
+break.
+
+Then, once the records resolve: merge to `main`, wait for the deploy, and turn
+on **Settings → Pages → Enforce HTTPS** after GitHub has issued the
+certificate. It cannot be enabled until the domain resolves to Pages, and a
+store reviewer opening an `http://` link that does not redirect is a bad first
+impression of a company.
 
 ## The business address question
 

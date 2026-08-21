@@ -25,13 +25,25 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 function findPages(dir: string, found: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     /*
-     * `mobile/` is the native app, not a route. It is a separate npm project
-     * that packages the game with Capacitor, and it contains three more copies
-     * of the game's index.html — the built web payload and the copy Capacitor
-     * syncs into each native project. Without this line every one of them
-     * becomes a page on the website.
+     * Two directories hold index.html files that are not routes.
+     *
+     * `public/` is copied to the site root verbatim by Vite, so the game at
+     * public/demo/void-striker/ already ships as /demo/void-striker/. Treating
+     * it as a page as well built a second copy at /public/demo/void-striker/ —
+     * a real, reachable URL serving a duplicate of the game, which nothing
+     * links to and no one should find.
+     *
+     * `mobile/` is the native app: a separate npm project that packages the
+     * game with Capacitor, holding the built web payload and the copy synced
+     * into each native project. Three more index.html files, no routes.
      */
-    if (name === 'node_modules' || name === 'dist' || name === 'mobile' || name.startsWith('.'))
+    if (
+      name === 'node_modules' ||
+      name === 'dist' ||
+      name === 'public' ||
+      name === 'mobile' ||
+      name.startsWith('.')
+    )
       continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) findPages(path, found);

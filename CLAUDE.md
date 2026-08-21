@@ -81,6 +81,32 @@ showing, which is not hypothetical.
 Verify with: `npm run check`, `npm run qa`, and `node scripts/a11y.mjs --url=…`
 per route. All were passing at the last commit.
 
+## The Apple enrollment, and the domain
+
+Apple rejected the Developer Program enrollment (ID TZRBLU4CMC) because the
+website they were given "directs me to a domain placeholder page rather than an
+active website". This was not a fault in the site. `newaivisionlabs.com`
+resolves to `2.57.91.91`, which is Hostinger's parking page; the built site is
+at `https://jsilva-ai.github.io/Claude-ai/` and has never been connected to the
+domain. Apple looked at the domain.
+
+`public/CNAME` now names `newaivisionlabs.com`, which is what flips the deploy
+to the domain root — the whole site was already written for that domain, so
+every canonical, the sitemap, robots and the manifest are wrong until it moves.
+
+**Order matters, and getting it backwards takes the site down.** With a CNAME
+in the artifact, Pages redirects the `github.io` URL to the custom domain; if
+the domain is not pointed yet, that redirect lands on the registrar's parking
+page — which is exactly what Apple complained about. So: the `A` records and
+the `www` CNAME first, then merge to `main`, then Enforce HTTPS once the
+certificate is issued. The records are in the README under "The domain".
+
+The three `[TODO]` markers below are the other half of this. They render as
+loud orange boxes on `/privacy` and `/terms`, and `Last updated: [TODO — date
+of publication]` sits directly under the `<h1>` on both — the pages a store
+reviewer opens first. They are deliberate and they are his; they are also the
+first thing anyone assessing whether this is a real company will read.
+
 ## Open, and whose they are
 
 His:
@@ -89,9 +115,11 @@ His:
 - Age rating, once the store questionnaires are filled — closes the `[TODO]`
   in the policy's "Children" section.
 - A lawyer to read the terms; the publication date.
-- Pointing `newaivisionlabs.com`. **Change only the `A` records and the `www`
-  CNAME.** Touching nameservers or clearing records takes the MX with them and
-  support email dies silently.
+- Pointing `newaivisionlabs.com` — now the one thing standing between the site
+  and the Apple resubmission. **Change only the `A` records and the `www`
+  CNAME.** Touching nameservers, or any "connect a website" / "reset DNS"
+  button the registrar offers, takes the MX with them and support email dies
+  silently.
 - D-U-N-S is issued. Apple validates against the D&B record, so the address
   and phone there must match what goes into App Store Connect.
 
