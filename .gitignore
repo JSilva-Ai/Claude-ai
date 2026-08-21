@@ -30,3 +30,9 @@ dist-ssr
 # somebody's screen — bookmarks bar, adjacent tabs and all. This is a public
 # repository; they do not belong in it.
 .rec*/
+
+# The native app's web payload. Generated from public/demo/void-striker by
+# mobile/void-striker/scripts/build-www.mjs, and copied into the iOS and
+# Android projects from there by `cap sync` — three copies of a file that is
+# already in the repository once.
+mobile/*/www/

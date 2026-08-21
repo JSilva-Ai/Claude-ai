@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      The launch window's colour, and the web view's behind the game.
+
+      #000000 rather than the #00020F the website uses around the game frame:
+      on the site that value hides the seam against the canvas's own edges, but
+      here what actually paints first is the game's <body>, which is plain
+      black, and the letterbox around the canvas stays that colour. Matching
+      the body is what makes the launch seamless.
+    -->
+    <color name="launchBackground">#000000</color>
+</resources>

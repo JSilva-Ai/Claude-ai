@@ -38,7 +38,8 @@ support/  privacy/  terms/  data-deletion/
 
 `vite.config.ts` discovers every `index.html` in the project, so adding a route
 means adding a directory — there is no list to keep in sync. `public/sitemap.xml`
-*is* a list, and does need updating.
+*is* a list, and does need updating. The one directory it skips is `mobile/`,
+which holds three more copies of the game's own `index.html` and no routes.
 
 ```
 src/
@@ -53,6 +54,9 @@ src/
     hooks.ts             reveal, media query, pointer, scroll
   pages/           one entry per route
   styles/          tokens, base, ui, sections
+mobile/
+  void-striker/    the game packaged for iOS and Android with Capacitor —
+                   a separate npm project; see its own README
 scripts/
   shoot.mjs        screenshots every route across six viewports
   a11y.mjs         axe-core + keyboard walk + touch-target audit
@@ -152,6 +156,22 @@ The playable build is still shipped, because the capture reads from it, and
 `/demo` offers it as a secondary link. `/demo` itself shows the clip — delete
 `demo.playable` in `src/content/site.ts` if you would rather the game were not
 reachable at all.
+
+### The game as an app
+
+`mobile/void-striker/` wraps the same game with Capacitor, and is what makes a
+store submission possible at all: everything else in this repository — the
+privacy policy, the terms, the support page, the developer address — is
+preparation for a submission, and there was no iOS or Android project to submit.
+
+It is a **separate npm project**. `npm install` and `npm run build` here do not
+touch it, and you do not need Xcode or Android Studio to work on the website.
+
+Its input is the generated demo build, not the game source: `npm run demo` here,
+then `npm run sync` there. That means the packaged app and the playable demo are
+byte-for-byte the same game, so a player's report has one build to reproduce it
+in. See `mobile/void-striker/README.md` for the rest, including the one value —
+the bundle identifier — that is permanent after the first upload.
 
 ## The hero
 

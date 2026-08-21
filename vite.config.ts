@@ -24,7 +24,15 @@ const root = fileURLToPath(new URL('.', import.meta.url));
  */
 function findPages(dir: string, found: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
-    if (name === 'node_modules' || name === 'dist' || name.startsWith('.')) continue;
+    /*
+     * `mobile/` is the native app, not a route. It is a separate npm project
+     * that packages the game with Capacitor, and it contains three more copies
+     * of the game's index.html — the built web payload and the copy Capacitor
+     * syncs into each native project. Without this line every one of them
+     * becomes a page on the website.
+     */
+    if (name === 'node_modules' || name === 'dist' || name === 'mobile' || name.startsWith('.'))
+      continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) findPages(path, found);
     else if (name === 'index.html') found.push(path);

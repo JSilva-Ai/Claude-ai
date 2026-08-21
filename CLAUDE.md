@@ -49,6 +49,28 @@ Do not "fix" these without asking.
 - **Media is 520x720** everywhere, the game's canvas size, so a clip, a still
   and an empty slot are interchangeable.
 
+## Capacitor
+
+Done, in `mobile/void-striker/` — a separate npm project holding the iOS and
+Android projects, so there is now something to submit. Read its README before
+touching it; the reasoning is there rather than here. Three things from it
+belong in this file:
+
+- **The bundle id is `com.newaivisionlabs.voidstriker`**, derived from the
+  domain rather than chosen. It is permanent once a build has been uploaded
+  under it, and it is the one value to confirm before that happens.
+- **The game's source is never modified to suit the app.** The two things the
+  native platforms need — suspending the audio when backgrounded, and a back
+  button that closes a modal rather than exiting — are done from outside by
+  `src/native.js`, so a new build of the game drops in with one command.
+- **The app icon is deliberately still Capacitor's placeholder.** Designing it
+  is his call, and both stores reject a placeholder, so it fails loudly rather
+  than shipping as something plausible. Same rule as the `[TODO]`s.
+
+Nothing has run on a physical device. What has been checked is that the
+packaged build makes no request off the device, throws nothing on load, and
+draws a frame — `npm run verify` there, in Chromium.
+
 ## State
 
 Everything is committed and pushed to `main`, which is both the default
@@ -74,13 +96,14 @@ His:
   and phone there must match what goes into App Store Connect.
 
 Mine, when asked:
-- **Wrap VOID STRIKER with Capacitor.** This is the critical path: the game is
-  a single HTML file, there is no iOS or Android project, so there is nothing
-  to submit yet. Everything else is preparation for a submission that cannot
-  happen.
 - Design changes he still has in mind.
 - The game has no pause key and its music restarts between waves. Raised,
   never authorised.
+- The modal close button has two click listeners bound to it, both calling
+  `popModal()`, so tapping the X pops two modals instead of one — open the
+  leaderboard from the menu, close it, and you land on the title screen rather
+  than back in the menu. Confirmed by driving the built game, not read. Raised,
+  not fixed.
 
 ## Egress
 

@@ -1,0 +1,25 @@
+{
+  "name": "void-striker-app",
+  "version": "1.0.0",
+  "description": "VOID STRIKER packaged for iOS and Android with Capacitor.",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "verify": "node scripts/verify-www.mjs",
+    "sync": "npm run build && cap sync",
+    "open:ios": "cap open ios",
+    "open:android": "cap open android",
+    "run:ios": "npm run sync && cap run ios",
+    "run:android": "npm run sync && cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0"
+  },
+  "private": true,
+  "devDependencies": {
+    "typescript": "~6.0.2"
+  }
+}
