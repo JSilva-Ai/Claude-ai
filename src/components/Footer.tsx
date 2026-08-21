@@ -47,7 +47,7 @@ export function Footer() {
 
       <div className="container footer__base">
         <p className="mono footer__copy">
-          © {new Date().getFullYear()} {footer.copyright}
+          Copyright © {new Date().getFullYear()} {footer.copyright}. {footer.rightsReserved}
         </p>
         <p className="mono footer__domain">{site.domain}</p>
       </div>

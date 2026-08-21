@@ -373,6 +373,15 @@ export const footer = {
       ],
     },
   ],
-  /** Rendered as "© <year> New AI Vision Labs LLC" with the year filled at run time. */
+  /**
+   * Rendered as "Copyright © <year> New AI Vision Labs LLC. All rights
+   * reserved." with the year filled at run time.
+   *
+   * The entity, not the trading name: a copyright notice identifies who owns
+   * the work, and that is the LLC. "All rights reserved." is a formality with
+   * no legal effect left in the Berne Convention countries, but it is the
+   * convention a reader expects and its absence gets noticed.
+   */
   copyright: site.legalName,
+  rightsReserved: 'All rights reserved.',
 };
