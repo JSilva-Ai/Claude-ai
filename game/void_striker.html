@@ -1116,16 +1116,19 @@ function drawHUD(){
   if(gs.player.shield>0){
     // same overflow as the weapon gauge: SHIELD+ takes the charge to 640
     var sr=clamp(gs.player.shield/(gs.player.shieldMax||320),0,1);
-    ctx.font='7px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle='rgba(0,190,255,.65)';ctx.fillText('SHIELD',W/2,H-30);
-    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(W/2-40,H-22,80,3);
-    ctx.fillStyle='rgba(0,175,255,.8)';ctx.fillRect(W/2-40,H-22,80*sr,3);
+    ctx.font='7px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle='rgba(0,190,255,.65)';ctx.fillText('SHIELD',W/2,H-34);
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(W/2-40,H-28,80,3);
+    ctx.fillStyle='rgba(0,175,255,.8)';ctx.fillRect(W/2-40,H-28,80*sr,3);
   }
-  // Combo. This was centred in the bottom bar at the same place as the shield
-  // gauge and drew straight over it. It now sits just above the bar, in the play
-  // area, where nothing else competes for the space and it is easier to read at
-  // a glance — which is the point of a combo counter.
+  /*
+    Combo. This was centred in the bottom bar at the same coordinates as the
+    shield gauge and drew straight over it. Moving it into the play field traded
+    that for an overlap with the ship's own shield ring — the player can fly
+    anywhere, so no position in the field is safe. It sits in the bar instead,
+    on its own row below the shield gauge, where nothing else can reach it.
+  */
   if(gs.combo>1){
-    ctx.save();ctx.translate(W/2,H-58);ctx.textAlign='center';
+    ctx.save();ctx.translate(W/2,H-11);ctx.textAlign='center';
     var big=gs.combo>=5;
     ctx.font='bold '+(big?15:12)+'px Orbitron';
     var cg=ctx.createLinearGradient(-52,0,52,0);

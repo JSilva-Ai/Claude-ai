@@ -217,7 +217,7 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave four in progress: a destroyed enemy scoring 1,400 points inside an expanding shock ring, plasma and laser pickups drifting down, and the Combo King achievement unlocking at the bottom of the screen.',
+        alt: 'Wave four in progress: two enemies destroyed inside expanding shock rings, scoring 1,700 and 1,300 points, with plasma and laser pickups drifting down and a six-times combo running in the status bar.',
         width: 520,
         height: 720,
       },
@@ -229,7 +229,7 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in wave four: a six-times combo running above the status bar, spread, plasma and laser pickups falling, and the pause and bomb controls in the bottom bar.',
+        alt: 'Later in wave four: a seven-times combo in the status bar, bomb, plasma and laser pickups falling, and the pause and bomb controls at either end of the bar.',
         width: 520,
         height: 720,
       },
