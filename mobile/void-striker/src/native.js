@@ -67,14 +67,19 @@
   /**
    * Android's hardware/gesture back.
    *
-   * Without a listener Capacitor's default is to exit the app, and that is the
-   * wrong answer here twice over. A modal is open more often than not — the
-   * main menu, the leaderboard, the achievements list all live in one — and
-   * back should close it. And mid-run there is nowhere to go back to: the game
-   * has no pause and no save, so exiting would silently destroy the run.
-   * Minimising leaves the process alive, which is what the OS's own
-   * back-out-of-a-game behaviour looks like, and the launcher still lets you
-   * close it properly.
+   * Without a listener Capacitor's default is to exit the app, which is the
+   * wrong answer: a modal is open more often than not — the main menu, the
+   * leaderboard, the achievements list and now the pause screen all live in one
+   * — and back should close it.
+   *
+   * Back mid-run used to fall through to minimising the app, because the game
+   * had no pause and no save and there was genuinely nowhere to go: exiting
+   * would have destroyed the run silently. The game has a pause screen now, so
+   * back opens it. That is both what the gesture means everywhere else and a
+   * strictly safer answer than dropping the player out of a live run.
+   *
+   * Minimising remains the last resort, for the title screen and the menus that
+   * decline to be closed.
    */
   App.addListener('backButton', function () {
     var modal = document.getElementById('modal');
@@ -82,12 +87,13 @@
     /*
      * `closeable: false` is a decision the game makes per screen — the main
      * menu is one — and it expresses it by hiding the close button. Back
-     * honours that rather than overriding it, and falls through to minimising.
+     * honours that rather than overriding it, and falls through.
      *
      * popModal is called rather than clicking the button because the game
-     * happens to expose it on `window` (it drives the modals' inline onclick
-     * attributes), and because the button has two click listeners bound to it,
-     * so a synthetic click pops two levels instead of one.
+     * exposes it on `window` (it drives the modals' inline onclick attributes),
+     * and a synthetic click would depend on the game's own listeners. Popping
+     * the pause screen is also what resumes the run, so this one call covers
+     * both closing a menu and un-pausing.
      */
     if (modal && modal.classList.contains('open') && close && close.style.display !== 'none') {
       if (typeof window.popModal === 'function') {
@@ -95,6 +101,11 @@
         return;
       }
     }
+
+    /* Mid-run, back pauses rather than leaving. pauseGame reports whether it
+       had anything to pause, so this falls through cleanly on the title. */
+    if (typeof window.pauseGame === 'function' && window.pauseGame()) return;
+
     if (App.minimizeApp) App.minimizeApp();
     else App.exitApp();
   });

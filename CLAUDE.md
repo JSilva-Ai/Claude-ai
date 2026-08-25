@@ -61,8 +61,11 @@ belong in this file:
   under it, and it is the one value to confirm before that happens.
 - **The game's source is never modified to suit the app.** The two things the
   native platforms need — suspending the audio when backgrounded, and a back
-  button that closes a modal rather than exiting — are done from outside by
-  `src/native.js`, so a new build of the game drops in with one command.
+  button that closes a modal, pauses a run, or minimises rather than exiting —
+  are done from outside by `src/native.js`, so a new build of the game drops in
+  with one command. The shim reads `#modal`, `#modal-close`, `window.popModal`
+  and `window.pauseGame`; renaming any of those means editing it in the same
+  commit.
 - **The app icon is deliberately still Capacitor's placeholder.** Designing it
   is his call, and both stores reject a placeholder, so it fails loudly rather
   than shipping as something plausible. Same rule as the `[TODO]`s.
@@ -142,13 +145,21 @@ His:
 
 Mine, when asked:
 - Design changes he still has in mind.
-- The game has no pause key and its music restarts between waves. Raised,
-  never authorised.
-- The modal close button has two click listeners bound to it, both calling
-  `popModal()`, so tapping the X pops two modals instead of one — open the
-  leaderboard from the menu, close it, and you land on the title screen rather
-  than back in the menu. Confirmed by driving the built game, not read. Raised,
-  not fixed.
+- A mid-run save. Closing the tab still destroys a run, which is the last thing
+  the pause screen does not solve.
+- The leaderboard is still local-only.
+
+Done, on his instruction to improve the game — the detail is in
+`game/VOID_STRIKER.md`, which lists each fix and how it was confirmed:
+- The game has a pause screen (`ESC` / `P` / a button), so Android's back button
+  now pauses mid-run instead of minimising. `src/native.js` moved with it.
+- The music no longer restarts on every new run; it runs continuously and
+  changes intensity instead. It also has a low end now, which it never had.
+- The modal close button's duplicate listener is gone.
+- Three bugs found while confirming those: enemy bullets moved twice per frame
+  (double speed on every difficulty), `Q` was a free unlimited screen-clear, and
+  the clean-wave credit bonus always paid out because it compared a value
+  against itself.
 
 ## Egress
 

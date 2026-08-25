@@ -204,32 +204,32 @@ export const apps: App[] = [
     status: 'In development',
     platforms: ['Browser'],
     description: [
-      'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
+      'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Enemies arrive in five movement formations and the boss rotates through three hulls. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
       'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. It collects nothing: your scores, achievements and settings are saved on your own device and never sent anywhere, and there is no account to make.',
       'The browser build is finished and you can watch a run of it on the demo page. Which stores it reaches, and in what form, is not decided yet — so there is no release date here, because we would only move it.',
     ],
     screenshots: [
       {
         src: 'media/apps/void-striker/01.jpg',
-        alt: 'VOID STRIKER title screen: the game name in blue and violet over a dark starfield, above a list reading six weapon types, homing missiles, boss battles, combo system, sixteen achievements.',
+        alt: 'VOID STRIKER title screen: the game name in blue and violet over a dark starfield, above a list reading six weapon types, five enemy formations, three boss types, combo system, twelve achievements.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave four in progress: the player ship at the bottom firing upward, enemies and a destroyed target scoring 2,800 points, with a four-times combo running.',
+        alt: 'Wave four in progress: a destroyed enemy scoring 1,400 points inside an expanding shock ring, plasma and laser pickups drifting down, and the Combo King achievement unlocking at the bottom of the screen.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/03.jpg',
-        alt: 'The upgrade station between waves, offering three cards to spend credits on, each priced.',
+        alt: 'The wave-clear banner sweeping across the field: WAVE 4, above sector one and march formation, and the credits awarded for the wave including a clean-wave bonus.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in wave four: a kill in progress and the Combo King achievement unlocking at the bottom of the screen.',
+        alt: 'Later in wave four: a six-times combo running above the status bar, spread, plasma and laser pickups falling, and the pause and bomb controls in the bottom bar.',
         width: 520,
         height: 720,
       },
