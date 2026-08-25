@@ -149,8 +149,26 @@ Mine, when asked:
   the pause screen does not solve.
 - The leaderboard is still local-only.
 
-Done, on his instruction to improve the game — the detail is in
-`game/VOID_STRIKER.md`, which lists each fix and how it was confirmed:
+Done, on his instruction to improve the game and then to make it as good as it
+can be for the App Store. The detail is in `game/VOID_STRIKER.md`, which lists
+each fix and how it was confirmed. The ones that mattered most for a phone:
+
+- **The pause, bomb and volume buttons could not be pressed at all on a touch
+  device.** Every handler read `e.touches[0]`, the finger that went down first,
+  which during play is always the one steering. Driven with real multi-touch,
+  not a mouse — a mouse cannot reproduce it.
+- **A cancelled touch left the ship stuck firing.** No `touchcancel` listener,
+  so Control Centre or an incoming call jammed the controls on.
+- **The wave transition fired every frame** for the 1.5s between the last kill
+  and the next spawn. Clearing wave 1 landed you on wave 4 with 310 credits;
+  it is wave 2 and 89 credits now. This was the largest single distortion of
+  the game's pacing and economy.
+- **Touch targets were 27pt** against Apple's 44pt minimum. They measure 45pt
+  now, which cost 16 units of play area.
+- **Backgrounding the app pauses the run** rather than leaving the player to
+  come back into an ambush.
+
+The earlier pass:
 - The game has a pause screen (`ESC` / `P` / a button), so Android's back button
   now pauses mid-run instead of minimising. `src/native.js` moved with it.
 - The music no longer restarts on every new run; it runs continuously and

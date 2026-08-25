@@ -181,7 +181,46 @@ only when a life is actually lost (a shield absorbing a hit does not count).
 
 ## Fixed
 
-Confirmed by driving the built game in Chromium, not by reading:
+Confirmed by driving the built game in Chromium, not by reading. The touch
+findings were driven with real multi-touch through the Chrome DevTools Protocol
+in a mobile context, because none of them reproduce with a mouse.
+
+**The wave transition fired every frame.** `allDead` stays true from the frame
+the last enemy dies until the next wave spawns 1.5 seconds later, and
+`_nextWave()` ran on every one of those ~90 frames. One cleared wave advanced
+the counter by dozens, paid dozens of credit awards, and opened the upgrade shop
+as soon as one of the phantom waves landed on a multiple of three. Measured
+before the fix: clearing wave 1 left the game on **wave 4 with 310 credits**.
+After: **wave 2 with 89 credits**. `gs.waveEnding` latches the transition until
+the next wave actually exists.
+
+**Three multi-touch defects, all of which made the game worse on a phone than
+in a browser:**
+
+- Every touch handler read `e.touches[0]` — the finger that went down *first*,
+  which during play is always the one steering the ship. Every later tap was
+  evaluated at the steering finger's position, so the pause, bomb and volume
+  buttons **could not be pressed at all** on a touch device.
+- `touchend` cleared the controls unconditionally, so lifting any second finger
+  stopped the ship moving and stopped it firing.
+- There was no `touchcancel` listener. A touch cancelled by the system — an
+  incoming call, Control Centre — left the ship stuck following and firing with
+  nothing to release it.
+
+Each finger is now handled from `changedTouches` on its own terms, and the
+steering finger is tracked by identifier.
+
+**Touch targets were 27pt.** The three HUD buttons were 44x36 game units, and
+the canvas scales to 0.75 on a 390pt iPhone — 33x27pt against Apple's 44pt
+minimum. The bar is 62 units now and the buttons are 60 square, which measures
+45x45pt on that phone. The ship's lower travel limit moved up to match so it
+never sits underneath a button.
+
+**The lives row ran under the wave counter.** One icon per life at 16px from
+x=120 with no cap reached x=248 at 8 lives (an EASY start plus one Hull
+Plating); the centred WAVE readout starts near 232.
+
+Earlier findings, from the first pass:
 
 1. **The modal close button had two click listeners**, both calling `popModal()`,
    so the ✕ popped two levels. Opening the leaderboard from the menu and closing

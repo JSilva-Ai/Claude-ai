@@ -60,8 +60,29 @@
   var App = cap.Plugins && cap.Plugins.App;
   if (!App) return;
 
+  /**
+   * Leaving the app pauses the run.
+   *
+   * A call, Control Centre, or a swipe to another app freezes the WebView's
+   * animation frames but not the player's situation: they come back to a ship
+   * exactly where they left it, mid-formation, usually with a bullet already on
+   * top of it. The game has a pause screen now, so backgrounding uses it — the
+   * run is waiting rather than half-lost, and coming back is a deliberate tap
+   * on RESUME instead of an ambush.
+   *
+   * It deliberately does not auto-resume: returning to a game that is already
+   * moving is the same ambush from the other side.
+   */
   App.addListener('appStateChange', function (state) {
     audio(state.isActive ? 'resume' : 'suspend');
+    if (!state.isActive && typeof window.pauseGame === 'function') {
+      try {
+        window.pauseGame();
+      } catch {
+        /* The game decides whether there is a run to pause; if it throws, the
+           worst case is the old behaviour, so this must not break audio. */
+      }
+    }
   });
 
   /**

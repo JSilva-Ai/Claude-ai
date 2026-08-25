@@ -758,7 +758,7 @@ function buildGameoverHtml(){
 function pauseGame(){
   if(gs.phase!=='playing'||gs.paused||gs.upgradePhase)return false;
   gs.paused=true;
-  gs.keys={};gs.mactive=false;gs.firebtnHeld=false;   // don't resume mid-input
+  gs.keys={};gs.mactive=false;gs.firebtnHeld=false;_steerId=null;   // don't resume mid-input
   SFX.menuClick();
   openModal('pause',buildPauseHtml(),true);
   return true;
@@ -1041,10 +1041,22 @@ var PU_LABS=['SPREAD','LASER','SHIELD','BOMB','SPEED','PLASMA','MISSLE','BEAM'];
   drawing and the hit-testing cannot drift apart, which matters now that there
   are three of them.
 */
+/*
+  Bar heights. The bottom bar was 46 units tall and its three buttons were 36,
+  which on a 390pt-wide iPhone — where the canvas is scaled to 0.75 — is a 27pt
+  target against Apple's 44pt minimum. The bar is 62 now and the buttons are 60
+  square, which lands at 45pt on that phone and above 44 on anything wider.
+
+  It costs 16 units of play area. The ship's lower travel limit moves up by the
+  same amount so it never sits underneath a button, which is what keeps a tap
+  near the bottom corner unambiguous.
+*/
+var HUD_TOP=48,HUD_BOT=62,BTN=60;
+
 var HUDZ={
-  pause:{x:8,     y:H-42,w:44,h:36},
-  bomb :{x:W-122, y:H-42,w:58,h:36},
-  vol  :{x:W-56,  y:H-42,w:48,h:36}
+  pause:{x:8,       y:H-BTN-1,w:BTN,h:BTN},
+  bomb :{x:W-BTN*2-16,y:H-BTN-1,w:BTN,h:BTN},
+  vol  :{x:W-BTN-8, y:H-BTN-1,w:BTN,h:BTN}
 };
 function _hudHit(pos){
   for(var k in HUDZ){
@@ -1055,16 +1067,15 @@ function _hudHit(pos){
 }
 function _hudBtn(z,glyph,label,col,on){
   ctx.save();
-  ctx.globalAlpha=on?.9:.34;
-  ctx.strokeStyle=col;ctx.lineWidth=1;
-  ctx.strokeRect(z.x,z.y,z.w,z.h);
-  ctx.fillStyle='rgba(0,8,26,.55)';ctx.fillRect(z.x,z.y,z.w,z.h);
+  ctx.globalAlpha=on?.92:.34;
+  ctx.fillStyle='rgba(0,8,26,.62)';ctx.fillRect(z.x,z.y,z.w,z.h);
+  ctx.strokeStyle=col;ctx.lineWidth=1.2;ctx.strokeRect(z.x,z.y,z.w,z.h);
   ctx.textAlign='center';
-  ctx.font='14px serif';ctx.fillStyle=col;
-  ctx.fillText(glyph,z.x+z.w/2,z.y+18);
+  ctx.font='20px serif';ctx.fillStyle=col;
+  ctx.fillText(glyph,z.x+z.w/2,z.y+(label?32:38));
   if(label){
-    ctx.font='7px Share Tech Mono';ctx.fillStyle=col;
-    ctx.fillText(label,z.x+z.w/2,z.y+30);
+    ctx.font='8px Share Tech Mono';ctx.fillStyle=col;
+    ctx.fillText(label,z.x+z.w/2,z.y+48);
   }
   ctx.restore();
 }
@@ -1087,38 +1098,49 @@ function drawHUD(){
   ctx.fillText('💰 '+gs.credits,W-14,26);ctx.restore();
   ctx.font='7px Share Tech Mono';ctx.fillStyle='rgba(200,160,0,.45)';ctx.textAlign='right';
   ctx.fillText('CREDITS',W-14,38);
-  // Lives — shown right of score
+  /*
+    Lives. The row was one icon per life at 16px from x=120 with no limit, so a
+    full EASY run carrying a Hull Plating (8 lives) reached x=248 and ran under
+    the centred WAVE readout, which starts near 232. Tighter spacing keeps the
+    maximum inside its lane, and anything past the cap collapses to a count
+    rather than drawing off into the next field.
+  */
   ctx.font='7px Share Tech Mono';ctx.fillStyle='rgba(0,140,195,.5)';ctx.textAlign='left';ctx.fillText('LIVES',120,40);
-  for(var i=0;i<Math.max(0,gs.lives);i++){
-    var lx=120+i*16;
-    ctx.save();ctx.translate(lx+6,18);ctx.scale(.22,.22);
+  var livesShown=Math.min(Math.max(0,gs.lives),CAP.lives);
+  for(var i=0;i<livesShown;i++){
+    var lx=120+i*13;
+    ctx.save();ctx.translate(lx+5,18);ctx.scale(.20,.20);
     ctx.fillStyle='rgba(70,145,255,.85)';ctx.shadowBlur=7;ctx.shadowColor='rgba(90,165,255,.7)';
     ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(8,-4);ctx.lineTo(15,10);ctx.lineTo(0,14);ctx.lineTo(-15,10);ctx.lineTo(-8,-4);ctx.closePath();ctx.fill();
     ctx.restore();
   }
+  if(gs.lives>livesShown){
+    ctx.font='bold 8px Share Tech Mono';ctx.fillStyle='rgba(120,180,255,.8)';ctx.textAlign='left';
+    ctx.fillText('+'+(gs.lives-livesShown),120+livesShown*13+2,22);
+  }
   // Bottom bar
-  ctx.fillStyle='rgba(0,3,16,.82)';ctx.fillRect(0,H-46,W,46);
-  var bl=ctx.createLinearGradient(0,H-46,W,H-46);bl.addColorStop(0,'rgba(0,0,0,0)');bl.addColorStop(.3,'rgba(0,160,255,.25)');bl.addColorStop(.7,'rgba(0,160,255,.25)');bl.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.strokeStyle=bl;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,H-46);ctx.lineTo(W,H-46);ctx.stroke();
+  ctx.fillStyle='rgba(0,3,16,.82)';ctx.fillRect(0,H-HUD_BOT,W,HUD_BOT);
+  var bl=ctx.createLinearGradient(0,H-HUD_BOT,W,H-HUD_BOT);bl.addColorStop(0,'rgba(0,0,0,0)');bl.addColorStop(.3,'rgba(0,160,255,.25)');bl.addColorStop(.7,'rgba(0,160,255,.25)');bl.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.strokeStyle=bl;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,H-HUD_BOT);ctx.lineTo(W,H-HUD_BOT);ctx.stroke();
   // Weapon
   var wmap={normal:'#88ffff',spread:'#00ffaa',laser:'#ff8800',plasma:'#ff44ff',missile:'#ffaa00',beam:'#ccffff'};
   var wc=wmap[gs.weapon]||'#88ffff';
-  ctx.font='7px Share Tech Mono';ctx.fillStyle='rgba(0,140,190,.5)';ctx.textAlign='left';ctx.fillText('WEAPON',60,H-30);
-  ctx.save();ctx.shadowBlur=6;ctx.shadowColor=wc;ctx.font='bold 11px Share Tech Mono';ctx.fillStyle=wc;ctx.fillText(gs.weapon.toUpperCase(),60,H-14);ctx.restore();
+  ctx.font='8px Share Tech Mono';ctx.fillStyle='rgba(0,140,190,.55)';ctx.textAlign='left';ctx.fillText('WEAPON',78,H-42);
+  ctx.save();ctx.shadowBlur=6;ctx.shadowColor=wc;ctx.font='bold 13px Share Tech Mono';ctx.fillStyle=wc;ctx.fillText(gs.weapon.toUpperCase(),78,H-24);ctx.restore();
   if(gs.weaponT>0){
     // was `/600` against a duration that upgrades push past 600, so a fresh
     // powerup drew a bar wider than its own track
     var wr=clamp(gs.weaponT/(gs.weaponTMax||600),0,1);
-    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(60,H-9,85,2);
-    ctx.fillStyle=wc;ctx.fillRect(60,H-9,85*wr,2);
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(78,H-17,96,3);
+    ctx.fillStyle=wc;ctx.fillRect(78,H-17,96*wr,3);
   }
   // Shield bar
   if(gs.player.shield>0){
     // same overflow as the weapon gauge: SHIELD+ takes the charge to 640
     var sr=clamp(gs.player.shield/(gs.player.shieldMax||320),0,1);
-    ctx.font='7px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle='rgba(0,190,255,.65)';ctx.fillText('SHIELD',W/2,H-34);
-    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(W/2-40,H-28,80,3);
-    ctx.fillStyle='rgba(0,175,255,.8)';ctx.fillRect(W/2-40,H-28,80*sr,3);
+    ctx.font='8px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle='rgba(0,190,255,.65)';ctx.fillText('SHIELD',W/2,H-44);
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(W/2-44,H-38,88,3);
+    ctx.fillStyle='rgba(0,175,255,.8)';ctx.fillRect(W/2-44,H-38,88*sr,3);
   }
   /*
     Combo. This was centred in the bottom bar at the same coordinates as the
@@ -1128,7 +1150,7 @@ function drawHUD(){
     on its own row below the shield gauge, where nothing else can reach it.
   */
   if(gs.combo>1){
-    ctx.save();ctx.translate(W/2,H-11);ctx.textAlign='center';
+    ctx.save();ctx.translate(W/2,H-16);ctx.textAlign='center';
     var big=gs.combo>=5;
     ctx.font='bold '+(big?15:12)+'px Orbitron';
     var cg=ctx.createLinearGradient(-52,0,52,0);
@@ -1387,7 +1409,7 @@ function _closeShop(){
   gs.floats=[];
   setTimeout(function(){
     if(gs.phase!=='playing')return;
-    gs.enemies=makeEnemyWave(gs.wave);gs.waveClearT=gs.t;
+    gs.enemies=makeEnemyWave(gs.wave);gs.waveClearT=gs.t;gs.waveEnding=false;
   },400);
 }
 
@@ -1513,7 +1535,7 @@ var gs={
   weapon:'normal',weaponT:0,shootCD:0,
   bullets:[],enemies:[],parts:[],powerups:[],floats:[],
   stars:makeStars(),keys:{},t:0,screenShake:0,
-  paused:false,bombs:1,cleanWave:true,banner:null,
+  paused:false,bombs:1,cleanWave:true,banner:null,waveEnding:false,
   marchX:0,marchDir:1,marchDrop:0,
   weaponTMax:600,
   mx:W/2,mactive:false,firebtnHeld:false,prevLives:5,
@@ -1531,8 +1553,9 @@ function _startGame(diff){
   gs.weapon='normal';gs.weaponT=0;gs.shootCD=0;
   gs.bullets=[];gs.enemies=makeEnemyWave(1);gs.parts=[];gs.powerups=[];gs.floats=[];
   gs.t=0;gs.screenShake=0;gs.prevLives=dc.lives;gs.waveClearT=0;
-  gs.paused=false;gs.bombs=1;gs.cleanWave=true;gs.banner=null;
+  gs.paused=false;gs.bombs=1;gs.cleanWave=true;gs.banner=null;gs.waveEnding=false;
   gs.marchX=0;gs.marchDir=1;gs.marchDrop=0;gs.weaponTMax=600;
+  gs.mactive=false;gs.firebtnHeld=false;_steerId=null;
   gs.upgradePhase=false;gs.upgChoices=null;gs._upgCards=null;
   gs.fireBonus=1;gs.wpnBonus=1;gs.scBonus=1;gs.spdBonus=1;gs.pierce=0;gs.magnet=false;gs.missileN=0;
   gs.credits=0;
@@ -1643,8 +1666,11 @@ function update(){
   var spd=5.5*dc.spdM*(gs.spdBonus||1)*(p.speedT>0?1.4:1);
   if(gs.keys['ArrowLeft']||gs.keys['a'])p.x=clamp(p.x-spd,22,W-22);
   if(gs.keys['ArrowRight']||gs.keys['d'])p.x=clamp(p.x+spd,22,W-22);
-  if(gs.keys['ArrowUp']||gs.keys['w'])p.y=clamp(p.y-spd*.75,54,H-54);
-  if(gs.keys['ArrowDown']||gs.keys['s'])p.y=clamp(p.y+spd*.75,54,H-54);
+  // Kept clear of both bars, so a tap near the bottom corner is unambiguously
+  // a button press and never a steering touch the ship was sitting under.
+  var yLo=HUD_TOP+18,yHi=H-HUD_BOT-26;
+  if(gs.keys['ArrowUp']||gs.keys['w'])p.y=clamp(p.y-spd*.75,yLo,yHi);
+  if(gs.keys['ArrowDown']||gs.keys['s'])p.y=clamp(p.y+spd*.75,yLo,yHi);
   if(gs.mactive)p.x=lerp(p.x,gs.mx,.14);
 
   if(p.inv>0)p.inv--;if(p.shield>0)p.shield--;if(p.speedT>0)p.speedT--;
@@ -1778,13 +1804,22 @@ function update(){
   });
   gs.parts=pa;
 
-  if(allDead&&gs.phase==='playing')_nextWave();
+  /*
+    `allDead` stays true from the frame the last enemy dies until the next wave
+    is spawned a second and a half later, and this ran every one of those ~90
+    frames — so one cleared wave advanced the counter by dozens, paid dozens of
+    credit awards, and opened the upgrade shop as soon as one of those phantom
+    waves happened to land on a multiple of three. `waveEnding` makes the
+    transition fire once and stay fired until the next wave actually exists.
+  */
+  if(allDead&&gs.phase==='playing'&&!gs.waveEnding)_nextWave();
 
 }
 
 function sectorOf(wave){return Math.floor((wave-1)/5)+1;}
 
 function _nextWave(){
+  gs.waveEnding=true;
   var clean=gs.cleanWave;
   if(clean&&gs.wave>1)unlock('nohit');
   gs.prevLives=gs.lives;
@@ -1816,7 +1851,7 @@ function _nextWave(){
   }else{
     setTimeout(function(){
       if(gs.phase!=='playing')return;
-      gs.enemies=makeEnemyWave(gs.wave);gs.waveClearT=gs.t;
+      gs.enemies=makeEnemyWave(gs.wave);gs.waveClearT=gs.t;gs.waveEnding=false;
     },1500);
   }
 }
@@ -1926,40 +1961,87 @@ function getCanvasPos(clientX,clientY){
   var r=canvas.getBoundingClientRect();
   return{x:(clientX-r.left)*(W/r.width),y:(clientY-r.top)*(H/r.height)};
 }
-canvas.addEventListener('touchstart',function(e){
-  e.preventDefault();initAC();
-  var pos=getCanvasPos(e.touches[0].clientX,e.touches[0].clientY);
+/*
+  Multi-touch.
+
+  All three handlers used to read `e.touches[0]`, which is whichever finger went
+  down FIRST and stays first for as long as it is held — not the finger the
+  event is about. During play there is always a finger down steering the ship,
+  so every subsequent tap was evaluated at the steering finger's position: the
+  pause, bomb and volume buttons could not be pressed at all on a touch device.
+  `touchend` then cleared the controls unconditionally, so lifting any second
+  finger stopped the ship and stopped it firing, and there was no `touchcancel`
+  listener at all — a touch cancelled by the system (Control Centre, an incoming
+  call) left the ship stuck following and firing with nothing to release it.
+
+  Each finger is now handled on its own terms, from `changedTouches`, and the
+  one steering the ship is tracked by identifier so nothing else can disturb or
+  release it.
+*/
+var _steerId=null;
+
+function _touchAt(pos){
   if(gs.paused)return;
   if(gs.phase==='title'){
     if(_hudHit(pos)==='vol'){setMute(!_muted);SFX.menuClick();return;}
     openModal('main',buildMainHtml(),false);return;
   }
-  if(gs.phase==='playing'){
-    if(!gs.upgradePhase){
-      var z=_hudHit(pos);
-      if(z==='vol'){setMute(!_muted);SFX.menuClick();return;}
-      if(z==='pause'){pauseGame();return;}
-      if(z==='bomb'){
-        if(!detonateBomb())addFloat(gs.player.x,gs.player.y-40,'NO BOMBS','#ff4466',false);
-        return;
-      }
-    }
-    if(gs.upgradePhase&&gs._upgCards){
+  if(gs.phase!=='playing')return;
+
+  if(gs.upgradePhase){
+    if(gs._upgCards){
       gs._upgCards.forEach(function(cc,ci){
         if(pos.x>=cc.x-14&&pos.x<=cc.x+cc.w+14&&pos.y>=cc.y-14&&pos.y<=cc.y+cc.h+14)selectUpgrade(ci);
       });
-      if(gs._skipCard){var sk=gs._skipCard;if(pos.x>=sk.x&&pos.x<=sk.x+sk.w&&pos.y>=sk.y&&pos.y<=sk.y+sk.h)selectUpgrade('skip');}
-      return;
+      var sk=gs._skipCard;
+      if(sk&&pos.x>=sk.x&&pos.x<=sk.x+sk.w&&pos.y>=sk.y&&pos.y<=sk.y+sk.h)selectUpgrade('skip');
     }
-    gs.mx=pos.x;gs.mactive=true;gs.firebtnHeld=true;
+    return 'handled';
+  }
+
+  var z=_hudHit(pos);
+  if(z==='vol'){setMute(!_muted);SFX.menuClick();return 'handled';}
+  if(z==='pause'){pauseGame();return 'handled';}
+  if(z==='bomb'){
+    if(!detonateBomb())addFloat(gs.player.x,gs.player.y-40,'NO BOMBS','#ff4466',false);
+    return 'handled';
+  }
+  return 'steer';
+}
+
+canvas.addEventListener('touchstart',function(e){
+  e.preventDefault();initAC();
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i];
+    var pos=getCanvasPos(t.clientX,t.clientY);
+    // A finger that lands on a button presses it and never becomes the steering
+    // finger, so tapping one does not yank the ship across the screen.
+    if(_touchAt(pos)==='steer'&&_steerId===null){
+      _steerId=t.identifier;
+      gs.mx=pos.x;gs.mactive=true;gs.firebtnHeld=true;
+    }
   }
 },{passive:false});
+
 canvas.addEventListener('touchmove',function(e){
   e.preventDefault();
-  if(gs.paused)return;
-  if(gs.phase==='playing'&&!gs.upgradePhase){gs.mx=getCanvasPos(e.touches[0].clientX,e.touches[0].clientY).x;gs.mactive=true;}
+  if(gs.paused||gs.phase!=='playing'||gs.upgradePhase)return;
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i];
+    if(t.identifier!==_steerId)continue;   // only the steering finger moves the ship
+    gs.mx=getCanvasPos(t.clientX,t.clientY).x;gs.mactive=true;
+  }
 },{passive:false});
-canvas.addEventListener('touchend',function(e){e.preventDefault();gs.mactive=false;gs.firebtnHeld=false;},{passive:false});
+
+function _touchRelease(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  for(var i=0;i<e.changedTouches.length;i++){
+    if(e.changedTouches[i].identifier!==_steerId)continue;
+    _steerId=null;gs.mactive=false;gs.firebtnHeld=false;
+  }
+}
+canvas.addEventListener('touchend',_touchRelease,{passive:false});
+canvas.addEventListener('touchcancel',_touchRelease,{passive:false});
 
 canvas.addEventListener('click',function(ev){
   initAC();
