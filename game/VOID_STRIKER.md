@@ -185,6 +185,33 @@ Confirmed by driving the built game in Chromium, not by reading. The touch
 findings were driven with real multi-touch through the Chrome DevTools Protocol
 in a mobile context, because none of them reproduce with a mouse.
 
+**Nothing in the interface was large enough to read on a phone.** Measured
+rather than judged: the canvas is 520 units wide and scales to 0.75 on a 390pt
+iPhone, so the game's 6-9px labels rendered at 4.5-6.7pt and its 11-15px values
+at 8-11pt, against Apple's 11pt floor. Thirty of thirty-four type declarations
+were under it. There is now a stated scale — `TYPE` in the game, and the modal
+CSS alongside it — built as a hierarchy rather than a uniform multiplier, since
+a multiplier does not fit: the three values a player reads mid-fight get real
+size, captions shrink to the smallest thing that still reads as a label, and two
+captions were deleted outright because an eight-digit gold number is a score and
+a row of ship pips is lives.
+
+Also in that pass:
+
+- The **top bar grew** 48 to 62 units to buy the room, and lives moved under the
+  score where they have the left third to themselves.
+- The **upgrade shop lost its three-column layout**, which put upgrade names at
+  7px and descriptions at 6.5px — 5pt on a phone. One full-width column, always.
+- Its **skip control**, a 28-unit strip of 8px text at 35% opacity, became a
+  real 56-unit CONTINUE button.
+- **"STRIKER" overflowed the canvas.** The wordmark was a fixed `900 72px`, and
+  at that size the final R was cut off by the right edge. It is fitted to width
+  now, which also survives the first paint before the webfont loads.
+- The **title's MENU and mute glyphs** drew on top of the animated corner
+  brackets. Both are inset past them.
+- The **feature list** centred each line with its own bullet, so the bullets
+  zig-zagged. It is measured and left-aligned as a block.
+
 **The wave transition fired every frame.** `allDead` stays true from the frame
 the last enemy dies until the next wave spawns 1.5 seconds later, and
 `_nextWave()` ran on every one of those ~90 frames. One cleared wave advanced

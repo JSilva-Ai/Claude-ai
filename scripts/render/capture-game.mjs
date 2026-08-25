@@ -39,7 +39,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -57,6 +57,31 @@ const W = 520;
 const H = 720;
 const FPS = Number(args.fps ?? 60);
 const SECONDS = Number(args.seconds ?? 14);
+
+/**
+ * Frames played before recording starts.
+ *
+ * The take used to begin at wave 1, which is three enemies on an empty
+ * starfield — an honest picture of the game's first ten seconds and a poor
+ * picture of the game. Playing forward first puts the recording somewhere with
+ * formations on screen, upgrades bought and the score in five figures, without
+ * faking anything: it is the same seeded run, just not its opening.
+ *
+ * The warm-up is stepped but not screenshotted, so it costs very little.
+ *
+ * 600 rather than more because the ship has to survive the warm-up AND the take
+ * on NORMAL's five lives, and it is flying a fixed script rather than dodging.
+ * At 900 it died partway through the take. The script fails loudly if that
+ * happens rather than quietly recording a game-over screen.
+ *
+ * A caveat worth knowing: the take is seeded but not perfectly reproducible.
+ * The game schedules wave spawns and the shop's auto-close with real-time
+ * setTimeout, while frames here are pumped by hand — so how much game time
+ * passes between two frames depends on how fast this machine takes screenshots.
+ * Two runs on the same commit can differ slightly. If a still index ever looks
+ * wrong, re-measure rather than assuming it drifted for a deeper reason.
+ */
+const WARMUP = Number(args.warmup ?? 600);
 const FRAMES = Math.round(FPS * SECONDS);
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -173,29 +198,75 @@ const moves = [
 let held = null;
 
 /**
+ * Apply the movement script at frame `f`, looping it so it covers a take of any
+ * length as well as the warm-up before it.
+ */
+async function drive(f) {
+  const span = moves[moves.length - 1][0] + 40;
+  for (const [at, key] of moves) {
+    if (at !== f % span) continue;
+    if (held) await page.keyboard.up(held);
+    held = key;
+    if (key) await page.keyboard.down(key);
+  }
+}
+
+/**
  * The upgrade shop opens every third wave and waits for input. Left alone it
  * parks the clip on a static menu — the first take spent ten of fourteen
  * seconds there.
  *
  * It is drawn on the canvas rather than in the DOM, and the game's state lives
- * inside an IIFE, so there is nothing to read from out here to detect it.
- * Pressing "1" on a timer is the way through: the game's key handler ignores
- * 1-4 unless `gs.upgradePhase` is set, so the press is inert during play and
- * takes the first upgrade the moment the shop appears.
+ * inside an IIFE, so there is nothing to read from out here to detect it. Keys
+ * are the way through: the game's handler ignores 1-4 unless `gs.upgradePhase`
+ * is set, so these presses are inert during play.
+ *
+ * Pressing only "1" is not enough, and quietly stopped working when repeat
+ * purchases started escalating in price. If card 1 costs more than the player
+ * holds, the buy is refused, the shop does not close — it only auto-closes when
+ * NOTHING is affordable — and the take parks on the shop for the rest of its
+ * length. That is exactly what happened: 300 of 840 frames were one static
+ * screen. Rotating through 1, 2, 3, 4 buys what is affordable and then presses
+ * skip, which always closes it.
  */
-const PICK_EVERY = 20;
+const PICK_EVERY = 10;
+const PICK_KEYS = ['1', '2', '3', '4'];
+let pickN = 0;
 
 const pad = (n) => String(n).padStart(5, '0');
+
+/*
+  Warm up. Same inputs as the take, no screenshots. The run is seeded, so if the
+  ship survives this once it survives it every time — and if it does not, that
+  is a deterministic fact worth failing on rather than silently recording a
+  title screen.
+*/
+if (WARMUP > 0) {
+  process.stdout.write(`  warming up ${WARMUP} frames`);
+  for (let f = 0; f < WARMUP; f++) {
+    await drive(f);
+    if (f > 0 && f % PICK_EVERY === 0) await page.keyboard.press(PICK_KEYS[pickN++ % PICK_KEYS.length]);
+    await page.evaluate(() => window.__step(1));
+    if (f % 300 === 0) process.stdout.write('.');
+  }
+  console.log(' done');
+
+  /* A modal can only be open here if the run ended: the upgrade shop is drawn
+     on the canvas, not in the DOM. */
+  const died = await page.evaluate(() => document.getElementById('modal').classList.contains('open'));
+  if (died) {
+    throw new Error(
+      `the ship did not survive the ${WARMUP}-frame warm-up, so the take would ` +
+        'record a game-over screen. Lower --warmup, or adjust the movement script.',
+    );
+  }
+}
+
 process.stdout.write(`  capturing ${FRAMES} frames`);
 
 for (let f = 0; f < FRAMES; f++) {
-  for (const [at, key] of moves) {
-    if (at !== f) continue;
-    if (held) await page.keyboard.up(held);
-    held = key;
-    if (key) await page.keyboard.down(key);
-  }
-  if (f > 0 && f % PICK_EVERY === 0) await page.keyboard.press('1');
+  await drive(WARMUP + f);
+  if (f > 0 && f % PICK_EVERY === 0) await page.keyboard.press(PICK_KEYS[pickN++ % PICK_KEYS.length]);
   await page.evaluate(() => window.__step(1));
   await page.screenshot({ path: join(TMP, `f${pad(f)}.png`) });
   if (f % 120 === 0) process.stdout.write('.');
@@ -203,6 +274,58 @@ for (let f = 0; f < FRAMES; f++) {
 if (held) await page.keyboard.up(held);
 await page.keyboard.up(' ');
 console.log(` done (${readdirSync(TMP).length} frames)`);
+
+/* The run has to still be running at the end, or the tail of the clip is a
+   game-over modal and the stills may be picked from it. */
+if (await page.evaluate(() => document.getElementById('modal').classList.contains('open'))) {
+  throw new Error('the run ended during the take — lower --warmup or --seconds');
+}
+
+/**
+ * One more frame, of the upgrade shop.
+ *
+ * The shop is a real feature and it earns one of the four store stills, but it
+ * can no longer be picked out of the take by frame index: rotating the shop
+ * keys closes it within about ten frames, so whether one lands inside the
+ * recorded window is luck, and in the take this was written against, none did.
+ *
+ * So it is found rather than assumed. Play on with no shop keys pressed, and
+ * sample the canvas's own brightness after each step until it jumps — the shop
+ * is a full-screen lit UI over a game that is almost entirely black, so the
+ * signal is unambiguous and needs no screenshot to read.
+ */
+const groundLuma = await page.evaluate(() => {
+  const c = document.getElementById('c');
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  let t = 0;
+  for (let i = 0; i < d.length; i += 4000) t += d[i] + d[i + 1] + d[i + 2];
+  return t;
+});
+
+process.stdout.write('  looking for the upgrade shop');
+let shopFound = false;
+for (let f = 0; f < 1200 && !shopFound; f++) {
+  await drive(f);
+  await page.evaluate(() => window.__step(1));
+  if (f % 10) continue;
+  if (f % 200 === 0) process.stdout.write('.');
+  if (await page.evaluate(() => document.getElementById('modal').classList.contains('open'))) break;
+  const lit = await page.evaluate(() => {
+    const c = document.getElementById('c');
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    let t = 0;
+    for (let i = 0; i < d.length; i += 4000) t += d[i] + d[i + 1] + d[i + 2];
+    return t;
+  });
+  if (lit > groundLuma * 2.5) {
+    await page.evaluate(() => window.__step(6));   // let the cards settle
+    await page.screenshot({ path: join(TMP, 'shop.png') });
+    shopFound = true;
+  }
+}
+console.log(shopFound ? ' found' : ' not found (the shop still falls back to a gameplay frame)');
+if (held) await page.keyboard.up(held);
+await page.keyboard.up(' ');
 
 await browser.close();
 
@@ -218,18 +341,22 @@ const run = (a) => execFileSync(ffmpeg, a, { stdio: ['ignore', 'ignore', 'pipe']
    pointed at whatever happened to be there, and two identical commands a
    minute apart produced different pictures.
 
-   They were found by measuring rather than by scrubbing a contact sheet: mean
-   luma per frame over the whole take, then the brightest frames (the upgrade
-   shop, which is a full-screen lit UI) and the busiest gameplay frames after
-   the third wave. Re-run that measurement if the take ever changes. */
+   They were found by measuring rather than by scrubbing a contact sheet, and
+   re-measured after the warm-up was added because every old index then pointed
+   somewhere else. The measure is a 24x24 reduction of each frame: the upgrade
+   shop is the one frame with a high mean (a flat, full-screen lit UI), and a
+   good gameplay frame is the one with the most CELLS LIT rather than the
+   highest mean — a shooter on black has a mean near zero however much is
+   happening in it, which is why an earlier mean-only pass ranked empty frames
+   alongside full ones. Re-run that measurement if the take ever changes. */
 if (args.shots) {
   const SHOTS = join(ROOT, 'public', 'media', 'apps', 'void-striker');
   mkdirSync(SHOTS, { recursive: true });
   const picks = [
     ['title.png', '01'],
-    [`f${pad(618)}.png`, '02'],
-    [`f${pad(322)}.png`, '03'],
-    [`f${pad(663)}.png`, '04'],
+    [`f${pad(242)}.png`, '02'],   // busiest gameplay frame of the take
+    [existsSync(join(TMP, 'shop.png')) ? 'shop.png' : `f${pad(359)}.png`, '03'],
+    [`f${pad(475)}.png`, '04'],   // a later moment, well clear of the other two
   ];
   for (const [src, n] of picks) {
     run(['-y', '-i', join(TMP, src), '-vf', `scale=${W}:${H}:flags=lanczos`,

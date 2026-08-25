@@ -217,19 +217,19 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave four in progress: two enemies destroyed inside expanding shock rings, scoring 1,700 and 1,300 points, with plasma and laser pickups drifting down and a six-times combo running in the status bar.',
+        alt: 'Wave three: a rank of enemies holding formation across the top, one destroyed inside an expanding shock ring for 400 points, and the wave banner sweeping across naming sector one, the weave formation and the credits awarded.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/03.jpg',
-        alt: 'The wave-clear banner sweeping across the field: WAVE 4, above sector one and march formation, and the credits awarded for the wave including a clean-wave bonus.',
+        alt: 'A kill scoring 1,200 points, with missile, spread, laser, speed and plasma pickups drifting down the screen and a six-times combo running in the status bar.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in wave four: a seven-times combo in the status bar, bomb, plasma and laser pickups falling, and the pause and bomb controls at either end of the bar.',
+        alt: 'Later in the same wave: an eight-times combo, weapon pickups falling across the whole width of the screen, and the pause and bomb controls at either end of the status bar.',
         width: 520,
         height: 720,
       },

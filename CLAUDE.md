@@ -66,9 +66,13 @@ belong in this file:
   with one command. The shim reads `#modal`, `#modal-close`, `window.popModal`
   and `window.pauseGame`; renaming any of those means editing it in the same
   commit.
-- **The app icon is deliberately still Capacitor's placeholder.** Designing it
-  is his call, and both stores reject a placeholder, so it fails loudly rather
-  than shipping as something plausible. Same rule as the `[TODO]`s.
+- **The app icon is drawn by `scripts/render/app-icon.mjs`**, which replaced
+  Capacitor's placeholder on his instruction to propose one. It is the ship the
+  game itself draws — the same hull and wing paths lifted out of `drawShip` — on
+  the game's own violet, so it cannot drift into advertising a different game.
+  Re-run that script rather than editing the PNGs; it writes the iOS 1024 (with
+  its alpha channel stripped, which iOS requires), both Android legacy sets and
+  the adaptive foreground inside its 66-of-108dp safe zone.
 
 Nothing has run on a physical device. What has been checked is that the
 packaged build makes no request off the device, throws nothing on load, and
