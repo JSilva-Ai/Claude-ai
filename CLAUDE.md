@@ -67,11 +67,14 @@ belong in this file:
   and `window.pauseGame`; renaming any of those means editing it in the same
   commit.
 - **The app icon is drawn by `scripts/render/app-icon.mjs`**, which replaced
-  Capacitor's placeholder on his instruction to propose one. It is the ship the
-  game itself draws — the same hull and wing paths lifted out of `drawShip` — on
-  the game's own violet, so it cannot drift into advertising a different game.
-  Re-run that script rather than editing the PNGs; it writes the iOS 1024 (with
-  its alpha channel stripped, which iOS requires), both Android legacy sets and
+  Capacitor's placeholder on his instruction to propose one. It draws the same
+  hull and wing paths the game's ship used to be drawn with — now kept in the
+  game as `drawShipVector()`, the fallback for the few frames before the
+  game's own raster ship art decodes — on the game's own violet. The icon
+  deliberately did not follow the game onto that raster art: at 48px it read
+  as a blob where the vector paths still read as a clean silhouette. Re-run
+  that script rather than editing the PNGs; it writes the iOS 1024 (with its
+  alpha channel stripped, which iOS requires), both Android legacy sets and
   the adaptive foreground inside its 66-of-108dp safe zone.
 
 Nothing has run on a physical device. What has been checked is that the
@@ -154,9 +157,23 @@ Mine, when asked:
 - The leaderboard is still local-only.
 
 Done, on his instruction to improve the game, then to make it as good as it can
-be for the App Store, then that it needed to look dramatically better — the
-title screen specifically read as flat, a centred text stack with no focal
-point. The detail is in `game/VOID_STRIKER.md`. The visual pass, most recent:
+be for the App Store, then that it needed to look dramatically better, then to
+use a specific supplied image as the ship's own art. The detail is in
+`game/VOID_STRIKER.md`. Most recent:
+
+- **The player ship's art is now a supplied raster image**, embedded as a
+  `data:` URI WebP (~92KB) with the original drawn hull kept intact as
+  `drawShipVector()`, the fallback for the handful of frames before it
+  decodes — used after he confirmed he holds commercial usage rights to it.
+  Its orientation was backwards as supplied (nose toward the player, not away
+  from him); that was caught by screenshot, not by reading the code, and
+  fixed by rotating the source asset once rather than patching every call
+  site. The app icon was deliberately **not** switched to this art — at 48px,
+  its own size on a home screen, the detail reads as a blob where the
+  existing vector ship still reads as a clean silhouette — so the icon and
+  the live ship now draw different art on purpose; see `app-icon.mjs`.
+
+The visual pass before that:
 
 - **A shared background system** — a moon and a drifting nebula behind the
   stars, used by the title and gameplay both, in place of one static nebula

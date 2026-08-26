@@ -217,7 +217,7 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave three: a rank of enemies holding formation across the top, one destroyed inside an expanding shock ring for 400 points, and the wave banner sweeping across naming sector one, the weave formation and the credits awarded.',
+        alt: 'Wave three: a formation of enemies near the top of the screen against a large moon, and the wave transition banner sweeping across the middle, naming sector one, the weave formation, and the 86 credits awarded.',
         width: 520,
         height: 720,
       },

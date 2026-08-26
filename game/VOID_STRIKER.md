@@ -342,6 +342,55 @@ in `mobile/void-striker/` `npm run sync` and `npm run verify`. The app store
 stills and clip were regenerated; `src/content/site.ts`'s alt text was
 rewritten from the new stills.
 
+## Ship art
+
+On his instruction to use a specific supplied image — a detailed painterly
+sci-fi fighter render — as the player ship's own art, after confirming he
+holds commercial usage rights to it (asked directly before any of this
+landed, since the site publishes under a company name).
+
+- **Embedded, not linked.** The game is one file with zero external
+  dependencies by design, so the asset had to travel the same way everything
+  else in it does: as a `data:` URI. The source PNG (1536×1024, 1.97MB) had
+  nothing worth cropping — its alpha bounding box was almost the full frame —
+  so the only lever available without visibly softening a detailed painterly
+  image was format: re-encoded as WebP at 900×600 it holds up at every size
+  the game draws it, including the title screen's large hero shot, at ~92KB —
+  roughly a fifth the size of the same dimensions as PNG. The file grew from
+  ~99KB to ~238KB.
+- **`drawShipBody()` now dispatches**, not draws directly: `drawShipRaster()`
+  once the image has decoded, `drawShipVector()` (the previous drawn hull,
+  kept intact) for the handful of frames before it has. Both call sites —
+  `drawShip()` and the title screen's hero ship — needed no changes, since
+  both already went through `drawShipBody()` from the earlier visual-overhaul
+  pass.
+- **The source art's orientation was backwards, and reading the art missed
+  it.** The game's ship convention is nose at negative local y (up, away from
+  the player), engine at positive local y (down, toward the player) — the
+  title screen's ember spawn point and the live engine trail are both
+  positioned on that assumption. Drawn as supplied, the ship's single-cone
+  nose pointed down (toward the player) and its twin engine plumes pointed up
+  (toward the enemies) — flying backwards. This was not obvious from the
+  embers alone: a trail of particles falling away from *any* pointed tip reads
+  as plausible exhaust, whether or not that tip is actually the engine. It was
+  only confirmed by comparing a cropped, zoomed screenshot of the live ship
+  against the documented convention, then double-checked from the icon-scale
+  render where the same two ends are unambiguous at full size. Fixed once, by
+  rotating the source asset 180° before the WebP re-encode, rather than adding
+  a compensating rotation to every draw call.
+- **The app icon was deliberately not switched to this art.** Tested at 48px —
+  the icon's actual size on a home screen — the detailed raster reads as an
+  indistinct glowing blob, where the existing procedural vector ship
+  (`scripts/render/app-icon.mjs`) still reads as a clean, recognizable
+  silhouette at the same size. The two now draw different ship art on
+  purpose; see the updated reasoning at the top of `app-icon.mjs`.
+
+Re-verified after: the touch-target and wave-progression Playwright suite
+(confirms `_shipImgReady` actually flips true, not just that the file
+parses), `npm run check`, `npm run demo`, and in `mobile/void-striker/`
+`npm run sync` and `npm run verify`. The app store stills and clip were
+regenerated from the corrected build.
+
 ## Still open
 
 1. **Save progress** — no mid-game save; everything resets on page reload.

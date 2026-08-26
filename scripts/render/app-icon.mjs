@@ -17,11 +17,17 @@
  *
  * Why a script rather than a drawn file.
  *
- * The icon is the ship the game actually draws — the same hull and wing paths
- * copied out of drawShip — so it cannot drift into representing a different
- * game, and a change to the ship can be answered by re-running this. It also
- * means the icon arrives in the repo with its provenance attached instead of as
- * a binary nobody can edit.
+ * The icon is drawn from the same hull and wing paths the game itself used to
+ * draw its ship with — copied out of what is now drawShipVector(), the
+ * fallback the game keeps for the handful of frames before its own raster
+ * ship art has decoded. The two deliberately parted ways when that raster art
+ * arrived: tested at 48px, the icon's own size on a home screen, the detailed
+ * asset reads as an indistinct glowing blob where the vector paths still read
+ * as a clean silhouette. An icon has to be recognized at a glance more than it
+ * has to match the loading screen pixel-for-pixel, so this keeps drawing the
+ * vector ship on purpose. A change to those vector paths (not the raster art)
+ * can still be answered by re-running this. It also means the icon arrives in
+ * the repo with its provenance attached instead of as a binary nobody can edit.
  *
  * Both stores reject a placeholder icon, and Capacitor's is what was here
  * before. This replaces it.
@@ -125,7 +131,7 @@ const PAGE = (size, mode, round) => `<!doctype html><meta charset="utf-8">
   x.beginPath(); x.moveTo(10,-5); x.lineTo(22,6); x.lineTo(38,16); x.lineTo(30,20); x.lineTo(18,18); x.closePath(); x.fill();
   x.beginPath(); x.moveTo(-10,-5); x.lineTo(-22,6); x.lineTo(-38,16); x.lineTo(-30,20); x.lineTo(-18,18); x.closePath(); x.fill();
 
-  // Wingtip lights — the same running lights the live ship gained when its
+  // Wingtip lights — the same running lights drawShipVector() gained when its
   // hull picked up detail. Small enough that they read as a bright pixel at
   // the 48px legacy size and a proper lit point at 1024.
   x.save(); x.globalCompositeOperation='lighter';
