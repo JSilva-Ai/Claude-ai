@@ -63,6 +63,10 @@ canvas{display:block;image-rendering:crisp-edges;}
 .mbtn.green:hover{background:rgba(0,60,40,0.8);border-color:#00ffaa;}
 .mbtn.yellow{border-color:rgba(255,200,0,0.3);color:#ffdd44;}
 .mbtn.yellow:hover{background:rgba(60,40,0,0.8);border-color:#ffdd44;}
+.mbtn:disabled{opacity:.4;cursor:default;box-shadow:none;}
+.mbtn:disabled:hover{background:rgba(0,20,60,0.7);border-color:rgba(0,180,255,0.3);color:#00ccff;}
+.mbtn.green:disabled:hover{background:rgba(0,20,60,0.7);border-color:rgba(0,255,140,0.3);color:#00ffaa;}
+.mbtn.yellow:disabled:hover{background:rgba(0,20,60,0.7);border-color:rgba(255,200,0,0.3);color:#ffdd44;}
 
 /* Leaderboard table */
 .lb-table{width:100%;border-collapse:collapse;margin:8px 0 20px;}
@@ -139,6 +143,72 @@ canvas{display:block;image-rendering:crisp-edges;}
 .pz-cell{background:rgba(0,10,30,.7);border:1px solid rgba(0,140,200,.22);padding:12px 10px;border-radius:3px;}
 .pz-k{font-size:11px;letter-spacing:2px;color:rgba(0,175,220,.6);margin-bottom:6px;}
 .pz-v{font-family:'Orbitron',monospace;font-size:17px;color:#9fdcff;letter-spacing:1px;}
+
+/* Toast */
+.hub-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;text-align:left;}
+.hub-avatar{
+  width:52px;height:52px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%,#2a6fff,#050c24);
+  border:2px solid rgba(0,200,255,.55);box-shadow:0 0 16px rgba(0,160,255,.35);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.hub-id{flex:1;min-width:0;}
+.hub-name{font-family:'Orbitron',monospace;font-size:14px;letter-spacing:2px;color:#eaf6ff;}
+.hub-rank{font-size:11px;letter-spacing:2px;color:#ffcc44;margin:3px 0 6px;}
+.hub-xpbar{height:5px;background:rgba(0,60,100,.5);border-radius:3px;overflow:hidden;}
+.hub-xpfill{height:100%;background:linear-gradient(90deg,#00ccff,#7a5cff);}
+.hub-lv{
+  font-family:'Orbitron',monospace;font-size:13px;color:#00e5ff;text-align:center;
+  border:1px solid rgba(0,200,255,.4);border-radius:50%;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.hub-scrap{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;
+  font-family:'Orbitron',monospace;font-size:13px;color:#ffdd44;margin-bottom:16px;
+}
+.hub-daily{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(0,16,40,.7);border:1px solid rgba(0,180,255,.25);
+  border-radius:3px;padding:12px 14px;margin-bottom:20px;text-align:left;
+}
+.hub-daily-lbl{font-size:11px;letter-spacing:2px;color:rgba(0,180,255,.7);}
+.hub-daily-amt{font-family:'Orbitron',monospace;font-size:15px;color:#ffdd44;margin-top:3px;}
+.hub-daily-cd{font-family:'Orbitron',monospace;font-size:13px;color:rgba(160,200,230,.6);}
+.hub-daily-btn{
+  font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
+  padding:9px 14px;background:rgba(0,60,40,.7);border:1px solid #00ffaa;color:#00ffaa;
+  cursor:pointer;white-space:nowrap;
+}
+.hub-daily-btn:disabled{opacity:.35;cursor:default;border-color:rgba(0,150,205,.3);color:rgba(0,150,205,.5);}
+.hub-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.hub-nav .mbtn{margin:0;font-size:12px;padding:15px 6px;}
+.wpn-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(0,10,30,.7);border:1px solid rgba(0,140,200,.22);
+  border-radius:3px;padding:12px 14px;margin-bottom:10px;text-align:left;
+}
+.wpn-icon{font-size:20px;flex:none;width:26px;text-align:center;color:#00e5ff;text-shadow:0 0 8px rgba(0,180,255,.5);}
+.wpn-info{flex:1;min-width:0;}
+.wpn-name{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:1px;color:#9fdcff;}
+.wpn-lv{font-size:11px;color:rgba(160,200,230,.55);margin:4px 0 6px;}
+.wpn-bar{height:4px;background:rgba(0,60,100,.5);border-radius:2px;overflow:hidden;}
+.wpn-fill{height:100%;background:linear-gradient(90deg,#00ccff,#00ffaa);}
+.wpn-buy{
+  flex:none;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;
+  padding:10px 12px;background:rgba(0,50,140,.7);border:1px solid rgba(0,200,255,.5);
+  color:#00e5ff;cursor:pointer;white-space:nowrap;
+}
+.wpn-buy:disabled{opacity:.35;cursor:default;}
+.wpn-buy.maxed{background:rgba(0,60,40,.6);border-color:#00ffaa;color:#00ffaa;}
+.hangar-stage{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;}
+.hangar-arrow{
+  background:rgba(0,20,60,.7);border:1px solid rgba(0,180,255,.35);color:#00ccff;
+  font-size:20px;width:38px;height:64px;cursor:pointer;flex:none;
+}
+.hangar-arrow:disabled{opacity:.25;cursor:default;}
+.hangar-canvas{background:radial-gradient(circle at 50% 40%,#160a3e,#04010c);border-radius:4px;}
+.hangar-name{font-family:'Orbitron',monospace;font-size:14px;letter-spacing:2px;color:#eaf6ff;margin-bottom:4px;}
+.hangar-lock{font-size:12px;color:rgba(160,200,230,.6);margin-bottom:16px;min-height:16px;}
 
 /* Toast */
 #toast{
@@ -574,6 +644,135 @@ function lbAdd(name,score,wave){
   return lbSave(r.slice(0,10));
 }
 
+// ─── PILOT PROGRESSION ─────────────────────────────────────────────────────
+/*
+  A second currency and a lifetime XP total, both persistent, on top of the
+  credits a single run already earns and spends in its own wave-to-wave shop.
+  That shop's balance was tuned carefully in an earlier pass and this does not
+  touch it: SCRAP is a slower, separate meter, paid out once at game over from
+  that run's score, spent on permanent weapon levels and ship skins that carry
+  into every run after — rather than the in-run credits, which still reset to
+  zero the moment a run ends, exactly as before.
+*/
+var SCRAPK='vs_scrap',XPK='vs_xp',WLVLK='vs_wlvl',SKINK='vs_skin',SKINSK='vs_skins',DAILYK='vs_daily';
+var _scrap=0,_xp=0;
+try{_scrap=parseInt(localStorage.getItem(SCRAPK)||'0',10)||0;}catch(e){}
+try{_xp=parseInt(localStorage.getItem(XPK)||'0',10)||0;}catch(e){}
+function saveScrap(){try{localStorage.setItem(SCRAPK,String(_scrap));}catch(e){}}
+function saveXp(){try{localStorage.setItem(XPK,String(_xp));}catch(e){}}
+
+var WPN_TYPES=[
+  {id:'spread', name:'SPREAD SHOT',   icon:'\u2726'},
+  {id:'laser',  name:'LASER CANNON',  icon:'\u26a1'},
+  {id:'plasma', name:'PLASMA TORPEDO',icon:'\u2604'},
+  {id:'missile',name:'MISSILE POD',   icon:'\u25b2'},
+  {id:'beam',   name:'BEAM CANNON',   icon:'\u25ae'},
+];
+var WPN_MAXLV=5;
+var _wlvl={};try{_wlvl=JSON.parse(localStorage.getItem(WLVLK)||'{}');}catch(e){}
+WPN_TYPES.forEach(function(w){if(!_wlvl[w.id])_wlvl[w.id]=1;});
+function saveWlvl(){try{localStorage.setItem(WLVLK,JSON.stringify(_wlvl));}catch(e){}}
+function wpnCost(level){return Math.round(120*Math.pow(level,1.7));}
+// A meta-progression bonus, applied on top of the in-run fire-rate stacking
+// that already exists (dc.fireM, gs.fireBonus) — up to 20% faster at max
+// level, so it is felt but does not dwarf what a good run already earns.
+function wpnLevelMul(type){var lv=_wlvl[type]||1;return 1-0.05*(lv-1);}
+
+var SKINS=[
+  {id:'blue',   name:'STANDARD BLUE', hue:null,unlock:{type:'default'}},
+  {id:'violet', name:'VOID VIOLET',   hue:265, unlock:{type:'level',v:5}},
+  {id:'gold',   name:'SOLAR GOLD',    hue:45,  unlock:{type:'scrap',v:1500}},
+  {id:'crimson',name:'CRIMSON ACE',   hue:350, unlock:{type:'scrap',v:3000}},
+];
+var _skin='blue',_skinsOwned=['blue'];
+try{_skin=localStorage.getItem(SKINK)||'blue';}catch(e){}
+try{_skinsOwned=JSON.parse(localStorage.getItem(SKINSK)||'[\"blue\"]');}catch(e){}
+if(_skinsOwned.indexOf('blue')<0)_skinsOwned.push('blue');
+function saveSkin(){try{localStorage.setItem(SKINK,_skin);}catch(e){}}
+function saveSkinsOwned(){try{localStorage.setItem(SKINSK,JSON.stringify(_skinsOwned));}catch(e){}}
+function skinUnlocked(id){return _skinsOwned.indexOf(id)>=0;}
+var _shipSkinCache={};
+/*
+  Recolours the raster ship once per skin, onto an offscreen canvas, rather
+  than per frame: 'hue' blend keeps the source art's own shading and metal
+  highlights and only shifts the colour family, then 'destination-in' clips
+  the fill back to the original silhouette's alpha so the recolour cannot
+  bleed past the ship's own edges into the transparent frame around it.
+*/
+function _tintedShipCanvas(skin){
+  if(!_shipImgReady||skin.hue==null)return null;
+  if(_shipSkinCache[skin.id])return _shipSkinCache[skin.id];
+  var c=document.createElement('canvas');c.width=SHIP_IMG_W;c.height=SHIP_IMG_H;
+  var cx=c.getContext('2d');
+  cx.drawImage(_shipImg,0,0);
+  cx.globalCompositeOperation='hue';
+  cx.fillStyle='hsl('+skin.hue+',85%,55%)';
+  cx.fillRect(0,0,c.width,c.height);
+  cx.globalCompositeOperation='destination-in';
+  cx.drawImage(_shipImg,0,0);
+  cx.globalCompositeOperation='source-over';
+  _shipSkinCache[skin.id]=c;
+  return c;
+}
+
+/*
+  Level and rank both read from lifetime XP rather than store their own
+  number, so neither can drift out of sync with it. The curve is quadratic —
+  300*level\u00b2 — so early levels come fast, where a new player notices
+  them, and it stretches out rather than becoming a wall.
+*/
+function pilotLevel(){return 1+Math.floor(Math.sqrt(_xp/300));}
+var RANKS=[
+  {min:1, name:'ROOKIE'},{min:5, name:'CADET'},{min:10,name:'VETERAN'},
+  {min:15,name:'ELITE'}, {min:25,name:'ACE'},  {min:40,name:'LEGEND'},
+];
+function pilotRank(){
+  var lv=pilotLevel(),r=RANKS[0];
+  RANKS.forEach(function(x){if(lv>=x.min)r=x;});
+  return r.name;
+}
+function xpForLevel(lv){return 300*lv*lv;}
+function _syncSkinUnlocks(){
+  var lv=pilotLevel(),changed=false;
+  SKINS.forEach(function(sk){
+    if(sk.unlock.type==='level'&&lv>=sk.unlock.v&&_skinsOwned.indexOf(sk.id)<0){_skinsOwned.push(sk.id);changed=true;}
+  });
+  if(changed)saveSkinsOwned();
+}
+_syncSkinUnlocks();
+
+/*
+  Awarded once, at game over, from that run's score and depth — not from
+  whatever was left in the run's own credits, which is that system's business
+  alone and stays at whatever it was (spent or not).
+*/
+function awardMeta(score,wave){
+  var scrap=Math.round(score/30)+wave*20;
+  _scrap+=scrap;_xp+=score;
+  saveScrap();saveXp();_syncSkinUnlocks();
+  return scrap;
+}
+
+function dailyState(){
+  var d={last:0};
+  try{d=JSON.parse(localStorage.getItem(DAILYK)||'{\"last\":0}');}catch(e){}
+  return d;
+}
+function dailyReady(){return Date.now()-dailyState().last>=86400000;}
+function dailyAmount(){return 250+pilotLevel()*10;}
+function dailyClaim(){
+  if(!dailyReady())return 0;
+  var amt=dailyAmount();
+  _scrap+=amt;saveScrap();
+  try{localStorage.setItem(DAILYK,JSON.stringify({last:Date.now()}));}catch(e){}
+  return amt;
+}
+function dailyRemainMs(){return Math.max(0,86400000-(Date.now()-dailyState().last));}
+function fmtCountdown(ms){
+  var s2=Math.floor(ms/1000),h=Math.floor(s2/3600),m=Math.floor((s2%3600)/60),ss=s2%60;
+  return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+}
+
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 var _toastT=null;
 function showToast(msg){
@@ -608,7 +807,11 @@ function popModal(){
 function closeAllModals(){_modalStack=[];document.getElementById('modal').classList.remove('open');}
 document.getElementById('modal-close').addEventListener('click',function(){popModal();SFX.menuClick();});
 
+var _dailyTick=null;
+function _clearDailyTick(){if(_dailyTick){clearInterval(_dailyTick);_dailyTick=null;}}
+
 function _attachModalEvents(id){
+  _clearDailyTick();
   if(id==='main'){
     // difficulty buttons
     [0,1,2].forEach(function(i){
@@ -625,8 +828,60 @@ function _attachModalEvents(id){
     if(lb)lb.addEventListener('click',function(){SFX.menuClick();openModal('lb',buildLBHtml());});
     var ach=document.getElementById('btn-ach');
     if(ach)ach.addEventListener('click',function(){SFX.menuClick();openModal('ach',buildAchHtml());});
+    var wpn=document.getElementById('btn-wpn');
+    if(wpn)wpn.addEventListener('click',function(){SFX.menuClick();openModal('weapons',buildWeaponsHtml());});
+    var hg=document.getElementById('btn-hangar');
+    if(hg)hg.addEventListener('click',function(){SFX.menuClick();openModal('hangar',buildHangarHtml());});
+    var dc2=document.getElementById('daily-claim');
+    if(dc2)dc2.addEventListener('click',function(){
+      var amt=dailyClaim();
+      if(amt){SFX.power();showToast('+'+amt+' SCRAP');_modalStack[_modalStack.length-1].html=buildMainHtml();_renderModal();}
+    });
+    var cdEl=document.getElementById('daily-cd');
+    if(cdEl){
+      _dailyTick=setInterval(function(){
+        var el=document.getElementById('daily-cd');
+        if(!el){_clearDailyTick();return;}
+        if(dailyReady()){
+          _clearDailyTick();
+          if(_modalStack.length&&_modalStack[_modalStack.length-1].id==='main'){
+            _modalStack[_modalStack.length-1].html=buildMainHtml();_renderModal();
+          }
+          return;
+        }
+        el.textContent=fmtCountdown(dailyRemainMs());
+      },1000);
+    }
     _renderDiffBtns();
     _wireVolume();
+  }
+  if(id==='weapons'){
+    Array.prototype.forEach.call(document.querySelectorAll('.wpn-buy[data-wpn]'),function(b){
+      b.addEventListener('click',function(){
+        var t=b.getAttribute('data-wpn'),lv=_wlvl[t]||1,cost=wpnCost(lv);
+        if(lv>=WPN_MAXLV||_scrap<cost)return;
+        _scrap-=cost;_wlvl[t]=lv+1;saveScrap();saveWlvl();SFX.power();
+        _modalStack[_modalStack.length-1].html=buildWeaponsHtml();_renderModal();
+      });
+    });
+  }
+  if(id==='hangar'){
+    var prev=document.getElementById('hg-prev'),next=document.getElementById('hg-next');
+    if(prev)prev.addEventListener('click',function(){if(_hangarSel>0){_hangarSel--;SFX.menuClick();_renderHangar();}});
+    if(next)next.addEventListener('click',function(){if(_hangarSel<SKINS.length-1){_hangarSel++;SFX.menuClick();_renderHangar();}});
+    var act=document.getElementById('hangar-action');
+    if(act)act.addEventListener('click',function(){
+      var skin=SKINS[_hangarSel];
+      if(!skinUnlocked(skin.id)){
+        if(skin.unlock.type==='scrap'&&_scrap>=skin.unlock.v){
+          _scrap-=skin.unlock.v;_skinsOwned.push(skin.id);saveScrap();saveSkinsOwned();SFX.power();
+        }else return;
+      }else if(skin.id!==_skin){
+        _skin=skin.id;saveSkin();SFX.menuClick();
+      }
+      _renderHangar();
+    });
+    _renderHangar();
   }
   if(id==='pause'){
     var pr=document.getElementById('pz-resume');
@@ -663,6 +918,43 @@ function _renderDiffBtns(){
   });
 }
 
+function _renderHangar(){
+  var skin=SKINS[_hangarSel];
+  var cv=document.getElementById('hangar-canvas');
+  if(cv){
+    var cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);
+    var img=(skin.hue!=null)?_tintedShipCanvas(skin):_shipImg;
+    if(img&&_shipImgReady){
+      var s2=Math.min(cv.width/SHIP_IMG_W,cv.height/SHIP_IMG_H)*0.85;
+      var dw=SHIP_IMG_W*s2,dh=SHIP_IMG_H*s2;
+      cx.drawImage(img,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
+    }
+  }
+  var nameEl=document.getElementById('hangar-name');if(nameEl)nameEl.textContent=skin.name;
+  var lockEl=document.getElementById('hangar-lock');
+  var btn=document.getElementById('hangar-action');
+  var owned=skinUnlocked(skin.id);
+  if(owned){
+    if(lockEl)lockEl.textContent='';
+    if(btn){
+      if(skin.id===_skin){btn.textContent='EQUIPPED';btn.className='mbtn';btn.disabled=true;}
+      else{btn.textContent='EQUIP';btn.className='mbtn green';btn.disabled=false;}
+    }
+  }else{
+    var lockedByLevel=skin.unlock.type==='level';
+    if(lockEl)lockEl.textContent=lockedByLevel
+      ?('UNLOCKS AT LEVEL '+skin.unlock.v)
+      :('UNLOCK FOR '+skin.unlock.v+' SCRAP');
+    if(btn){
+      if(lockedByLevel){btn.textContent='LOCKED';btn.className='mbtn';btn.disabled=true;}
+      else{btn.textContent='UNLOCK ('+skin.unlock.v+')';btn.className='mbtn yellow';btn.disabled=_scrap<skin.unlock.v;}
+    }
+  }
+  var prevBtn=document.getElementById('hg-prev'),nextBtn=document.getElementById('hg-next');
+  if(prevBtn)prevBtn.disabled=_hangarSel<=0;
+  if(nextBtn)nextBtn.disabled=_hangarSel>=SKINS.length-1;
+}
+
 // ─── BALANCE ──────────────────────────────────────────────────────────────────
 /*
   Every difficulty curve in the game is bounded and lives here rather than as a
@@ -697,14 +989,92 @@ var DCFG=[
   {name:'HARD',  col:'#ff4060',lives:3, spdM:1.6,  fireM:1.8,  hpM:1.6,  scM:1.6, bulletM:1.25},
 ];
 
+/*
+  The pilot hub. It replaced a plain difficulty-select menu on his
+  instruction to use a supplied reference image of a much busier game-hub
+  screen as the new home page. That reference was a landscape desktop
+  layout — a pilot panel and a live gameplay panel side by side; this
+  game's canvas is 520x720, locked in by the App Store stills, the demo clip
+  and the site's phone frame, so the same ideas (a pilot identity with rank
+  and level, a daily reward, permanent weapon and ship progression reachable
+  from the front screen) are stacked into one column instead of arranged
+  side by side, and it stays exactly what it already was: a modal over the
+  title screen's own animated hero ship, not a second rendering surface.
+*/
 function buildMainHtml(){
-  return '<div class="modal-title">VOID STRIKER</div>'+
-    '<div style="font-size:12px;color:rgba(0,165,205,0.55);letter-spacing:3px;margin-bottom:26px;">SELECT DIFFICULTY</div>'+
-    '<div class="diff-row"><button id="diff-0" class="diff-btn">EASY</button><button id="diff-1" class="diff-btn sel-normal">NORMAL</button><button id="diff-2" class="diff-btn">HARD</button></div>'+
-    '<button id="btn-start" class="mbtn" style="font-size:14px;padding:20px 0;margin-bottom:24px;">▶  START GAME</button>'+
-    '<button id="btn-lb" class="mbtn">RANKINGS</button>'+
-    '<button id="btn-ach" class="mbtn">ACHIEVEMENTS</button>'+
+  var lv=pilotLevel(),rk=pilotRank(),
+      xpBase=xpForLevel(lv-1),xpNext=xpForLevel(lv),
+      xpPct=Math.max(0,Math.min(100,Math.round((_xp-xpBase)/(xpNext-xpBase)*100)));
+  var ready=dailyReady();
+  return '<div class="modal-title" style="margin-bottom:16px;">VOID STRIKER</div>'+
+    '<div class="hub-head">'+
+      '<div class="hub-avatar">🚀</div>'+
+      '<div class="hub-id">'+
+        '<div class="hub-name">PILOT</div>'+
+        '<div class="hub-rank">'+rk+' &middot; LV '+lv+'</div>'+
+        '<div class="hub-xpbar"><div class="hub-xpfill" style="width:'+xpPct+'%;"></div></div>'+
+      '</div>'+
+      '<div class="hub-lv">'+lv+'</div>'+
+    '</div>'+
+    '<div class="hub-scrap">⬡ '+_scrap.toLocaleString()+' SCRAP</div>'+
+    '<div class="hub-daily">'+
+      '<div><div class="hub-daily-lbl">DAILY REWARD</div>'+
+      '<div class="hub-daily-amt">+'+dailyAmount()+' SCRAP</div></div>'+
+      (ready
+        ? '<button id="daily-claim" class="hub-daily-btn">CLAIM</button>'
+        : '<div class="hub-daily-cd" id="daily-cd">'+fmtCountdown(dailyRemainMs())+'</div>')+
+    '</div>'+
+    '<div style="font-size:11px;color:rgba(0,165,205,0.55);letter-spacing:3px;margin-bottom:10px;">SELECT DIFFICULTY</div>'+
+    '<div class="diff-row" style="margin:0 0 20px;"><button id="diff-0" class="diff-btn">EASY</button><button id="diff-1" class="diff-btn sel-normal">NORMAL</button><button id="diff-2" class="diff-btn">HARD</button></div>'+
+    '<button id="btn-start" class="mbtn" style="font-size:14px;padding:20px 0;margin-bottom:18px;">▶  START MISSION</button>'+
+    '<div class="hub-nav">'+
+      '<button id="btn-wpn" class="mbtn">🔫 WEAPONS</button>'+
+      '<button id="btn-hangar" class="mbtn">🛸 HANGAR</button>'+
+      '<button id="btn-ach" class="mbtn">🏆 ACHIEVEMENTS</button>'+
+      '<button id="btn-lb" class="mbtn">🎖 LEADERBOARDS</button>'+
+    '</div>'+
     volRowHtml();
+}
+
+function buildWeaponsHtml(){
+  var html='<div class="modal-title">WEAPONS</div>'+
+    '<div class="hub-scrap" style="justify-content:center;margin-bottom:18px;">⬡ '+_scrap.toLocaleString()+' SCRAP</div>';
+  WPN_TYPES.forEach(function(w){
+    var lv=_wlvl[w.id]||1,maxed=lv>=WPN_MAXLV;
+    var pct=Math.round((lv-1)/(WPN_MAXLV-1)*100);
+    var cost=maxed?0:wpnCost(lv);
+    var afford=!maxed&&_scrap>=cost;
+    html+='<div class="wpn-row">'+
+      '<div class="wpn-icon">'+w.icon+'</div>'+
+      '<div class="wpn-info">'+
+        '<div class="wpn-name">'+w.name+'</div>'+
+        '<div class="wpn-lv">LEVEL '+lv+' / '+WPN_MAXLV+'</div>'+
+        '<div class="wpn-bar"><div class="wpn-fill" style="width:'+pct+'%;"></div></div>'+
+      '</div>'+
+      (maxed
+        ? '<button class="wpn-buy maxed" disabled>MAX</button>'
+        : '<button class="wpn-buy" data-wpn="'+w.id+'"'+(afford?'':' disabled')+'>+'+cost+'</button>')+
+    '</div>';
+  });
+  html+='<div style="font-size:11px;color:rgba(160,200,230,.5);line-height:1.6;margin-bottom:18px;">A weapon’s level is a permanent bonus to its fire rate whenever you have it equipped in a run. You still pick it up mid-run as before — levelling it here does not grant it for free.</div>';
+  html+='<button class="mbtn" onclick="popModal()">BACK</button>';
+  return html;
+}
+
+var _hangarSel=0;
+function buildHangarHtml(){
+  _hangarSel=SKINS.findIndex(function(sk){return sk.id===_skin;});
+  if(_hangarSel<0)_hangarSel=0;
+  return '<div class="modal-title">HANGAR</div>'+
+    '<div class="hangar-stage">'+
+      '<button id="hg-prev" class="hangar-arrow">‹</button>'+
+      '<canvas id="hangar-canvas" class="hangar-canvas" width="180" height="180"></canvas>'+
+      '<button id="hg-next" class="hangar-arrow">›</button>'+
+    '</div>'+
+    '<div class="hangar-name" id="hangar-name"></div>'+
+    '<div class="hangar-lock" id="hangar-lock"></div>'+
+    '<button id="hangar-action" class="mbtn green"></button>'+
+    '<button class="mbtn" onclick="popModal()">BACK</button>';
 }
 
 function buildLBHtml(){
@@ -740,7 +1110,8 @@ function buildAchHtml(){
 function buildGameoverHtml(){
   return '<div class="modal-title" style="color:#ff4060;">GAME OVER</div>'+
     '<div style="font-family:Orbitron,monospace;font-size:34px;color:#ffee00;letter-spacing:3px;margin:20px 0;">'+String(gs.score).padStart(8,'0')+'</div>'+
-    '<div style="font-size:13px;color:rgba(190,135,255,0.8);letter-spacing:3px;margin-bottom:34px;">WAVE '+gs.wave+' REACHED</div>'+
+    '<div style="font-size:13px;color:rgba(190,135,255,0.8);letter-spacing:3px;margin-bottom:12px;">WAVE '+gs.wave+' REACHED</div>'+
+    '<div style="font-size:12px;color:#ffdd44;letter-spacing:2px;margin-bottom:34px;">+'+(gs.scrapEarned||0)+' SCRAP EARNED</div>'+
     '<div class="name-wrap">'+
       '<input id="go-name" class="name-input" maxlength="10" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"/>'+
       '<button id="go-submit" class="mbtn green">SUBMIT SCORE</button>'+
@@ -1019,7 +1390,10 @@ _shipImg.src=SHIP_IMG_SRC;
 var SHIP_DRAW_W=80,SHIP_DRAW_H=SHIP_DRAW_W*SHIP_IMG_H/SHIP_IMG_W;
 
 function drawShipRaster(){
-  ctx.drawImage(_shipImg,-SHIP_DRAW_W/2,-SHIP_DRAW_H/2+1,SHIP_DRAW_W,SHIP_DRAW_H);
+  var skin=null;
+  for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===_skin){skin=SKINS[i];break;}
+  var tinted=skin?_tintedShipCanvas(skin):null;
+  ctx.drawImage(tinted||_shipImg,-SHIP_DRAW_W/2,-SHIP_DRAW_H/2+1,SHIP_DRAW_W,SHIP_DRAW_H);
 }
 
 /*
@@ -2046,6 +2420,7 @@ function _hitPlayer(){
   if(gs.lives<=0){
     gs.phase='gameover';musicStop();SFX.gameover();
     recordBest(gs.score,gs.wave);
+    gs.scrapEarned=awardMeta(gs.score,gs.wave);
     setTimeout(function(){openModal('gameover',buildGameoverHtml(),false);},1600);
   }
 }
@@ -2081,18 +2456,18 @@ function update(){
     var sp=function(vx,vy,type,pi){
       gs.bullets.push({x:p.x+(vx?14*Math.sign(vx):0),y:p.y-18,vx:vx,vy:vy,type:type||gs.weapon,r:type==='plasma'?11:type==='beam'?12:8,pierce:pi||gs.pierce||0});
     };
-    if(gs.weapon==='spread'){sp(-2.8,-11,'spread');sp(0,-13,'spread');sp(2.8,-11,'spread');gs.shootCD=Math.round(8/dc.fireM*(gs.fireBonus||1));}
-    else if(gs.weapon==='laser'){sp(0,-20,'laser');gs.shootCD=Math.round(4/dc.fireM*(gs.fireBonus||1));}
-    else if(gs.weapon==='plasma'){sp(-3,-10,'plasma');sp(0,-14,'plasma');sp(3,-10,'plasma');gs.shootCD=Math.round(14/dc.fireM*(gs.fireBonus||1));}
+    if(gs.weapon==='spread'){sp(-2.8,-11,'spread');sp(0,-13,'spread');sp(2.8,-11,'spread');gs.shootCD=Math.round(8/dc.fireM*(gs.fireBonus||1)*wpnLevelMul('spread'));}
+    else if(gs.weapon==='laser'){sp(0,-20,'laser');gs.shootCD=Math.round(4/dc.fireM*(gs.fireBonus||1)*wpnLevelMul('laser'));}
+    else if(gs.weapon==='plasma'){sp(-3,-10,'plasma');sp(0,-14,'plasma');sp(3,-10,'plasma');gs.shootCD=Math.round(14/dc.fireM*(gs.fireBonus||1)*wpnLevelMul('plasma'));}
     else if(gs.weapon==='missile'){
       if(gs.missileN>0){
         var tgt=null,bestD=9999;
         gs.enemies.forEach(function(e){if(e.alive){var d=dist(e.x,e.y,p.x,p.y);if(d<bestD){bestD=d;tgt=e;}}});
         gs.bullets.push({x:p.x,y:p.y-18,vx:0,vy:-9,type:'missile',r:9,target:tgt,hstr:.18,pierce:0});
-        gs.missileN--;gs.shootCD=Math.round(14/dc.fireM*(gs.fireBonus||1));
+        gs.missileN--;gs.shootCD=Math.round(14/dc.fireM*(gs.fireBonus||1)*wpnLevelMul('missile'));
       }else{sp(0,-14,'normal');gs.shootCD=Math.round(9/dc.fireM*(gs.fireBonus||1));}
     }
-    else if(gs.weapon==='beam'){sp(0,-24,'beam');gs.shootCD=Math.round(3/dc.fireM*(gs.fireBonus||1));}
+    else if(gs.weapon==='beam'){sp(0,-24,'beam');gs.shootCD=Math.round(3/dc.fireM*(gs.fireBonus||1)*wpnLevelMul('beam'));}
     else{sp(0,-14,'normal');gs.shootCD=Math.round(9/dc.fireM*(gs.fireBonus||1));}
     SFX.shoot(gs.weapon);
     if(gs.t%3===0)trail(p.x,p.y+14,'rgba(70,130,255,.6)');

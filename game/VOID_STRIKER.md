@@ -15,7 +15,11 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
 ### Features Implemented
 - **Fullscreen canvas** fills the entire browser window, responsive to resize/orientation
 - **Title screen** — animated, enemy flyby, animated VOID / STRIKER titles, TAP/SPACE to open menu
-- **Modal menu system** — START GAME, RANKINGS (leaderboard), ACHIEVEMENTS, volume slider + mute
+- **Pilot hub menu** — a pilot rank/level derived from lifetime XP, a daily
+  SCRAP claim, difficulty select and START MISSION, then WEAPONS (persistent
+  per-weapon fire-rate levels), HANGAR (unlockable ship colour skins),
+  ACHIEVEMENTS, RANKINGS (leaderboard) and a volume slider + mute — all still
+  the one modal system, see "Pilot hub" below
 - **3 difficulty levels** — EASY (7 lives, slower enemies), NORMAL (5 lives), HARD (3 lives, faster/tougher enemies). Difficulty affects enemy speed (`spdM`), fire rate (`fireM`), HP (`hpM`), score multiplier (`scM`), and player move speed.
 - **6 weapon types** — normal, spread, laser, plasma, missile (homing), beam. Picked up as powerups during play.
 - **8 powerup types** — spread, laser, shield, bomb, speed, plasma, missile, beam
@@ -390,6 +394,88 @@ Re-verified after: the touch-target and wave-progression Playwright suite
 parses), `npm run check`, `npm run demo`, and in `mobile/void-striker/`
 `npm run sync` and `npm run verify`. The app store stills and clip were
 regenerated from the corrected build.
+
+## Pilot hub (persistent meta-progression)
+
+On his instruction to use a supplied reference image — a much busier,
+landscape desktop game-hub screen with a pilot profile, permanent weapon
+levels, ship customization and a daily reward — as an example for a more
+modern home screen. Confirmed first that this meant building the actual
+systems the reference implied (rank, persistent currency, weapon and ship
+progression), not just its visual language.
+
+The reference itself could not be used as-is: it is a landscape layout with
+a pilot panel and a live gameplay panel side by side, and this game's canvas
+is 520x720, fixed by the App Store stills, the demo clip and the site's
+phone frame. The same ideas are stacked into one column instead — a pilot
+identity with rank and level, a daily reward, and two new destinations
+(Weapons, Hangar) added to the existing button list — and it is still
+exactly what it already was architecturally: `buildMainHtml()` enriched, a
+modal over the title screen's own animated hero ship, using the same
+`_modalStack`/`openModal`/`popModal` plumbing every other screen already
+used, not a second rendering surface.
+
+**A second, persistent currency.** The run's own credits — earned wave to
+wave, spent in the shop that opens every third wave, zeroed at game over —
+were tuned carefully in an earlier pass and are untouched. SCRAP is separate:
+paid out once at game over from that run's score and wave
+(`Math.round(score/30)+wave*20`), together with lifetime XP (`_xp+=score`),
+both in `localStorage` alongside the achievements/best-score/leaderboard keys
+that already lived there.
+
+**Rank and level both read from lifetime XP** rather than storing their own
+number, so neither can drift out of sync with it: `pilotLevel()` is
+`1+floor(sqrt(xp/300))`, a quadratic curve so early levels come fast, where a
+new player notices them, and it stretches out rather than becoming a wall.
+Six rank names (ROOKIE through LEGEND) band over the level.
+
+**Weapons screen** — the five special weapon types (spread, laser, plasma,
+missile, beam; the always-available base weapon is not one of these) each
+have a persistent level, 1 to 5, bought with SCRAP at
+`round(120*level^1.7)`. A level is a permanent bonus to that weapon's fire
+rate whenever it is active in a run — up to 20% faster at level 5 — layered
+on top of the fire-rate stacking the in-run shop already does
+(`dc.fireM`, `gs.fireBonus`). It does not change how a weapon is obtained:
+still a mid-run pickup, exactly as before. This is worth being explicit about
+in the screen's own copy, since "permanent weapon levels" could otherwise
+read as permanent possession.
+
+**Hangar / ship skins** — the only ship art that exists is the one supplied
+and embedded raster image, so "customize the ship" could not mean choosing
+between different ships. Confirmed this meant recolour presets instead: four
+skins (Standard Blue, default; Void Violet, unlocked at level 5; Solar Gold
+and Crimson Ace, bought with SCRAP), applied by recolouring the raster art
+with a canvas `'hue'` composite (keeps the source art's own shading and
+metal highlights, shifts only the colour family) then clipped back to the
+original silhouette with `'destination-in'` so the tint cannot bleed past the
+ship's own edges. Recoloured once per skin onto an offscreen canvas
+(`_tintedShipCanvas`, cached in `_shipSkinCache`) rather than per frame.
+`drawShipRaster()` draws the cached tinted canvas for the equipped skin, or
+the plain decoded image for the default — so a player who has unlocked
+nothing sees exactly what shipped before this pass, in the hangar preview,
+the title's hero ship and live gameplay alike.
+
+**Daily reward** — a flat timestamp in `localStorage`
+(`Date.now()-last>=86400000`), 250+10×level SCRAP, claimable once every 24h.
+The hub polls a one-second `setInterval` only while its own countdown is on
+screen, cleared at the top of `_attachModalEvents` on every modal render —
+regardless of which way the player left the hub — so it cannot keep ticking
+in the background after navigating away.
+
+Verified: a new Playwright suite (`hub-suite.mjs`, not committed) seeded a
+progression state that exercises every branch — a level-locked skin now
+unlocked, a scrap-locked skin both affordable and not, a weapon level
+actually spending SCRAP, the daily reward claiming and flipping to its
+countdown — plus the existing touch-target and wave-progression suite, to
+confirm none of this touched an interaction path outside the new modals. Two
+real issues surfaced this way, not by reading the code: the new weapon icons
+had no `color` set and were rendering black-on-navy, and disabled hub buttons
+(`EQUIPPED`, a locked skin, an unaffordable one) had no `:disabled` styling
+and looked identical to active ones. Both fixed in the CSS. `npm run check`,
+`npm run demo`, and in `mobile/void-striker/` `npm run sync` and
+`npm run verify` all pass; the App Store stills and demo clip were not
+regenerated because the default, unlocked-nothing appearance — what those
+capture — is pixel-identical to before this pass.
 
 ## Still open
 

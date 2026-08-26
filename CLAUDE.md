@@ -158,8 +158,23 @@ Mine, when asked:
 
 Done, on his instruction to improve the game, then to make it as good as it can
 be for the App Store, then that it needed to look dramatically better, then to
-use a specific supplied image as the ship's own art. The detail is in
-`game/VOID_STRIKER.md`. Most recent:
+use a specific supplied image as the ship's own art, then to build a pilot
+hub — persistent progression — from a reference image of one. The detail is
+in `game/VOID_STRIKER.md`. Most recent:
+
+- **A pilot hub replaced the plain difficulty-select menu**: a rank and level
+  derived from lifetime XP, a second currency (SCRAP) earned once at game
+  over and kept separate from the run's own credits so the shop economy
+  tuned in an earlier pass stayed untouched, a Weapons screen where SCRAP
+  buys a permanent fire-rate level per weapon, a Hangar with four ship colour
+  skins recoloured from the one raster ship asset via a canvas hue composite,
+  and a daily SCRAP claim. The reference he supplied was a landscape desktop
+  layout with panels side by side; this game's canvas is fixed at 520x720 by
+  the App Store stills, the demo clip and the site's phone frame, so the same
+  ideas are stacked into one column instead. It is still architecturally what
+  the menu already was — `buildMainHtml()` enriched, a modal over the title
+  screen's own animated hero ship — not a new rendering surface. A default
+  player who has unlocked nothing sees exactly what shipped before this pass.
 
 - **The player ship's art is now a supplied raster image**, embedded as a
   `data:` URI WebP (~92KB) with the original drawn hull kept intact as
