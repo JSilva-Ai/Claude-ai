@@ -31,9 +31,10 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   game teaches itself. MARCH is the one with shared state — the rank turns
   together, stepped once per frame by `_stepMarch()`.
 - **Boss battles** — every 5th wave, rage mode at 50% HP. `btype` selects one of
-  six drawn hulls (DREADNOUGHT / MANTA / HIVE CORE / SPIDER QUEEN / VOID CROWN /
-  GILDED WARDEN) in `_drawBossBody`, and `BOSS_HW` gives each its own travel
-  clamp. See "Enemy roster" below for the three most recent.
+  six hulls (DREADNOUGHT / MANTA / HIVE CORE / WARLORD / VOID CROWN / GILDED
+  WARDEN) in `_drawBossBody`, each its own piece of his art, with
+  `BOSS_HW` giving each a travel clamp derived from its own drawn width. See
+  "Enemy art" below.
 - **Wave transition** — a swept banner naming the wave, its sector and the
   incoming formation, plus the credits awarded (`gs.banner`, `drawBanner()`).
 - **Bombs** — a consumable, capped at `CAP.bombs`. The BOMB powerup grants one;
@@ -478,7 +479,14 @@ and looked identical to active ones. Both fixed in the CSS. `npm run check`,
 regenerated because the default, unlocked-nothing appearance — what those
 capture — is pixel-identical to before this pass.
 
-## Enemy roster (three new boss hulls, a fourth enemy shape)
+## Enemy roster — the drawn hulls (now the fallback)
+
+> Superseded as what the game actually shows: every hull below is now the
+> fallback behind his own art. See "Enemy art" further down. The reasoning is
+> kept because the shapes are still what draws for the frames before the art
+> decodes, and still what the app icon is built from.
+
+### How they came about
 
 On his instruction to use a set of sixteen reference renders — his own art,
 New AI Vision Labs' — as the model for enemy ships, and to create more
@@ -549,6 +557,67 @@ check that all six `btype` values are actually reachable across two full
 30-wave boss cycles rather than trusting the modulo by reading it.
 `npm run check`, `npm run demo`, and in `mobile/void-striker/` `npm run
 sync` and `npm run verify` all pass. Stills and clip regenerated.
+
+## Enemy art
+
+His own renders — New AI Vision Labs' — finally in the game as themselves
+rather than as an approximation of themselves.
+
+**Why the first attempt was not this.** He first sent sixteen reference
+renders pasted into chat. Pasted images arrive as something to look at, not as
+a file with bytes on disk, and embedding art needs bytes: to crop it, re-encode
+it, base64 it into the HTML. So that pass hand-drew vector hulls "in the style
+of" what the references showed, which is what shipped, and which he correctly
+called out as not matching. The fix was route, not effort: he committed the
+sixteen PNGs to the repo, and a file in the repo is a file this session can
+actually read. That is worth remembering — **for art, the repo is the reliable
+channel; pasting into chat is not.**
+
+- **All sixteen live in `game/art/enemies/`** as the committed source, named
+  for their role (`boss-0-dreadnought.png`, `enemy-3-orb-ember.png`, …). Four
+  are `spare-*`: good art with no slot yet, kept versioned rather than dropped.
+- **Six bosses and six regular enemies** are embedded as WebP data URIs, the
+  same route the player's ship takes — this game is one file that makes no
+  external request, and the native build's verify step asserts exactly that,
+  so art travels inline or not at all.
+- **Encoded to what the game draws, not to the source.** A boss is at most
+  ~155 units across and a regular enemy 36, which at 2x device pixels is 310
+  and 72; bosses are stored at 260 wide and the small ships at 110. 260 was
+  measured rather than guessed — rendered at the size a boss actually occupies
+  on screen, 260 and 320 are indistinguishable and 260 is a third smaller.
+  Lowering the WebP *quality* knob was tried first and barely moved the file
+  (37KB → 34KB): with alpha-heavy art at this detail, resolution is the lever
+  and quality is not. The twelve come to 195KB, and the game file went from
+  258KB to 525KB.
+- **None of them needed rotating.** Every one of the sixteen already pointed
+  nose-up with its engines trailing down, which is this game's own convention —
+  unlike the player ship, whose source art faced backwards and had to be
+  rotated 180° before encoding.
+- **`BOSS_HW` is now derived from each hull's drawn width** rather than
+  hand-tuned per hull, so the travel clamp and the art cannot drift apart. A
+  test asserts each boss's edge lands within the screen at both ends of its
+  patrol; all six land exactly on the boundary.
+- **`EC[]` was recoloured to the art.** Those six colours drive kill bursts and
+  hit sparks, so a ship now explodes in its own colour instead of the old
+  vector palette's.
+- **Rage keeps its tell** without a coloured overlay: the hull is redrawn
+  additively onto itself, which confines the brightening to the hull's own
+  alpha. A rectangle of red would have lit up the transparent frame around it
+  too.
+- **Slot 3 was renamed SPIDER QUEEN → WARLORD**, because the art that landed
+  there is a red triple-pod gunship and the spider silhouette went to HIVE
+  CORE, which it fits better.
+- **Hitboxes were not touched.** Enemies stay at `hr=17` and bosses at `hr=42`;
+  the art is sized to sit inside what was already tuned, so this is a visual
+  swap and not a difficulty change.
+
+Verified: the touch-target and wave-progression suite, plus new checks that all
+twelve images actually decode (not merely that the file parses) and that the
+boss clamp keeps every hull on screen; a live boss fought and killed through
+the real damage path; `npm run check`, `npm run demo`, and in
+`mobile/void-striker/` `npm run sync` and `npm run verify` — the last of which
+is the one that matters for data URIs, and still reports no off-device
+requests. Stills and clip regenerated.
 
 ## Still open
 

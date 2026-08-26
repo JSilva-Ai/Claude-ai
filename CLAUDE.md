@@ -163,19 +163,19 @@ hub — persistent progression — from a reference image of one, then to use a
 set of sixteen more reference renders (his own art) as the model for enemy
 ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
 
-- **The boss roster doubled, three to six**: SPIDER QUEEN, VOID CROWN and
-  GILDED WARDEN, three new hand-drawn hulls alongside DREADNOUGHT/MANTA/HIVE
-  CORE, plus a fourth regular-enemy shape (a small "reactor orb"). None of
-  the sixteen reference images ever got a file path this environment could
-  read — two were pasted into chat rather than attached, and neither
-  persisted to disk the way the player ship's source image had — so these
-  are new procedural vector hulls in the same style the game's other hulls
-  already use, informed by the reference art rather than copied from it. The
-  first draft of all three read as rounded blobs; caught by screenshot, not
-  by reading the bezier calls, and redrawn as sharp-angled polygons like
-  DREADNOUGHT's. Also fixed in the same pass: `capture-game.mjs` had been
-  broken since the pilot hub renamed its start button, silently, until this
-  was the first capture run since that rename.
+- **Every enemy in the game is his own art now** — six bosses and six
+  regular ships, from the sixteen renders he made. The pass before this one
+  had to approximate them as hand-drawn vector hulls, because he pasted the
+  images into chat and a pasted image is something to look at, not a file
+  with bytes to encode. He then committed the PNGs to the repo, which *is* a
+  channel this session can read, and they went in as themselves. **For art,
+  the repo is the reliable channel; pasting into chat is not.** The sources
+  live in `game/art/enemies/`; twelve are embedded as WebP data URIs (the
+  player ship's route), sized to what the game draws rather than to the
+  source, which took the file from 258KB to 525KB. The drawn hulls stay as
+  the decode-time fallback and as what the app icon is still built from.
+  Also fixed in that earlier pass: `capture-game.mjs` had been silently
+  broken since the pilot hub renamed its start button.
 
 - **A pilot hub replaced the plain difficulty-select menu**: a rank and level
   derived from lifetime XP, a second currency (SCRAP) earned once at game

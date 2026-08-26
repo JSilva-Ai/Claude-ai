@@ -217,19 +217,19 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave three: a formation of enemies near the top of the screen against a large moon, a laser pickup drifting down with a burst of fragments around it, a beam pickup below it, and a two-times combo running in the bottom bar.',
+        alt: 'Wave three: a rank of enemy ships holding formation across the top against a large moon, one destroyed inside an expanding red ring for 600 points, and the wave transition banner sweeping across the middle naming sector one, the weave formation and the 86 credits awarded.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/03.jpg',
-        alt: 'The same wave a few seconds later: a six-times combo, a laser and a bomb pickup drifting down together past the moon, and the remaining enemies thinning out near the top of the screen.',
+        alt: 'The same wave moments later: a kill scoring 1,800 points inside an expanding red ring, a speed pickup drifting down beside it, enemy fire falling through the frame, and a six-times combo running in the bottom bar.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in the same wave: a seven-times combo, a laser and a bomb pickup still drifting down past the moon, and the pause and bomb controls at either end of the status bar.',
+        alt: 'Later in the same wave: an eight-times combo, a speed pickup drifting down past the moon, enemy fire filling the middle of the screen, and the pause and bomb controls at either end of the status bar.',
         width: 520,
         height: 720,
       },
