@@ -211,7 +211,7 @@ export const apps: App[] = [
     screenshots: [
       {
         src: 'media/apps/void-striker/01.jpg',
-        alt: 'VOID STRIKER title screen: the game name in blue and violet over a dark starfield, above a list reading six weapon types, five enemy formations, three boss types, combo system, twelve achievements.',
+        alt: 'VOID STRIKER title screen: the game name in glowing blue and violet lockup in front of a large moon, with the player ship rendered large below it, engine lit, above a five-item feature panel reading six weapon types, five enemy formations, three boss types, combo system, twelve achievements, and a tap-to-start button.',
         width: 520,
         height: 720,
       },
@@ -223,13 +223,13 @@ export const apps: App[] = [
       },
       {
         src: 'media/apps/void-striker/03.jpg',
-        alt: 'A kill scoring 1,200 points, with missile, spread, laser, speed and plasma pickups drifting down the screen and a six-times combo running in the status bar.',
+        alt: 'A kill scoring 500 points inside an expanding ring, the Combo King achievement toast, and a five-times combo running, all against a large moon behind the formation.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in the same wave: an eight-times combo, weapon pickups falling across the whole width of the screen, and the pause and bomb controls at either end of the status bar.',
+        alt: 'Later in the same wave: a seven-times combo, missile and beam pickups drifting down past the moon, and the pause and bomb controls at either end of the status bar.',
         width: 520,
         height: 720,
       },

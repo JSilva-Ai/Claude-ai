@@ -849,21 +849,125 @@ function makeStars(){
   });
   return layers;
 }
+
+/*
+  A handful of bright "hero" stars, drawn with a four-point flare rather than a
+  filled square. The plain star layers read as texture; these read as light —
+  three or four of them is enough to give the field depth without it costing
+  anything close to what a real starfield would.
+*/
+function makeFlareStars(){
+  var arr=[];
+  for(var i=0;i<5;i++){
+    arr.push({x:rand(30,W-30),y:rand(20,H*.62),s:rand(1.6,2.6),
+      col:[ '#bfe6ff','#ffe9c2','#d8c8ff','#ffffff','#c8f0ff' ][i%5],
+      ph:rand(0,TAU),sp:rand(.012,.026)});
+  }
+  return arr;
+}
+function drawFlareStar(fs,t){
+  var tw=.55+Math.sin(t*fs.sp+fs.ph)*.45;
+  var r=fs.s*(2.2+tw*1.6);
+  ctx.save();ctx.translate(fs.x,fs.y);ctx.globalAlpha=.35+tw*.65;
+  ctx.fillStyle=fs.col;ctx.shadowBlur=8+tw*6;ctx.shadowColor=fs.col;
+  ctx.beginPath();ctx.arc(0,0,fs.s*.9,0,TAU);ctx.fill();
+  ctx.globalAlpha=(.18+tw*.3);
+  ctx.fillRect(-r,-.55,r*2,1.1);
+  ctx.fillRect(-.55,-r,1.1,r*2);
+  ctx.restore();
+}
 var _nebula=null;
+var NEB_M=34; // margin baked around the nebula canvas, so a slow drift never exposes an edge
+/*
+  Rebuilt at W+2*margin so drawBG can drift the draw position a few pixels each
+  frame — the nebula was one static image before, which read as a photo backdrop
+  rather than a place the camera was sitting in. More colour and more blobs too:
+  four flat blobs read as a gradient test pattern, seven overlapping ones at
+  varied radii and warmth read as gas.
+*/
 function buildNebula(){
-  var nc=document.createElement('canvas');nc.width=W;nc.height=H;
-  var nx=nc.getContext('2d');nx.fillStyle='#000012';nx.fillRect(0,0,W,H);
-  [[W*.2,H*.15,110,'rgba(28,0,65,.45)'],[W*.78,H*.3,90,'rgba(0,14,65,.4)'],[W*.5,H*.65,140,'rgba(48,0,32,.35)'],[W*.12,H*.55,80,'rgba(0,28,65,.28)']].forEach(function(c){
-    var g=nx.createRadialGradient(c[0],c[1],0,c[0],c[1],c[2]);g.addColorStop(0,c[3]);g.addColorStop(1,'rgba(0,0,0,0)');
+  var w=W+NEB_M*2,h=H+NEB_M*2;
+  var nc=document.createElement('canvas');nc.width=w;nc.height=h;
+  var nx=nc.getContext('2d');
+  var bgg=nx.createLinearGradient(0,0,0,h);
+  bgg.addColorStop(0,'#050214');bgg.addColorStop(.55,'#020108');bgg.addColorStop(1,'#010005');
+  nx.fillStyle=bgg;nx.fillRect(0,0,w,h);
+  [
+    [w*.18,h*.12,150,'rgba(46,0,110,.5)'],
+    [w*.5,h*.08,120,'rgba(0,60,140,.32)'],
+    [w*.82,h*.28,170,'rgba(0,20,100,.4)'],
+    [w*.62,h*.58,190,'rgba(70,0,55,.34)'],
+    [w*.14,h*.62,140,'rgba(0,40,110,.32)'],
+    [w*.9,h*.78,130,'rgba(90,0,120,.28)'],
+    [w*.38,h*.86,160,'rgba(0,10,60,.4)']
+  ].forEach(function(c){
+    var g=nx.createRadialGradient(c[0],c[1],0,c[0],c[1],c[2]);g.addColorStop(0,c[3]);g.addColorStop(.6,c[3].replace(/,[.\d]+\)/,',.12)'));g.addColorStop(1,'rgba(0,0,0,0)');
     nx.fillStyle=g;nx.beginPath();nx.arc(c[0],c[1],c[2],0,TAU);nx.fill();
   });
+  // Faint dust-lane streaks, so the gas reads as structured rather than smooth blobs
+  nx.save();nx.globalAlpha=.5;
+  for(var i=0;i<5;i++){
+    var yy=rand(h*.1,h*.9),amp=rand(20,50),len=rand(w*.4,w*.75),x0=rand(-20,w*.3);
+    var g2=nx.createLinearGradient(x0,yy,x0+len,yy);
+    g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(.5,'rgba(120,60,200,.10)');g2.addColorStop(1,'rgba(0,0,0,0)');
+    nx.strokeStyle=g2;nx.lineWidth=rand(30,70);nx.beginPath();
+    nx.moveTo(x0,yy);nx.quadraticCurveTo(x0+len*.5,yy+amp,x0+len,yy-amp*.4);nx.stroke();
+  }
+  nx.restore();
   _nebula=nc;
+}
+
+/*
+  A distant moon, baked once like the nebula. It anchors the scene the way a
+  flat starfield cannot: something large, lit from one side, that the rest of
+  the composition can sit in front of.
+*/
+var _moon=null;
+function buildMoon(){
+  var r=132,pad=18,d=(r+pad)*2;
+  var mc=document.createElement('canvas');mc.width=d;mc.height=d;
+  var mx=mc.getContext('2d');
+  mx.translate(pad+r,pad+r);
+  var body=mx.createRadialGradient(-r*.35,-r*.35,r*.15,0,0,r);
+  body.addColorStop(0,'#3a3550');body.addColorStop(.45,'#211d34');body.addColorStop(.8,'#0e0c1c');body.addColorStop(1,'#050410');
+  mx.fillStyle=body;mx.beginPath();mx.arc(0,0,r,0,TAU);mx.fill();
+  // Craters — a few soft dark circles, off the lit edge
+  [[r*.2,r*.1,r*.16],[-r*.1,r*.35,r*.1],[r*.42,-r*.18,r*.09],[-r*.35,-r*.28,r*.13]].forEach(function(c){
+    var cg=mx.createRadialGradient(c[0]-c[2]*.3,c[1]-c[2]*.3,0,c[0],c[1],c[2]);
+    cg.addColorStop(0,'rgba(0,0,0,.38)');cg.addColorStop(1,'rgba(0,0,0,0)');
+    mx.fillStyle=cg;mx.beginPath();mx.arc(c[0],c[1],c[2],0,TAU);mx.fill();
+  });
+  // Rim light from the upper-left, where the wordmark's own glow "lights" it
+  mx.save();mx.globalCompositeOperation='lighter';
+  var rim=mx.createRadialGradient(-r*.55,-r*.55,0,-r*.55,-r*.55,r*1.15);
+  rim.addColorStop(0,'rgba(150,190,255,.55)');rim.addColorStop(.35,'rgba(90,140,255,.16)');rim.addColorStop(1,'rgba(0,0,0,0)');
+  mx.fillStyle=rim;mx.beginPath();mx.arc(0,0,r,0,TAU);mx.fill();
+  mx.restore();
+  // Atmosphere haze just outside the disc
+  var haze=mx.createRadialGradient(0,0,r*.97,0,0,r*1.14);
+  haze.addColorStop(0,'rgba(120,160,255,.22)');haze.addColorStop(1,'rgba(0,0,0,0)');
+  mx.fillStyle=haze;mx.beginPath();mx.arc(0,0,r*1.14,0,TAU);mx.fill();
+  _moon={c:mc,r:r,pad:pad};
 }
 
 // ─── DRAW HELPERS ─────────────────────────────────────────────────────────────
 function drawBG(){
-  ctx.fillStyle='#000012';ctx.fillRect(0,0,W,H);
-  if(_nebula)ctx.drawImage(_nebula,0,0);
+  ctx.fillStyle='#010005';ctx.fillRect(0,0,W,H);
+
+  // The nebula breathes: a slow sine drift inside the margin baked around it,
+  // so the backdrop never sits perfectly still without ever showing a seam.
+  if(_nebula){
+    var dx=Math.sin(gs.t*.0021)*NEB_M*.85, dy=Math.cos(gs.t*.0016)*NEB_M*.7;
+    ctx.drawImage(_nebula,-NEB_M+dx,-NEB_M+dy);
+  }
+
+  // The moon sits behind the stars and drifts slower still — the classic
+  // parallax cue that something in the scene is much further away than the rest.
+  if(_moon){
+    var mx=W*.78+Math.sin(gs.t*.0009)*10, my=H*.2+Math.cos(gs.t*.0007)*8;
+    ctx.drawImage(_moon.c,mx-_moon.r-_moon.pad,my-_moon.r-_moon.pad);
+  }
+
   gs.stars.forEach(function(layer){
     layer.forEach(function(s){
       s.y+=s.sp;if(s.y>H){s.y=-2;s.x=rand(0,W);}
@@ -873,26 +977,60 @@ function drawBG(){
       ctx.fillRect(s.x,s.y,s.s,s.s);ctx.restore();
     });
   });
+
+  if(gs.flareStars)gs.flareStars.forEach(function(fs){drawFlareStar(fs,gs.t);});
 }
 
-function drawShip(){
-  var p=gs.player;
-  if(p.inv>0&&Math.floor(p.inv/4)%2)return;
-  ctx.save();ctx.translate(p.x,p.y);
-  // Thruster
-  var fl=14+Math.sin(gs.t*.28)*5;
+/*
+  The hull, wings, canopy and thruster, drawn at the current transform's origin.
+  Split out of drawShip() so the title screen can paint a large hero ship at an
+  arbitrary position and scale via ctx.translate/ctx.scale without touching
+  gs.player — the original drew directly from p.x/p.y, which made it unusable
+  for anything that is not the live player.
+
+  `flicker` lets a caller vary the thruster's flame length independently of
+  gs.t, so the title's hero ship and the in-game ship don't pulse in lockstep.
+*/
+function drawShipBody(flicker){
+  var fl=14+Math.sin(flicker)*5;
   var fg=lGrad(0,12,0,12+fl,[[0,'rgba(255,255,255,.9)'],[.2,'rgba(100,180,255,.8)'],[.65,'rgba(40,80,255,.5)'],[1,'rgba(0,0,60,0)']]);
   ctx.fillStyle=fg;ctx.beginPath();ctx.moveTo(-3.5,12);ctx.quadraticCurveTo(-5,12+fl*.5,0,12+fl);ctx.quadraticCurveTo(5,12+fl*.5,3.5,12);ctx.fill();
   // Wings
   ctx.fillStyle=lGrad(-30,-5,0,18,[[0,'rgba(20,55,145,.95)'],[1,'rgba(8,25,70,.75)']]);
   ctx.beginPath();ctx.moveTo(10,-5);ctx.lineTo(22,6);ctx.lineTo(38,16);ctx.lineTo(30,20);ctx.lineTo(18,18);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.moveTo(-10,-5);ctx.lineTo(-22,6);ctx.lineTo(-38,16);ctx.lineTo(-30,20);ctx.lineTo(-18,18);ctx.closePath();ctx.fill();
+  // Wingtip lights — small hot points at the outer edge, so the silhouette
+  // reads as a machine with running lights rather than a flat paper cutout.
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  [[-30,17],[30,17]].forEach(function(wt){
+    var wg=rGrad(wt[0],wt[1],0,5,[[0,'rgba(255,255,255,.95)'],[.4,'rgba(120,200,255,.6)'],[1,'rgba(0,0,0,0)']]);
+    ctx.fillStyle=wg;ctx.beginPath();ctx.arc(wt[0],wt[1],5,0,TAU);ctx.fill();
+  });
+  ctx.restore();
   // Hull
   ctx.fillStyle=lGrad(-14,-26,14,20,[[0,'#1a3e8a'],[.4,'#2560cc'],[1,'#0a1c54']]);
   ctx.beginPath();ctx.moveTo(0,-28);ctx.bezierCurveTo(4,-22,10,-12,14,-4);ctx.lineTo(20,6);ctx.bezierCurveTo(22,10,20,14,18,16);ctx.lineTo(12,20);ctx.bezierCurveTo(8,22,4,22,4,18);ctx.lineTo(-4,18);ctx.bezierCurveTo(-4,22,-8,22,-12,20);ctx.lineTo(-18,16);ctx.bezierCurveTo(-20,14,-22,10,-20,6);ctx.lineTo(-14,-4);ctx.bezierCurveTo(-10,-12,-4,-22,0,-28);ctx.fill();
+  // Panel lines — a couple of thin darker strokes along the hull, so it reads
+  // as plated rather than a single flat gradient blob.
+  ctx.save();ctx.strokeStyle='rgba(0,10,40,.4)';ctx.lineWidth=.8;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(0,15);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-9,-2);ctx.lineTo(-6,14);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(9,-2);ctx.lineTo(6,14);ctx.stroke();
+  ctx.restore();
+  // Hull edge highlight — a thin bright rim down the sunlit side
+  ctx.save();ctx.strokeStyle='rgba(170,220,255,.55)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,-28);ctx.bezierCurveTo(4,-22,10,-12,14,-4);ctx.stroke();
+  ctx.restore();
   // Canopy
   ctx.fillStyle=rGrad(-1,-16,0,9,[[0,'rgba(140,220,255,.9)'],[.5,'rgba(40,130,255,.65)'],[1,'rgba(0,15,80,.3)']]);
   ctx.beginPath();ctx.moveTo(0,-24);ctx.bezierCurveTo(5,-20,7,-10,6,-2);ctx.bezierCurveTo(3,0,0,0,0,0);ctx.bezierCurveTo(0,0,-3,0,-6,-2);ctx.bezierCurveTo(-7,-10,-5,-20,0,-24);ctx.fill();
+}
+
+function drawShip(){
+  var p=gs.player;
+  if(p.inv>0&&Math.floor(p.inv/4)%2)return;
+  ctx.save();ctx.translate(p.x,p.y);
+  drawShipBody(gs.t*.28);
   // Shield
   if(p.shield>0){
     ctx.save();ctx.strokeStyle='rgba(0,200,255,'+(0.4+(p.shield/320)*.35)+')';ctx.lineWidth=1.8;
@@ -981,14 +1119,38 @@ function drawEnemy(e){
     ctx.font='bold 8px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,.7)';
     ctx.fillText(BOSS_NAMES[(e.btype||0)%BOSS_TYPES],0,63+bh+11);
   } else {
-    ctx.fillStyle=rGrad(0,0,2,14,[[0,c+'ee'],[.5,c+'aa'],[1,c+'44']]);
-    ctx.beginPath();
-    if(e.type%3===0){ctx.moveTo(0,-14);ctx.lineTo(11,8);ctx.lineTo(-11,8);ctx.closePath();}
-    else if(e.type%3===1){for(var i=0;i<6;i++){var a=i/6*TAU;ctx.lineTo(Math.cos(a)*14,Math.sin(a)*14);}}
-    else{ctx.arc(0,0,12,0,TAU);}
-    ctx.fill();
+    /*
+      A flat gradient wedge, hexagon or disc, drawn once and left there, reads
+      as a coloured icon rather than a machine. A reactor core and a rim
+      highlight are cheap enough to draw on every enemy on screen and are what
+      turn a silhouette into something that looks like it is under power.
+    */
+    var shapePath=function(){
+      ctx.beginPath();
+      if(e.type%3===0){ctx.moveTo(0,-14);ctx.lineTo(11,8);ctx.lineTo(-11,8);ctx.closePath();}
+      else if(e.type%3===1){for(var i=0;i<6;i++){var a=i/6*TAU;ctx.lineTo(Math.cos(a)*14,Math.sin(a)*14);}}
+      else{ctx.arc(0,0,12,0,TAU);}
+    };
+    ctx.fillStyle=rGrad(-3,-4,2,15,[[0,c+'ff'],[.45,c+'bb'],[1,c+'33']]);
+    shapePath();ctx.fill();
+
+    // Reactor core — a small hot point near centre, the one thing that
+    // reads as "on" rather than "painted"
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    var core=rGrad(-1,-1,0,6,[[0,'rgba(255,255,255,.9)'],[.4,c+'cc'],[1,'rgba(0,0,0,0)']]);
+    ctx.fillStyle=core;ctx.beginPath();ctx.arc(-1,-1,5.5,0,TAU);ctx.fill();
+    ctx.restore();
+
+    // Rim highlight along the upper-left edge, catching light from the same
+    // direction the player's own ship and the title's moon are lit from
+    ctx.save();shapePath();ctx.clip();
+    var rim=lGrad(-13,-13,7,10,[[0,'rgba(255,255,255,.55)'],[.35,'rgba(255,255,255,0)']]);
+    ctx.fillStyle=rim;ctx.fillRect(-16,-16,32,32);
+    ctx.restore();
+
+    shapePath();
     ctx.shadowBlur=10;ctx.shadowColor=c;
-    ctx.strokeStyle=c;ctx.lineWidth=.8;ctx.globalAlpha=.6*pulse;ctx.stroke();
+    ctx.strokeStyle=c;ctx.lineWidth=.9;ctx.globalAlpha=.65*pulse;ctx.stroke();
     if(e.maxhp>1){
       var pw=5,pgap=3,tw=e.maxhp*(pw+pgap);
       for(var pi=0;pi<e.maxhp;pi++){
@@ -1224,15 +1386,70 @@ function _fitPx(text,weight,family,maxW,startPx){
 
 // ─── TITLE SCREEN ─────────────────────────────────────────────────────────────
 var _titleEn=[];
+/*
+  Two depth bands rather than one evenly-spaced row. The old flyby was six
+  ships in a single line at one size and one speed — a conveyor belt. A near
+  band of four, brighter and faster, flying a shallow V, with a far band of
+  five smaller and dimmer trailing above them, reads as a squadron with depth
+  instead of a loop.
+*/
 function initTitleEn(){
   _titleEn=[];
-  for(var i=0;i<6;i++)_titleEn.push({x:-60-i*90,y:H*.18+Math.sin(i)*.18*H,type:i%6,alive:true,boss:false,maxhp:1,hp:1});
+  var near=[[-40,2],[40,2],[-98,28],[98,28]];
+  near.forEach(function(o,i){
+    _titleEn.push({x:-140-i*80,ox:o[0],oy:o[1],y:0,type:i%6,alive:true,boss:false,maxhp:1,hp:1,band:'near',ph:rand(0,TAU)});
+  });
+  var far=[-150,-90,-30,30,90];
+  far.forEach(function(ox,i){
+    _titleEn.push({x:-280-i*60,ox:ox,oy:-44,y:0,type:(i+2)%6,alive:true,boss:false,maxhp:1,hp:1,band:'far',ph:rand(0,TAU)});
+  });
 }
 initTitleEn();
+
+/*
+  Embers drifting up from the wordmark and off the hero ship's engine. Kept
+  entirely separate from gs.parts: update() only advances particles while
+  gs.phase==='playing', so anything pushed into gs.parts while the title is up
+  would sit frozen forever. This one is self-contained — spawned, stepped and
+  drawn right here, every frame, regardless of phase.
+*/
+var _titleEmbers=[];
+function _titleEmberTick(x,y,col,vyBias){
+  if(_titleEmbers.length>40)return;
+  _titleEmbers.push({x:x+rand(-4,4),y:y+rand(-2,2),vx:rand(-.3,.3),vy:(vyBias||0)+rand(-1.3,-.5),r:rand(.8,2.2),col:col,life:1,dec:rand(.006,.012)});
+}
+function _drawTitleEmbers(){
+  var alive=[];
+  _titleEmbers.forEach(function(p){
+    p.x+=p.vx;p.y+=p.vy;p.vy*=.994;p.life-=p.dec;
+    if(p.life>0){
+      ctx.save();ctx.globalAlpha=Math.min(1,p.life*1.7);ctx.fillStyle=p.col;ctx.shadowBlur=6;ctx.shadowColor=p.col;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,TAU);ctx.fill();ctx.restore();
+      alive.push(p);
+    }
+  });
+  _titleEmbers=alive;
+}
+
+/*
+  Small icon chips for the feature list, styled like the game's own HUD
+  buttons (filled panel, coloured stroke, glyph) rather than a plain bulleted
+  line — the list should read as part of the same product as the game under
+  it, not as a README rendered on top of art.
+*/
+var FEAT_CHIPS=[
+  {glyph:'✦',label:function(){return '6 WEAPON TYPES';},col:'#00ffaa'},
+  {glyph:'▲',label:function(){return FORMS.length+' ENEMY FORMATIONS';},col:'#ffb347'},
+  {glyph:'☠',label:function(){return BOSS_TYPES+' BOSS TYPES';},col:'#ff5064'},
+  {glyph:'⚡',label:function(){return 'COMBO SYSTEM';},col:'#22d3ff'},
+  {glyph:'★',label:function(){return ACHS.length+' ACHIEVEMENTS';},col:'#c882ff'}
+];
+
 function drawTitle(){
   // Vignette
   ctx.fillStyle=rGrad(W/2,H/2,80,W*.75,[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,22,.65)']]);
   ctx.fillRect(0,0,W,H);
+
   // Corner brackets
   var ba=.38+Math.sin(gs.t*.04)*.12;
   [[16,16,W-16,H-16,26],[24,24,W-24,H-24,16]].forEach(function(bk,ii){
@@ -1243,12 +1460,26 @@ function drawTitle(){
     ctx.beginPath();ctx.moveTo(x1+s,y2);ctx.lineTo(x1,y2);ctx.lineTo(x1,y2-s);ctx.stroke();
     ctx.beginPath();ctx.moveTo(x2-s,y2);ctx.lineTo(x2,y2);ctx.lineTo(x2,y2-s);ctx.stroke();
   });
-  // Enemy flyby
+
+  /*
+    Background squadron — small, dim, well above where the wordmark and hero
+    ship sit, so it reads as depth rather than competing with them. The near
+    band is brighter and quicker than the far one, which is the whole cue.
+  */
+  var formY=H*.108;
   _titleEn.forEach(function(e){
-    e.x+=1.2;e.y=H*.18+Math.sin((gs.t*.02+_titleEn.indexOf(e)*.8))*.22*H;
-    if(e.x>W+80)e.x=-80;
+    var near=e.band==='near';
+    e.x+=near?.62:.4;
+    if(e.x>W+180)e.x=-320-rand(0,90);
+    e.ph+=near?.018:.012;
+    e.y=formY+e.oy+Math.sin(e.ph)*(near?5:3.5);
+    var savedX=e.x; e.x=savedX+e.ox;
+    ctx.save();ctx.globalAlpha=near?.58:.26;
     drawEnemy(e);
+    ctx.restore();
+    e.x=savedX;
   });
+
   /*
     The wordmark is fitted rather than fixed. It was two lines of `900 72px
     Orbitron`, and "STRIKER" at that size is wider than the 520-unit canvas —
@@ -1256,10 +1487,26 @@ function drawTitle(){
     before the webfont loads, when the fallback serif is wider still.
   */
   var markW=W-52;
+  var vPx=_fitPx('VOID','900','Orbitron',markW,72);
+  var sPx=_fitPx('STRIKER','900','Orbitron',markW,72);
+  var markTopY=H*.27-vPx*.78, markBottom=H*.27+sPx*1.06;
+
+  // A faint hex halo breathing behind the lockup — cheap, and it gives the
+  // glow somewhere to radiate from instead of just haloing the letterforms.
+  ctx.save();
+  var hexA=.10+Math.sin(gs.t*.02)*.04;
+  ctx.strokeStyle='rgba(80,180,255,'+hexA+')';ctx.lineWidth=1.2;
+  [1,.72].forEach(function(sc,hi){
+    var hr=(markW*.62)*sc, rot=gs.t*(hi?-.0026:.0018);
+    ctx.beginPath();
+    for(var i=0;i<=6;i++){var a=i/6*TAU+rot;var px=W/2+Math.cos(a)*hr,py=(markTopY+markBottom)/2+Math.sin(a)*hr*.62;if(!i)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+    ctx.closePath();ctx.stroke();
+  });
+  ctx.restore();
+
   ctx.save();
   ctx.shadowColor='rgba(0,210,255,.9)';ctx.shadowBlur=52+Math.sin(gs.t*.04)*16;
   ctx.textAlign='center';
-  var vPx=_fitPx('VOID','900','Orbitron',markW,72);
   ctx.font='900 '+vPx+'px Orbitron';
   ctx.fillStyle=lGrad(W/2-markW/2,0,W/2+markW/2,0,[[0,'#0088ee'],[.35,'#00d8ff'],[.5,'#fff'],[.65,'#00d8ff'],[1,'#0088ee']]);
   ctx.fillText('VOID',W/2,H*.27);
@@ -1268,50 +1515,112 @@ function drawTitle(){
   ctx.save();
   ctx.shadowColor='rgba(140,40,255,.9)';ctx.shadowBlur=52+Math.sin(gs.t*.05+1)*15;
   ctx.textAlign='center';
-  var sPx=_fitPx('STRIKER','900','Orbitron',markW,72);
   ctx.font='900 '+sPx+'px Orbitron';
   ctx.fillStyle=lGrad(W/2-markW/2,0,W/2+markW/2,0,[[0,'#4400cc'],[.3,'#9922ff'],[.5,'#bb88ff'],[.7,'#9922ff'],[1,'#4400cc']]);
-  ctx.fillText('STRIKER',W/2,H*.27+sPx*1.06);
+  ctx.fillText('STRIKER',W/2,markBottom);
   ctx.restore();
 
-  var markBottom=H*.27+sPx*1.06;
+  /*
+    A holographic sweep: a bright diagonal band crossing the whole lockup once
+    every few seconds. Clipped to the wordmark's own box and composited with
+    'lighter' so it brightens the letters it crosses instead of painting over
+    them — the difference between a projection and a sticker.
+  */
+  ctx.save();
+  ctx.beginPath();ctx.rect(0,markTopY-6,W,markBottom-markTopY+16);ctx.clip();
+  ctx.globalCompositeOperation='lighter';
+  var sweepT=(gs.t%210)/210;
+  var sx=-W*.3+sweepT*(W*1.6);
+  var sg=lGrad(sx-46,0,sx+46,0,[[0,'rgba(150,220,255,0)'],[.5,'rgba(190,235,255,.5)'],[1,'rgba(150,220,255,0)']]);
+  ctx.fillStyle=sg;ctx.fillRect(sx-46,markTopY-6,92,markBottom-markTopY+16);
+  ctx.restore();
+
+  // A slow trickle of embers off the base of the lockup
+  if(gs.t%3===0)_titleEmberTick(W/2+rand(-markW*.3,markW*.3),markBottom-4,Math.random()<.5?'#5fd8ff':'#b98cff',-.2);
 
   // Tagline
   var ta=Math.sin(gs.t*.06)*.16+.62;
   ctx.font=TYPE.label+'px Share Tech Mono';ctx.textAlign='center';
   ctx.fillStyle='rgba(0,185,255,'+ta+')';ctx.shadowBlur=8;ctx.shadowColor='rgba(0,180,255,.4)';
-  ctx.fillText('★  DEEP SPACE EDITION  ★',W/2,markBottom+34);ctx.shadowBlur=0;
+  ctx.fillText('★  DEEP SPACE EDITION  ★',W/2,markBottom+22);ctx.shadowBlur=0;
 
   /*
-    Features. Counted from the data rather than typed — the old literal claimed
-    ten achievements against an ACHS of eight. They were 9px (under 7pt on a
-    phone) and each line was centred with its own bullet, so the bullets zig-
-    zagged. The block is measured and left-aligned as a unit now, which is what
-    makes a list read as a list.
+    Hero ship. The gap between the tagline and the TAP button used to be dead
+    air — roughly a third of the screen with nothing in it. The player's own
+    ship sits there now, large, banking gently, thrust flowing down toward the
+    button below it: the one piece of "key art" the composition was missing,
+    built from the same drawShipBody() the live game uses rather than a
+    separate asset that could drift from what the ship actually looks like.
   */
-  var feats=['6 WEAPON TYPES',
-             FORMS.length+' ENEMY FORMATIONS',
-             BOSS_TYPES+' BOSS TYPES',
-             'COMBO SYSTEM',
-             ACHS.length+' ACHIEVEMENTS'];
-  var fCols=['rgba(0,255,165,','rgba(255,175,40,','rgba(255,80,100,','rgba(0,210,255,','rgba(200,130,255,'];
-  ctx.font=TYPE.strong-2+'px Share Tech Mono';
-  var widest=0;
-  feats.forEach(function(f){widest=Math.max(widest,ctx.measureText(f).width);});
-  var fx=W/2-(widest+18)/2, fy=markBottom+70;
-  feats.forEach(function(f,i){
-    var a2=Math.sin(gs.t*.055+i*.5)*.13+.62;
-    var col=(fCols[i]||'rgba(200,200,255,')+a2+')';
-    ctx.textAlign='left';ctx.fillStyle=col;
-    ctx.font=TYPE.strong-2+'px Share Tech Mono';
-    ctx.fillText('▸', fx, fy+i*26);
-    ctx.fillText(f, fx+18, fy+i*26);
+  var heroY=markBottom+88, heroScale=1.7, tilt=Math.sin(gs.t*.011)*.04-.015;
+  ctx.save();
+  ctx.translate(W/2,heroY);
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  var heroGlow=rGrad(0,-6,0,86,[[0,'rgba(100,160,255,.32)'],[.5,'rgba(70,110,255,.12)'],[1,'rgba(0,0,0,0)']]);
+  ctx.fillStyle=heroGlow;ctx.beginPath();ctx.arc(0,-6,86,0,TAU);ctx.fill();
+  ctx.restore();
+  ctx.rotate(tilt);
+  ctx.scale(heroScale,heroScale);
+  drawShipBody(gs.t*.22);
+  ctx.restore();
+  // Engine embers, spawned at the (rotated, scaled) world position of the
+  // thruster tip rather than at the ship's own translate origin.
+  var engLocalY=27*heroScale;
+  var engX=W/2-Math.sin(tilt)*engLocalY, engY=heroY+Math.cos(tilt)*engLocalY;
+  if(gs.t%2===0)_titleEmberTick(engX,engY,Math.random()<.6?'#bfe6ff':'#6fb8ff',1.1);
+
+  _drawTitleEmbers();
+
+  /*
+    Feature chips. Five lines of 9px bullet text, centred with a bullet each so
+    they zig-zagged, is a README rendered on a canvas. These are small filled
+    chips in the same visual language as the game's own HUD buttons — a
+    coloured stroke, a glyph, a label — so the title screen and the game it is
+    the door to look like one product.
+  */
+  var chipW=Math.min(320,W-72), chipH=25, chipGap=6;
+  var chipX=W/2-chipW/2, chipY=heroY+72;
+  ctx.save();
+  ctx.fillStyle='rgba(0,8,22,.42)';
+  ctx.fillRect(chipX-10,chipY-10,chipW+20,FEAT_CHIPS.length*(chipH+chipGap)-chipGap+20);
+  ctx.strokeStyle='rgba(0,150,200,.28)';ctx.lineWidth=1;
+  ctx.strokeRect(chipX-10,chipY-10,chipW+20,FEAT_CHIPS.length*(chipH+chipGap)-chipGap+20);
+  ctx.restore();
+  FEAT_CHIPS.forEach(function(f,i){
+    var cy=chipY+i*(chipH+chipGap);
+    var pulse=.7+Math.sin(gs.t*.05+i*.7)*.22;
+    ctx.save();
+    ctx.fillStyle='rgba(4,12,26,.6)';ctx.fillRect(chipX,cy,chipW,chipH);
+    ctx.strokeStyle=f.col+'';ctx.globalAlpha=.55;ctx.lineWidth=1;ctx.strokeRect(chipX,cy,chipW,chipH);
+    ctx.globalAlpha=1;
+    ctx.fillStyle=f.col;ctx.globalAlpha=.85;ctx.fillRect(chipX,cy,4,chipH);
+    ctx.globalAlpha=1;
+    ctx.shadowBlur=6*pulse;ctx.shadowColor=f.col;
+    ctx.font='13px Share Tech Mono';ctx.textAlign='center';ctx.fillStyle=f.col;
+    ctx.fillText(f.glyph,chipX+24,cy+chipH/2+5);
+    ctx.shadowBlur=0;
+    ctx.font=(TYPE.strong-2)+'px Share Tech Mono';ctx.textAlign='left';ctx.fillStyle='rgba(210,230,255,.92)';
+    ctx.fillText(f.label(),chipX+42,cy+chipH/2+4);
+    ctx.restore();
   });
+  var chipsBottom=chipY+FEAT_CHIPS.length*(chipH+chipGap)-chipGap+10;
+
+  // Personal best, compact, sitting right above the button — this is the
+  // room that was missing when it was drawn below the button instead: the
+  // stacked wordmark, ship and chip panel already spend most of the canvas's
+  // 720 units, and the button has to be the last thing before the margin.
+  var bestY=chipsBottom+22;
+  if(_best&&_best.s>0){
+    ctx.save();ctx.textAlign='center';
+    ctx.font=TYPE.label+'px Share Tech Mono';ctx.fillStyle='rgba(255,215,60,.85)';ctx.shadowBlur=6;ctx.shadowColor='rgba(255,190,0,.4)';
+    ctx.fillText('YOUR BEST   '+String(_best.s).padStart(8,'0')+'  ·  WAVE '+_best.w,W/2,bestY);
+    ctx.restore();
+  }
 
   // Tap prompt — a real button, at the game's own control height
   var pa=Math.sin(gs.t*.08)*.26+.74;
   ctx.save();
-  var bw=236,bh=54,bx=W/2-bw/2,by=H*.79;
+  var bw=236,bh=50,bx=W/2-bw/2,by=Math.max(H*.79,bestY+18);
   ctx.fillStyle='rgba(0,10,28,.6)';ctx.fillRect(bx,by,bw,bh);
   ctx.strokeStyle='rgba(0,195,255,'+(pa*.6)+')';ctx.lineWidth=1.4;ctx.strokeRect(bx,by,bw,bh);
   var scanX=((gs.t*2.5)%bw);ctx.fillStyle='rgba(0,200,255,.08)';ctx.fillRect(bx+scanX-24,by,24,bh);
@@ -1319,17 +1628,6 @@ function drawTitle(){
   ctx.fillStyle='rgba(0,235,255,'+pa+')';ctx.shadowBlur=14;ctx.shadowColor='rgba(0,200,255,.7)';
   ctx.fillText('TAP TO START',W/2,by+33);
   ctx.restore();
-
-  // Personal best
-  if(_best&&_best.s>0){
-    ctx.save();ctx.textAlign='center';
-    ctx.font=TYPE.label+'px Share Tech Mono';ctx.fillStyle='rgba(0,155,205,.55)';
-    ctx.fillText('YOUR BEST',W/2,by+bh+26);
-    ctx.font='bold '+TYPE.value+'px Orbitron';ctx.fillStyle='rgba(255,215,60,.88)';
-    ctx.shadowBlur=10;ctx.shadowColor='rgba(255,190,0,.45)';
-    ctx.fillText(String(_best.s).padStart(8,'0')+'  ·  WAVE '+_best.w,W/2,by+bh+48);
-    ctx.restore();
-  }
 
   /*
     Volume and menu. Both used to sit at the very corners, on top of the
@@ -1341,7 +1639,6 @@ function drawTitle(){
   ctx.save();ctx.font='bold '+TYPE.label+'px Share Tech Mono';ctx.fillStyle='rgba(0,170,210,.6)';
   ctx.textAlign='right';ctx.fillText('☰  MENU',W-46,56);ctx.restore();
 }
-
 // ─── UPGRADE SHOP (currency-based) ───────────────────────────────────────────
 var ALL_UPG=[
   {id:'hull',  name:'HULL PLATING', desc:'+1 Life',              icon:'❤',  col:'#ff4060', basePrice:65,  apply:function(){gs.lives=Math.min(gs.lives+1,CAP.lives);}},
@@ -1588,7 +1885,7 @@ var gs={
   player:{x:W/2,y:H-98,inv:0,shield:0,speedT:0},
   weapon:'normal',weaponT:0,shootCD:0,
   bullets:[],enemies:[],parts:[],powerups:[],floats:[],
-  stars:makeStars(),keys:{},t:0,screenShake:0,
+  stars:makeStars(),flareStars:makeFlareStars(),keys:{},t:0,screenShake:0,
   paused:false,bombs:1,cleanWave:true,banner:null,waveEnding:false,
   marchX:0,marchDir:1,marchDrop:0,
   weaponTMax:600,
@@ -2139,6 +2436,7 @@ window.submitScore=function(){
 
 // ─── LOOP ─────────────────────────────────────────────────────────────────────
 buildNebula();
+buildMoon();
 function loop(){update();draw();requestAnimationFrame(loop);}
 loop();
 

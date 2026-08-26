@@ -153,9 +153,26 @@ Mine, when asked:
   the pause screen does not solve.
 - The leaderboard is still local-only.
 
-Done, on his instruction to improve the game and then to make it as good as it
-can be for the App Store. The detail is in `game/VOID_STRIKER.md`, which lists
-each fix and how it was confirmed. The ones that mattered most for a phone:
+Done, on his instruction to improve the game, then to make it as good as it can
+be for the App Store, then that it needed to look dramatically better — the
+title screen specifically read as flat, a centred text stack with no focal
+point. The detail is in `game/VOID_STRIKER.md`. The visual pass, most recent:
+
+- **A shared background system** — a moon and a drifting nebula behind the
+  stars, used by the title and gameplay both, in place of one static nebula
+  image that never moved.
+- **The title screen was recomposed**: a large hero ship (the player's own,
+  reused through a new `drawShipBody()` rather than a separate asset) banked
+  in the gap that used to be dead air, a two-depth-band enemy flyby instead of
+  one flat line, and the feature list rebuilt as HUD-styled chips instead of a
+  centred bulleted list.
+- **Enemies and the player ship both gained a reactor core / rim highlight and
+  wingtip lights** — flat gradient shapes read as icons; these read as
+  machines under power. The app icon's ship art picked up the same wingtip
+  lights so it does not drift from what the live ship looks like.
+
+Before that, on his instruction to make it as good as it can be for the App
+Store. The ones that mattered most for a phone:
 
 - **The pause, bomb and volume buttons could not be pressed at all on a touch
   device.** Every handler read `e.touches[0]`, the finger that went down first,

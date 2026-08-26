@@ -272,6 +272,76 @@ Earlier findings, from the first pass:
     **thin upgrade-shop cards on a narrow screen**, **thin shot SFX**, **music
     restarting on every new run** — all addressed above.
 
+## Visual overhaul
+
+On his instruction that the game needed to look dramatically better, and that
+the title screen specifically read as flat — a centred text stack over a
+starfield, no focal point, no sense of scale. Confirmed by screenshot at each
+step, not by reading the canvas calls.
+
+**A shared background system**, used by both the title and gameplay:
+
+- `buildNebula()` now bakes a bigger canvas (a margin past every edge) so
+  `drawBG()` can drift the draw position a few pixels a frame — a slow sine on
+  x and y — without ever exposing a seam. The old nebula was one static image
+  and never moved.
+- `buildMoon()` bakes a lit moon/planet backdrop once, drawn behind the stars
+  at a slower drift than the nebula — the classic parallax cue that something
+  in the scene is much further away than the rest. It shows during gameplay
+  too, and stayed legible against it in testing: the moon is flat and pale,
+  the game's own bullets and enemies are saturated neon, so contrast holds.
+- `makeFlareStars()` adds a handful of brighter stars drawn with a four-point
+  flare and their own twinkle, rather than every star being the same filled
+  square.
+
+**The title screen was recomposed, not just re-skinned:**
+
+- `drawShip()` used to translate straight to `gs.player.x/y` and draw from
+  there, so nothing else could reuse it. The body — hull, wings, canopy,
+  thruster — is now `drawShipBody()`, callable at any position and scale via
+  `ctx.translate`/`ctx.scale`, with `drawShip()` reduced to a thin wrapper.
+  That is what let the title screen add a large hero ship — the player's own,
+  not a separate asset — banked gently, engine lit, in the gap between the
+  tagline and the button that used to be dead air.
+- The wordmark gained a breathing hex halo behind it, a holographic sweep
+  clipped to its own bounding box, and a slow trickle of embers off its base
+  and the hero ship's engine. The embers are a self-contained array
+  (`_titleEmbers`) rather than `gs.parts`, because `update()` only advances
+  particles while `gs.phase==='playing'` — anything pushed into `gs.parts` on
+  the title screen would sit frozen forever.
+- The enemy flyby became two depth bands (`_titleEn[].band`) — a near band of
+  four, brighter and faster, and a far band of five, dimmer and slower — in
+  place of six ships in one line at one speed and size.
+- The feature list became five chips styled like the game's own HUD buttons
+  (filled panel, coloured stroke, glyph) instead of a centred bulleted list,
+  sitting on its own backing panel.
+- Getting the vertical budget to fit was its own pass: the first version
+  pushed the button and best-score text past the bottom of the 720-unit
+  canvas because "YOUR BEST" was drawn below the button. It moved above the
+  button instead — a compact single line — and every offset below the
+  wordmark was fixed against its measured height (`markBottom`, ~271 of 720)
+  rather than guessed.
+
+**Enemies gained a reactor core and a rim highlight** — `drawEnemy()`'s
+non-boss branch was a flat gradient wedge/hexagon/disc with a coloured
+outline; it now has a small hot point near centre and a highlight along the
+upper-left edge, on every enemy on screen, at the cost of one extra clipped
+fill per enemy. The player ship picked up matching wingtip lights and thin
+panel-line strokes in `drawShipBody()`.
+
+**The app icon's wingtip lights were added to match** — `scripts/render/app-icon.mjs`
+keeps its own copy of the ship paths (see the Capacitor section of
+`CLAUDE.md`), so the two would otherwise drift. Its panel lines were not
+copied over: at 48px the icon's own doc reasons carefully about staying
+legible, and thin dark strokes inside a small blue triangle read as mud at
+that size, not detail.
+
+Re-verified after: the touch-target and wave-progression Playwright suite (not
+committed — same one referenced above), `npm run check`, `npm run demo`, and
+in `mobile/void-striker/` `npm run sync` and `npm run verify`. The app store
+stills and clip were regenerated; `src/content/site.ts`'s alt text was
+rewritten from the new stills.
+
 ## Still open
 
 1. **Save progress** — no mid-game save; everything resets on page reload.

@@ -125,6 +125,17 @@ const PAGE = (size, mode, round) => `<!doctype html><meta charset="utf-8">
   x.beginPath(); x.moveTo(10,-5); x.lineTo(22,6); x.lineTo(38,16); x.lineTo(30,20); x.lineTo(18,18); x.closePath(); x.fill();
   x.beginPath(); x.moveTo(-10,-5); x.lineTo(-22,6); x.lineTo(-38,16); x.lineTo(-30,20); x.lineTo(-18,18); x.closePath(); x.fill();
 
+  // Wingtip lights — the same running lights the live ship gained when its
+  // hull picked up detail. Small enough that they read as a bright pixel at
+  // the 48px legacy size and a proper lit point at 1024.
+  x.save(); x.globalCompositeOperation='lighter';
+  [[-30,17],[30,17]].forEach(function(wt){
+    var wtg=x.createRadialGradient(wt[0],wt[1],0,wt[0],wt[1],5);
+    wtg.addColorStop(0,'rgba(255,255,255,.95)'); wtg.addColorStop(.4,'rgba(120,200,255,.6)'); wtg.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=wtg; x.beginPath(); x.arc(wt[0],wt[1],5,0,Math.PI*2); x.fill();
+  });
+  x.restore();
+
   // Hull
   var hl=x.createLinearGradient(-14,-28,14,20);
   hl.addColorStop(0,'#bfe4ff'); hl.addColorStop(.42,'#4aa0ff'); hl.addColorStop(1,'#12307f');
