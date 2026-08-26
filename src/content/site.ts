@@ -211,25 +211,25 @@ export const apps: App[] = [
     screenshots: [
       {
         src: 'media/apps/void-striker/01.jpg',
-        alt: 'VOID STRIKER title screen: the game name in glowing blue and violet lockup in front of a large moon, with the player ship rendered large below it, engine lit, above a five-item feature panel reading six weapon types, five enemy formations, three boss types, combo system, twelve achievements, and a tap-to-start button.',
+        alt: 'VOID STRIKER title screen: the game name in glowing blue and violet lockup in front of a large moon, with the player ship rendered large below it, engine lit, above a five-item feature panel reading six weapon types, five enemy formations, six boss types, combo system, twelve achievements, and a tap-to-start button.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/02.jpg',
-        alt: 'Wave three: a formation of enemies near the top of the screen against a large moon, and the wave transition banner sweeping across the middle, naming sector one, the weave formation, and the 86 credits awarded.',
+        alt: 'Wave three: a formation of enemies near the top of the screen against a large moon, a laser pickup drifting down with a burst of fragments around it, a beam pickup below it, and a two-times combo running in the bottom bar.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/03.jpg',
-        alt: 'A kill scoring 500 points inside an expanding ring, the Combo King achievement toast, and a five-times combo running, all against a large moon behind the formation.',
+        alt: 'The same wave a few seconds later: a six-times combo, a laser and a bomb pickup drifting down together past the moon, and the remaining enemies thinning out near the top of the screen.',
         width: 520,
         height: 720,
       },
       {
         src: 'media/apps/void-striker/04.jpg',
-        alt: 'Later in the same wave: a seven-times combo, missile and beam pickups drifting down past the moon, and the pause and bomb controls at either end of the status bar.',
+        alt: 'Later in the same wave: a seven-times combo, a laser and a bomb pickup still drifting down past the moon, and the pause and bomb controls at either end of the status bar.',
         width: 520,
         height: 720,
       },

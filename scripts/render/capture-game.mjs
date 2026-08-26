@@ -161,12 +161,10 @@ await page.evaluate(() => window.__step(30));
 await page.screenshot({ path: join(TMP, 'title.png') });
 await page.click('canvas', { position: { x: W / 2, y: H / 2 } });
 await page.waitForTimeout(250);
-for (const b of await page.$$('#modal button')) {
-  if ((await b.textContent()).trim().includes('START GAME')) {
-    await b.click();
-    break;
-  }
-}
+// #btn-start rather than matching the button's own label text — the pilot
+// hub renamed START GAME to START MISSION and this broke silently until the
+// next capture ran; an id survives a copy change the way text can't.
+await page.click('#btn-start');
 await page.waitForTimeout(250);
 await page.evaluate(() => window.__step(20));
 

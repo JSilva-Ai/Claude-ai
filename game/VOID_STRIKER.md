@@ -31,8 +31,9 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   game teaches itself. MARCH is the one with shared state — the rank turns
   together, stepped once per frame by `_stepMarch()`.
 - **Boss battles** — every 5th wave, rage mode at 50% HP. `btype` selects one of
-  three drawn hulls (DREADNOUGHT / MANTA / HIVE CORE) in `_drawBossBody`, and
-  `BOSS_HW` gives each its own travel clamp.
+  six drawn hulls (DREADNOUGHT / MANTA / HIVE CORE / SPIDER QUEEN / VOID CROWN /
+  GILDED WARDEN) in `_drawBossBody`, and `BOSS_HW` gives each its own travel
+  clamp. See "Enemy roster" below for the three most recent.
 - **Wave transition** — a swept banner naming the wave, its sector and the
   incoming formation, plus the credits awarded (`gs.banner`, `drawBanner()`).
 - **Bombs** — a consumable, capped at `CAP.bombs`. The BOMB powerup grants one;
@@ -476,6 +477,78 @@ and looked identical to active ones. Both fixed in the CSS. `npm run check`,
 `npm run verify` all pass; the App Store stills and demo clip were not
 regenerated because the default, unlocked-nothing appearance — what those
 capture — is pixel-identical to before this pass.
+
+## Enemy roster (three new boss hulls, a fourth enemy shape)
+
+On his instruction to use a set of sixteen reference renders — his own art,
+New AI Vision Labs' — as the model for enemy ships, and to create more
+himself. Two of the sixteen were pasted into chat rather than attached as
+files, and this environment never gave either one a path on disk the way the
+player ship's source image had one — no crop, no pixel read, no embed was
+possible. Confirmed his rights to the art regardless, since the right way
+forward turned out not to need the files: redrawn as new procedural vector
+hulls, the same technique `_drawBossBody()` and `drawEnemy()` already used
+for every hull in the game, informed by what the sixteen images showed
+rather than copied from them pixel for pixel.
+
+- **Three new boss hulls, doubling the roster from three to six**: SPIDER
+  QUEEN (molten red/orange, twin-clawed swept wings, three trailing engine
+  flames), VOID CROWN (wide violet blade-wings, a single spike trailing
+  light) and GILDED WARDEN — the same crown silhouette as Void Crown, in
+  blue and gold with a string of small glow-nodes lit along each wing,
+  matching how the reference art used the same two hull families in
+  different colour palettes. `BOSS_TYPES`, `BOSS_NAMES` and `BOSS_HW` all
+  extended to six; `makeEnemyWave()`'s boss selection now cycles
+  `%BOSS_TYPES` instead of a hardcoded `%3`.
+- **The first draft of all three read as rounded blobs, not bladed hulls** —
+  caught by screenshot, not by reading the bezier calls. Smooth
+  `bezierCurveTo()` sweeps were softening exactly the sharp claw and wing
+  points that make the reference art's silhouettes distinctive. Redrawn as
+  zigzag polygons — sharp `lineTo()` points, the same technique
+  DREADNOUGHT's dodecagon already used — with a thin stroke along the edge
+  to hold the silhouette together at a glance. The difference is visible
+  side by side: soft gradient bulge versus a hull with real edges.
+  A boss patrols side to side at a fixed height rather than flying toward
+  the player the way a normal enemy does, so "which way does it face" isn't
+  a real question here the way it was for the player ship — every existing
+  hull in this file reads its own core/glow sitting near the top of local
+  space and the silhouette tapering toward the bottom (the wedge enemy's
+  apex is up, the Manta's core sits at (0,-6)), and the three new ones
+  follow that same rule rather than importing a travel-direction convention
+  that does not apply to a boss.
+- **A fourth regular-enemy shape** — a small radial "reactor orb" (a core
+  ringed by four short claws), the fourth family across the reference art
+  and a natural fit for the ORBIT formation, which already has no fixed
+  facing to get right or wrong. `shapePath()`'s three-way shape switch
+  became a four-way one (`e.type%4` instead of `%3`); `EC[]`'s six colours
+  still apply independently of shape, so this is 4 shapes × 6 colours now
+  rather than 3 × 6. Kept deliberately as plain as the other three: a wave
+  can put a dozen of these on screen at once, and the existing shapes are
+  simple on purpose so a busy wave stays readable — this follows that same
+  rule rather than importing the reference art's full level of detail down
+  to a 12px enemy.
+- **Boss HP and speed steps per `bt` were rebalanced for the wider range.**
+  The old formula (`36+bt*28` HP, `1.6+bt*.5` speed) was calibrated for
+  `bt` spanning 0-2; carried unchanged into a 0-5 range it would factor of
+  2.5 the spread between the easiest and hardest hull in a single cycle.
+  Scaled down to `36+bt*12` and `1.6+bt*.2`, so a full six-hull cycle's
+  spread stays close to what the three-hull cycle's already was.
+- **A real fight, not just a render**: a Spider Queen was spawned into a
+  live run, actually fired on and killed through the game's own damage
+  path — confirms the new hulls work as enemies, not only as art.
+- **A capture-game.mjs regression, found and fixed while regenerating the
+  App Store stills for this pass**: it looked for a button whose *text*
+  included "START GAME" to begin a capture run, and the pilot hub (the
+  previous pass) renamed that button to "START MISSION" without updating
+  this script — it broke silently until the next capture ran, which was
+  this one. Fixed to click `#btn-start` by id instead, which survives a
+  label rename the way matching the button's own copy cannot.
+
+Verified: the touch-target and wave-progression Playwright suite, plus a new
+check that all six `btype` values are actually reachable across two full
+30-wave boss cycles rather than trusting the modulo by reading it.
+`npm run check`, `npm run demo`, and in `mobile/void-striker/` `npm run
+sync` and `npm run verify` all pass. Stills and clip regenerated.
 
 ## Still open
 
