@@ -560,27 +560,43 @@ function musicStart(){
       for(var i=0;i<revLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/revLen,2.2)*0.9;
     }
     var conv=ac.createConvolver();conv.buffer=revBuf;
-    var convGain=ac.createGain();convGain.gain.value=0.5;
+    var convGain=ac.createGain();convGain.gain.value=0.4;
     conv.connect(convGain);convGain.connect(bus);
 
     // ── pad: two detuned triangles per chord voice ──
     var padBus=ac.createGain();padBus.gain.value=1;
     var padLP=ac.createBiquadFilter();padLP.type='lowpass';padLP.frequency.value=1700;padLP.Q.value=0.5;
-    padBus.connect(padLP);padLP.connect(bus);padLP.connect(conv);
+    /*
+      Measured off a recording of the real thing: 200-800 Hz sat 13 dB above
+      everything between 800 Hz and 2.5 kHz and never moved — the textbook
+      boxy drone, the band the ear tires of first, and it masked everything
+      above it. The scoop sits on the pad alone: put it across the whole
+      music bus and it takes the body out of the melody along with the mud.
+    */
+    var padMud=ac.createBiquadFilter();
+    padMud.type='peaking';padMud.frequency.value=400;padMud.Q.value=0.8;padMud.gain.value=-9;
+    padBus.connect(padLP);padLP.connect(padMud);padMud.connect(bus);padMud.connect(conv);
 
+    /* The old slow LFO on this gain would fight the per-chord envelope below
+       — two things writing one AudioParam — so the envelope owns it alone. */
     var breathLFO=ac.createOscillator();breathLFO.type='sine';breathLFO.frequency.value=0.062;
-    var breathG=ac.createGain();breathG.gain.value=0.05;
-    breathLFO.connect(breathG);breathG.connect(padBus.gain);breathLFO.start();
+    var breathG=ac.createGain();breathG.gain.value=0;
+    breathLFO.connect(breathG);breathG.connect(padLP.frequency);breathLFO.start();
 
+    /*
+      Eight triangles droning together is where the boxiness came from: the
+      odd harmonics of four chord tones pile straight into 200-800 Hz. Four
+      voices now, sine for the two that carry the low end and triangle only
+      up top where a little edge helps the chord read.
+    */
     var padOscs=[],padVoices=[];
     _PROG[0].v.forEach(function(baseFreq,ci){
-      [1.0,1.0046].forEach(function(det){
-        var o=ac.createOscillator();
-        o.type='triangle';o.frequency.value=baseFreq*det;
-        var g=ac.createGain();g.gain.value=(ci===0||ci===3)?0.10:0.085;
-        o.connect(g);g.connect(padBus);o.start();
-        padOscs.push(o);padVoices.push({o:o,det:det,i:ci});
-      });
+      var o=ac.createOscillator();
+      o.type=(ci<2)?'sine':'triangle';
+      o.frequency.value=baseFreq*(ci%2?1.0035:1.0);
+      var g=ac.createGain();g.gain.value=(ci<2)?0.085:0.06;
+      o.connect(g);g.connect(padBus);o.start();
+      padOscs.push(o);padVoices.push({o:o,det:(ci%2?1.0035:1.0),i:ci});
     });
 
     // ── bass: root sine plus the octave a small speaker can actually move ──
@@ -588,9 +604,9 @@ function musicStart(){
     var bassLP=ac.createBiquadFilter();bassLP.type='lowpass';bassLP.frequency.value=190;bassLP.Q.value=0.7;
     bassBus.connect(bassLP);bassLP.connect(bus);
     bassBus.gain.setValueAtTime(0,ac.currentTime);
-    bassBus.gain.linearRampToValueAtTime(0.46,ac.currentTime+4.0);
+    bassBus.gain.linearRampToValueAtTime(0.3,ac.currentTime+4.0);
     var bassOscs=[];
-    [[1,'sine',0.28],[2,'triangle',0.085]].forEach(function(cfg){
+    [[1,'sine',0.22],[2,'triangle',0.06]].forEach(function(cfg){
       var o=ac.createOscillator();o.type=cfg[1];o.frequency.value=_PROG[0].bass*cfg[0];
       var g=ac.createGain();g.gain.value=cfg[2];
       o.connect(g);g.connect(bassBus);o.start();
@@ -623,6 +639,17 @@ function musicStart(){
       bassOscs.forEach(function(b){
         b.o.frequency.setTargetAtTime(c.bass*b.mul,t,0.5);
       });
+      /*
+        A chord that simply holds is a drone. This one swells as it arrives
+        and falls back before the next, so the bed moves under the melody and
+        the mix has peaks and troughs rather than one flat wall.
+      */
+      try{
+        padBus.gain.cancelScheduledValues(t);
+        padBus.gain.setValueAtTime(Math.max(0.0001,padBus.gain.value),t);
+        padBus.gain.linearRampToValueAtTime(1.0,t+1.1);
+        padBus.gain.linearRampToValueAtTime(0.34,t+_BEAT*7);
+      }catch(e){}
     }
 
     function note(freq,dur,vel){
@@ -641,7 +668,7 @@ function musicStart(){
         vib.start(t);vib.stop(t+dur+0.05);
         var g=ac.createGain();
         g.gain.setValueAtTime(0,t);
-        g.gain.linearRampToValueAtTime(0.13*vel,t+0.02);
+        g.gain.linearRampToValueAtTime(0.34*vel,t+0.02);
         g.gain.exponentialRampToValueAtTime(0.0008,t+dur*1.25);
         o.connect(g);g.connect(melBus);
         o.start(t);o.stop(t+dur*1.35);
@@ -712,7 +739,7 @@ function musicStart(){
           var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=8000;lp.Q.value=0.5;
           var sg=ac.createGain();
           sg.gain.setValueAtTime(0,t);
-          sg.gain.linearRampToValueAtTime(0.018,t+0.25);
+          sg.gain.linearRampToValueAtTime(0.03,t+0.25);
           sg.gain.exponentialRampToValueAtTime(0.0005,t+0.6);
           ns.connect(hp);hp.connect(lp);lp.connect(sg);sg.connect(bus);
           ns.start(t);

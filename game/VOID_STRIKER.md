@@ -47,8 +47,9 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
 - **Achievements** — 12 unlockable, stored in localStorage. The title screen
   counts `ACHS.length` rather than carrying a hardcoded number.
 - **Personal best** — `vs_best` in localStorage, shown on the title screen.
-- **Space music** — Web Audio API synthesis, all of it. A pad of eight detuned
-  triangles, convolution reverb, a triangle-bell melody, band-limited shimmer,
+- **Space music** — Web Audio API synthesis, all of it. A pad of four voices
+  (sine low, triangle high), convolution reverb, a triangle-bell melody,
+  band-limited shimmer,
   a sub-bass layer (root sine + octave triangle, low-passed at 190 Hz) and a
   kick. The bed is continuous — it does not restart between the title screen
   and a run — and `musicIntensity(0..1)` swells it rather than switching it.
@@ -62,6 +63,17 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   is **silent**. Verified from outside the engine by counting voice starts per
   bar: 12 on the hook bar (six notes, each with its vibrato oscillator), 4 on
   the sparse bars, 0 on the rest bar.
+- **The pad is scooped and it breathes.** Measured off a recording of the
+  real game: 200-800 Hz sat 13 dB above everything from 800 Hz to 2.5 kHz and
+  never moved — a boxy drone, the band the ear tires of first, masking
+  everything above it. Three changes: a -9 dB peaking scoop at 400 Hz **on the
+  pad alone** (across the whole music bus it takes the body out of the melody
+  with the mud), eight droning triangles cut to four voices, and a per-chord
+  envelope that swells the pad in over 1.1 s and lets it fall back before the
+  next chord instead of sustaining flat. Result, measured the same way:
+  200-800 Hz down 9.6 dB and no longer the loudest band, crest factor
+  3.65 → 5.57, and the spread of 100 ms loudness blocks 4.7 dB → 10.3 dB.
+- **Music and effects have separate levels**, persisted, on top of the master.
 - **Output chain** — `sfx → compressor → high shelf ─┐`, `music → duck ─┴→
   master → limiter → destination`. Explosions, bombs, bosses, wave changes and
   game over duck the music and let it back up.

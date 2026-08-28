@@ -163,6 +163,31 @@ hub — persistent progression — from a reference image of one, then to use a
 set of sixteen more reference renders (his own art) as the model for enemy
 ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
 
+- **A recording with sound finally settled the audio argument.** He sent three
+  screen recordings; the first two had no audio track at all, the third did.
+  Extracting it and measuring rather than guessing:
+
+      band          his recording      after this pass
+      20-200 Hz        -33.7 dB            -34.1 dB
+      200-800 Hz       -28.1 dB  loudest   -37.7 dB
+      800-2500 Hz      -42.2 dB            -48.1 dB
+      crest factor      3.65                5.57
+      100ms spread      4.7 dB             10.3 dB
+
+  **Rendering my own engine's music alone reproduced his recording band for
+  band** — which proved the wall of sound was the music, not the effects, and
+  that the effects work of the previous pass had been aimed at the wrong half.
+  The fault was a boxy 200-800 Hz drone that never moved. Fixed with a -9 dB
+  scoop at 400 Hz on the pad alone (across the whole bus it guts the melody
+  too), four pad voices instead of eight, and a per-chord envelope so the bed
+  swells and falls back rather than sustaining flat.
+
+  **The method is the reusable part**: capture the real thing, measure it,
+  reproduce the measurement from the engine, then change one thing at a time
+  and re-measure. `AudioNode.prototype.connect` has to be patched from
+  `addInitScript` — patch it after page load and the chain is already wired to
+  `destination`, so the tap catches nothing.
+
 - **The audio was rebuilt**, on his word that it "isn't good at all" and is
   "still annoying to listen to". Three faults, in the order they mattered:
 
@@ -199,8 +224,14 @@ ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
   silently disables the ceiling, which is the one thing meant to stop the mud.
   The decrement is guarded to fire once per voice.
 
-- **The hub screen's sub-panels all have a Back control**, and the game's
-  four sub-menus were checked and already had theirs.
+- **Every menu has a way out pinned to its top.** I had claimed this was done
+  and it was not: I asserted the BACK buttons *existed* and that clicking them
+  worked, but Playwright scrolls an element into view before clicking, so the
+  test passed while the buttons sat below the fold — ACHIEVEMENTS at y=874 on
+  an 844-tall screen, WEAPONS at y=799 on a 640-tall one — and the pilot hub
+  had no exit at all, since it opens `closeable:false` and never had a BACK.
+  **Assert position, not presence.** The exit is now a sticky bar at the top
+  of the modal box, 44x91px, so it cannot depend on how tall the content is.
 
 - **Every enemy in the game is his own art now** — six bosses and six
   regular ships, from the sixteen renders he made. The pass before this one
