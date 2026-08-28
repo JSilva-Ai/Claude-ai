@@ -47,14 +47,29 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
 - **Achievements** — 12 unlockable, stored in localStorage. The title screen
   counts `ACHS.length` rather than carrying a hardcoded number.
 - **Personal best** — `vs_best` in localStorage, shown on the title screen.
-- **Space music** — Web Audio API synthesis: Am7 pad (8 detuned triangle
-  oscillators), convolution reverb, bell melody (A-minor pentatonic, 24-note
-  phrase, vibrato), shimmer noise, a sub-bass layer (55 Hz sine + 110 Hz
-  triangle, low-passed at 190 Hz) and a kick on the beat. The bed is continuous
-  — it does not restart between the title screen and a run. `musicIntensity(0|1)`
-  gates the kick and is what makes the same track read as menu music in one
-  place and combat music in the other.
-- **SFX** — shoot (per weapon type), hit, kill, explode, combo, wave start, boss, upgrade, game over, shield, bomb
+- **Space music** — Web Audio API synthesis, all of it. A pad of eight detuned
+  triangles, convolution reverb, a triangle-bell melody, band-limited shimmer,
+  a sub-bass layer (root sine + octave triangle, low-passed at 190 Hz) and a
+  kick. The bed is continuous — it does not restart between the title screen
+  and a run — and `musicIntensity(0..1)` swells it rather than switching it.
+  The harmony moves: **Am – F – C – G**, two bars each at 70 BPM, with the pad
+  and bass oscillators gliding between chord tones on `setTargetAtTime` rather
+  than restarting, so a chord change is felt and not heard as an edit. One
+  eighth-note clock drives every part, so nothing can drift out of time with
+  anything else.
+- **The melody breathes.** A six-note hook opens each four-bar cycle; the two
+  bars after it are sparse and semi-random from the pentatonic; the fourth bar
+  is **silent**. Verified from outside the engine by counting voice starts per
+  bar: 12 on the hook bar (six notes, each with its vibrato oscillator), 4 on
+  the sparse bars, 0 on the rest bar.
+- **Output chain** — `sfx → compressor → high shelf ─┐`, `music → duck ─┴→
+  master → limiter → destination`. Explosions, bombs, bosses, wave changes and
+  game over duck the music and let it back up.
+- **SFX** — shoot (per weapon type), hit, kill, explode, combo, wave start,
+  boss, upgrade, game over, shield, bomb. Every voice is detuned a few percent
+  so no two are identical; a cue repeated inside 0.3 s comes back progressively
+  quieter and recovers after a moment's quiet; and no more than 14 voices may
+  sound at once.
 - **Volume control** — slider in menu + mute toggle, persisted in localStorage
 - **Screen shake** on damage/explosions
 
@@ -69,8 +84,9 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
 <div #toast>    — Achievement toast notification
 
 <script>
-  ├── AUDIO ENGINE          — initAC(), _master(), playTone(), noise()
-  ├── SPACE MUSIC           — musicStart(), musicStop() — pad + melody + shimmer
+  ├── AUDIO ENGINE          — initAC(), _master()/_sfxOut()/_musicOut(), osc(), noise()
+  │                           _voice() voice budget, _repGain() repeat damping, duckMusic()
+  ├── SPACE MUSIC           — musicStart(), musicStop() — pad + bass + melody + kick + shimmer
   ├── SFX                   — SFX.shoot/hit/kill/explode/upgrade/etc
   ├── ACHIEVEMENTS          — ACHS[], _ach{}, unlock(), renderAchievements()
   ├── LEADERBOARD           — lbLoad/lbSave/lbAdd(), renderLeaderboard()

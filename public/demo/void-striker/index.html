@@ -310,56 +310,156 @@ function initAC(){
 }
 function _wake(){if(AC&&AC.state==='suspended')AC.resume();}
 
-/* master vol */
-var _masterGain=null;
+/* ─── OUTPUT CHAIN ──────────────────────────────────────────────────────────
+   Everything used to run into `destination` through a single gain. That is why
+   the game turned harsh the moment three things happened at once: the layers
+   summed past full scale and the browser clipped them, which is heard as
+   grit rather than as loudness. There are three stages now —
+
+       sfx ──> comp ──> shelf ─┐
+                               ├──> master ──> limiter ──> destination
+       music ──> duck ─────────┘
+
+   a limiter on the end so a bomb landing on a boss's death cannot clip, a
+   compressor and a high shelf on the effects so the noise layers stop biting,
+   and a duck on the music so an explosion pushes the bed down for a moment
+   instead of fighting it.
+*/
+var _masterGain=null,_sfxBus=null,_musicBus=null,_duck=null;
 function _master(){
   if(!_ready)return null;
-  if(!_masterGain){_masterGain=AC.createGain();_masterGain.connect(AC.destination);}
+  if(!_masterGain){
+    _masterGain=AC.createGain();
+    var lim=AC.createDynamicsCompressor();
+    /* A limiter, not a compressor: high ratio, no knee, fast attack. */
+    lim.threshold.value=-7;lim.knee.value=0;lim.ratio.value=20;
+    lim.attack.value=0.003;lim.release.value=0.25;
+    _masterGain.connect(lim);lim.connect(AC.destination);
+  }
   _masterGain.gain.value=_muted?0:_vol;
   return _masterGain;
 }
+function _sfxOut(){
+  if(!_master())return null;
+  if(!_sfxBus){
+    _sfxBus=AC.createGain();_sfxBus.gain.value=0.8;
+    var comp=AC.createDynamicsCompressor();
+    comp.threshold.value=-19;comp.knee.value=14;comp.ratio.value=3.5;
+    comp.attack.value=0.006;comp.release.value=0.14;
+    var shelf=AC.createBiquadFilter();
+    shelf.type='highshelf';shelf.frequency.value=4200;shelf.gain.value=-5;
+    _sfxBus.connect(comp);comp.connect(shelf);shelf.connect(_masterGain);
+  }
+  return _sfxBus;
+}
+function _musicOut(){
+  if(!_master())return null;
+  if(!_musicBus){
+    _musicBus=AC.createGain();
+    _duck=AC.createGain();_duck.gain.value=1;
+    _musicBus.connect(_duck);_duck.connect(_masterGain);
+  }
+  return _musicBus;
+}
+/* An explosion pulls the bed down and lets it back up. */
+function duckMusic(amount,secs){
+  if(!_duck)return;
+  try{
+    var t=AC.currentTime;
+    _duck.gain.cancelScheduledValues(t);
+    _duck.gain.setValueAtTime(_duck.gain.value,t);
+    _duck.gain.linearRampToValueAtTime(Math.max(0.25,1-amount),t+0.04);
+    _duck.gain.linearRampToValueAtTime(1,t+0.04+(secs||0.55));
+  }catch(e){}
+}
+
+/* ─── VOICES ────────────────────────────────────────────────────────────────
+   Two things make a shooter tiring to listen to, and neither is the volume.
+
+   The first is that the shot fired eight times a second is identical every
+   time, so the ear locks onto it. Every voice is detuned a few percent now,
+   which is enough to stop it reading as a machine.
+
+   The second is that nothing was ever refused. Twenty enemies dying together
+   started sixty oscillators, and the sum is mud. So a cue repeated inside a
+   third of a second comes back quieter each time and recovers after a moment's
+   quiet, and there is a hard ceiling on how many voices may sound at once.
+*/
+var _voices=0,_MAXV=14,_rep={};
+function _repGain(key,floor){
+  var now=AC?AC.currentTime:0,r=_rep[key];
+  if(!r||now-r.t>0.3){_rep[key]={t:now,n:0};return 1;}
+  r.n=Math.min(r.n+1,7);r.t=now;
+  return Math.max(floor===undefined?0.4:floor,1-r.n*0.1);
+}
+function _vary(){return 1+(Math.random()*2-1)*0.04;}
+function _voice(node,t,dur){
+  _voices++;
+  /*
+    Chrome fires `ended` twice on a buffer source when an explicit stop() lands
+    on the buffer's own natural end, which walked the counter negative — and a
+    negative counter silently disables the ceiling below, so the one thing meant
+    to stop twenty simultaneous deaths turning to mud stopped working. The flag
+    makes the decrement happen once per voice however many events arrive.
+  */
+  var done=false;
+  try{node.stop(t+dur);}catch(e){}
+  node.onended=function(){
+    if(done)return;
+    done=true;
+    _voices=Math.max(0,_voices-1);
+  };
+}
 
 function osc(freq,type,dur,vol,freq2){
-  if(!_ready||_muted)return;_wake();
-  var m=_master();if(!m)return;
+  if(!_ready||_muted||_voices>=_MAXV)return;_wake();
+  var m=_sfxOut();if(!m)return;
   try{
-    var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
-    o.type=type;o.frequency.setValueAtTime(freq,t);
-    if(freq2)o.frequency.exponentialRampToValueAtTime(freq2,t+dur*0.7);
-    g.gain.setValueAtTime(vol,t);
-    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain(),v=_vary();
+    o.type=type;o.frequency.setValueAtTime(freq*v,t);
+    if(freq2)o.frequency.exponentialRampToValueAtTime(Math.max(20,freq2*v),t+dur*0.7);
+    g.gain.setValueAtTime(Math.max(0.0001,vol),t);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     o.connect(g);g.connect(m);
-    o.start(t);o.stop(t+dur+0.02);
+    o.start(t);_voice(o,t,dur+0.02);
   }catch(e){}
 }
 function noise(dur,vol,cutoff){
-  if(!_ready||_muted)return;_wake();
-  var m=_master();if(!m)return;
+  if(!_ready||_muted||_voices>=_MAXV)return;_wake();
+  var m=_sfxOut();if(!m)return;
   try{
     var t=AC.currentTime,sr=AC.sampleRate,n=Math.ceil(sr*dur);
     var buf=AC.createBuffer(1,n,sr),d=buf.getChannelData(0);
     for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);
     var src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
-    f.type='lowpass';f.frequency.value=cutoff||2000;
+    f.type='lowpass';f.frequency.value=(cutoff||2000)*_vary();f.Q.value=0.6;
     src.buffer=buf;src.connect(f);f.connect(g);g.connect(m);
-    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-    src.start(t);
+    g.gain.setValueAtTime(Math.max(0.0001,vol),t);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.start(t);_voice(src,t,dur);
   }catch(e){}
 }
 
-// ─── SPACE MUSIC — cinematic ambient with melody ───────────────────────────
+// ─── MUSIC ────────────────────────────────────────────────────────────────
 /*
-  Architecture:
-  A. Reverb tail  — synthetic IR convolver, ~3 s decay, used by pads + melody
-  B. Pad layer    — 4-note chord (Am pentatonic: A3 C4 E4 G4) voiced across
-                    8 slightly-detuned sines. Slow volume LFO for breathing.
-                    LP-filtered to keep it airy, no bass rumble.
-  C. Bell melody  — triangle oscillator, short sharp attack, long release,
-                    plays a 24-note repeating phrase in A minor pentatonic.
-                    Each note has vibrato + tiny pitch-envelope for realism.
-  D. Shimmer      — very high-pass-filtered noise trickle for "space air".
-                    Low gain, adds presence without harshness.
-  No sub-bass. No heavy rumble. Clean, light, cinematic.
+  What was here was one chord — A minor — held forever under a fixed twenty-
+  four note phrase that repeated every twenty seconds with no rests, over a
+  kick on every beat. Each part was decent on its own; together they never
+  went anywhere, and a loop that never goes anywhere is what makes music
+  annoying rather than merely present.
+
+  Three changes:
+
+  A. The harmony moves. Am - F - C - G, two bars each, and the pad oscillators
+     glide between the chord tones rather than restarting, so the change is
+     felt rather than heard as an edit.
+  B. The melody breathes. A six-note hook returns on the first bar of each
+     four-bar cycle so the ear has something to hold; the bars between it are
+     sparse, and the fourth bar is silent. Silence is the part the old
+     arrangement had none of.
+  C. The pulse earns its place. It is gated by intensity, so the title screen
+     is a bed and a firefight has a floor under it, and it sits on beats one
+     and three rather than hammering all four.
 */
 var _music=null;
 var _wantIntensity=0;   // 0 = ambient (title/menus), 1 = driving (in a run)
@@ -371,201 +471,228 @@ var _wantIntensity=0;   // 0 = ambient (title/menus), 1 = driving (in a run)
 */
 function musicIntensity(v){
   _wantIntensity=v;
-  if(_music)_music.intensity=v;
+  if(_music)_music.setIntensity(v);
 }
 
-// A-minor pentatonic: A C D E G  (two octaves for melody range)
+// A-minor pentatonic, two octaves. Every note of it is consonant against all
+// four chords below, which is what lets the melody roam without supervision.
 var _PENTA=[220,261.6,293.7,329.6,392,440,523.3,587.3,659.3,784,880];
 
-// 24-note melody phrase (indices into _PENTA). Chosen for a hopeful-melancholy feel.
-var _PHRASE=[4,5,6,5,4,2,3,4,3,2,0,2,3,5,4,3,2,4,6,5,4,3,5,4];
+/* i - VI - III - VII in A minor. Four voices each, kept in the same octave
+   band so the glide between them is short and the voicing never inverts. */
+var _PROG=[
+  {n:'Am', v:[220,261.6,329.6,392],   bass:55.0},
+  {n:'F',  v:[174.6,220,261.6,329.6], bass:43.7},
+  {n:'C',  v:[196,261.6,329.6,392],   bass:65.4},
+  {n:'G',  v:[196,246.9,293.7,392],   bass:49.0}
+];
 
-// Chord: Am7 voicing — A3 C4 E4 G4 (no bass, just upper harmony)
-var _CHORD_FREQS=[220,261.6,329.6,392];
+// The hook — six notes, indices into _PENTA. It is the only fixed phrase.
+var _HOOK=[4,5,6,5,4,2];
+// What the sparse bars may draw from, biased to chord tones of A minor.
+var _FILL=[2,3,4,5,6,7,8];
+
+var _BEAT=0.86;          // seconds — 70 BPM
+var _STEP=_BEAT/2;       // eighth notes
 
 function musicStart(){
   if(!_ready||_music||_muted)return;
   try{
     var ac=AC;
-    var m=_master();if(!m)return;
+    var out=_musicOut();if(!out)return;
 
-    // ── Music master bus (fade in over 3s) ──
     var bus=ac.createGain();
     bus.gain.setValueAtTime(0,ac.currentTime);
-    bus.gain.linearRampToValueAtTime(0.42,ac.currentTime+3.0);
-    bus.connect(m);
+    bus.gain.linearRampToValueAtTime(0.40,ac.currentTime+3.0);
+    bus.connect(out);
 
-    // ── A. Reverb (3-second exponential IR) ──
-    var sr=ac.sampleRate;
-    var revSecs=3.0, revLen=Math.ceil(sr*revSecs);
+    // ── reverb: a 3-second exponential noise impulse ──
+    var sr=ac.sampleRate,revLen=Math.ceil(sr*3.0);
     var revBuf=ac.createBuffer(2,revLen,sr);
     for(var ch=0;ch<2;ch++){
       var d=revBuf.getChannelData(ch);
-      for(var i=0;i<revLen;i++){
-        // exponential decay envelope on white noise
-        d[i]=(Math.random()*2-1)*Math.pow(1-i/revLen,2.2)*0.9;
-      }
+      for(var i=0;i<revLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/revLen,2.2)*0.9;
     }
     var conv=ac.createConvolver();conv.buffer=revBuf;
-    var convGain=ac.createGain();convGain.gain.value=0.55;
+    var convGain=ac.createGain();convGain.gain.value=0.5;
     conv.connect(convGain);convGain.connect(bus);
 
-    // ── B. Pad layer ──
-    // 8 slightly detuned sines across the 4 chord tones, triangle waveshape for softness
+    // ── pad: two detuned triangles per chord voice ──
     var padBus=ac.createGain();padBus.gain.value=1;
-    // LP filter to remove any harshness, cutoff ~1800 Hz
-    var padLP=ac.createBiquadFilter();padLP.type='lowpass';padLP.frequency.value=1800;padLP.Q.value=0.5;
+    var padLP=ac.createBiquadFilter();padLP.type='lowpass';padLP.frequency.value=1700;padLP.Q.value=0.5;
     padBus.connect(padLP);padLP.connect(bus);padLP.connect(conv);
 
-    // Slow breathing LFO on pad volume (0.06 Hz → period ~16s)
     var breathLFO=ac.createOscillator();breathLFO.type='sine';breathLFO.frequency.value=0.062;
-    var breathLFOG=ac.createGain();breathLFOG.gain.value=0.055; // ±5.5% amplitude swing
-    breathLFO.connect(breathLFOG);breathLFOG.connect(padBus.gain);
-    breathLFO.start();
+    var breathG=ac.createGain();breathG.gain.value=0.05;
+    breathLFO.connect(breathG);breathG.connect(padBus.gain);breathLFO.start();
 
-    var padOscs=[];
-    _CHORD_FREQS.forEach(function(baseFreq,ci){
-      // Two detuned sines per chord note (in tune and +8 cents sharp)
-      [1.0, 1.0046].forEach(function(detune,di){
+    var padOscs=[],padVoices=[];
+    _PROG[0].v.forEach(function(baseFreq,ci){
+      [1.0,1.0046].forEach(function(det){
         var o=ac.createOscillator();
-        o.type='triangle'; // triangle = sine-like but with light odd harmonics, softer than square
-        o.frequency.value=baseFreq*detune;
-        var g=ac.createGain();
-        // Outer notes quieter for natural voicing
-        g.gain.value=ci===0||ci===3 ? 0.11 : 0.09;
-        o.connect(g);g.connect(padBus);
-        o.start();
-        padOscs.push(o);
+        o.type='triangle';o.frequency.value=baseFreq*det;
+        var g=ac.createGain();g.gain.value=(ci===0||ci===3)?0.10:0.085;
+        o.connect(g);g.connect(padBus);o.start();
+        padOscs.push(o);padVoices.push({o:o,det:det,i:ci});
       });
     });
 
-    // ── C. Bell/lead melody ──
-    var melBus=ac.createGain();melBus.gain.value=1;
-    melBus.connect(bus);melBus.connect(conv); // wet + dry
-
-    var _timers={mel:null,melStart:null,shimmer:null,pulse:null};
-
-    var _melIdx=0;
-    // BPM=72, 1 beat=833ms. Melody uses varied note lengths.
-    var _NOTE_DUR=[833,833,1250,833,833,1250,1083,833,833,1250,833,1083,833,833,1666,833,833,833,1250,833,833,1083,833,1250];
-
-    function playMelNote(){
-      if(!_music)return;
-      var idx=_melIdx%_PHRASE.length;
-      var freq=_PENTA[_PHRASE[idx]];
-      var dur=(_NOTE_DUR[idx%_NOTE_DUR.length])/1000;
-
-      if(!_muted){
-        var t=ac.currentTime;
-        var o=ac.createOscillator();
-        o.type='triangle';
-        o.frequency.setValueAtTime(freq*0.998,t);
-        o.frequency.linearRampToValueAtTime(freq,t+0.02);
-
-        var vibLFO=ac.createOscillator();vibLFO.type='sine';vibLFO.frequency.value=5.2;
-        var vibG=ac.createGain();vibG.gain.setValueAtTime(0,t);
-        vibG.gain.linearRampToValueAtTime(0,t+dur*0.6);
-        vibG.gain.linearRampToValueAtTime(3.5,t+dur*0.85);
-        vibLFO.connect(vibG);vibG.connect(o.frequency);
-        vibLFO.start(t);vibLFO.stop(t+dur+0.05);
-
-        var g=ac.createGain();
-        g.gain.setValueAtTime(0,t);
-        g.gain.linearRampToValueAtTime(0.22,t+0.018);
-        g.gain.exponentialRampToValueAtTime(0.001,t+dur*1.6);
-
-        o.connect(g);g.connect(melBus);
-        o.start(t);o.stop(t+dur*1.7);
-      }
-
-      _melIdx++;
-      _timers.mel=setTimeout(playMelNote,_NOTE_DUR[idx%_NOTE_DUR.length]);
-    }
-    _timers.melStart=setTimeout(playMelNote,4000);
-
-    // ── E. Sub-bass ──
-    /*
-      The original arrangement deliberately had no low end at all. On a laptop it
-      reads as airy; on a phone speaker it reads as thin, and on anything with a
-      woofer it reads as missing. This adds a root-A sub (55 Hz sine) with a
-      110 Hz triangle above it for the harmonic that small speakers can actually
-      reproduce, low-passed so it never muddies the pad.
-    */
+    // ── bass: root sine plus the octave a small speaker can actually move ──
     var bassBus=ac.createGain();
     var bassLP=ac.createBiquadFilter();bassLP.type='lowpass';bassLP.frequency.value=190;bassLP.Q.value=0.7;
     bassBus.connect(bassLP);bassLP.connect(bus);
     bassBus.gain.setValueAtTime(0,ac.currentTime);
-    bassBus.gain.linearRampToValueAtTime(0.5,ac.currentTime+4.0);
-    [[55,'sine',0.30],[110,'triangle',0.10]].forEach(function(cfg){
-      var o=ac.createOscillator();o.type=cfg[1];o.frequency.value=cfg[0];
+    bassBus.gain.linearRampToValueAtTime(0.46,ac.currentTime+4.0);
+    var bassOscs=[];
+    [[1,'sine',0.28],[2,'triangle',0.085]].forEach(function(cfg){
+      var o=ac.createOscillator();o.type=cfg[1];o.frequency.value=_PROG[0].bass*cfg[0];
       var g=ac.createGain();g.gain.value=cfg[2];
-      o.connect(g);g.connect(bassBus);o.start();padOscs.push(o);
+      o.connect(g);g.connect(bassBus);o.start();
+      padOscs.push(o);bassOscs.push({o:o,mul:cfg[0]});
     });
-    // A slow swell so the low end breathes with the pad instead of droning flat.
     var bassLFO=ac.createOscillator();bassLFO.type='sine';bassLFO.frequency.value=0.045;
-    var bassLFOG=ac.createGain();bassLFOG.gain.value=0.22;
+    var bassLFOG=ac.createGain();bassLFOG.gain.value=0.2;
     bassLFO.connect(bassLFOG);bassLFOG.connect(bassBus.gain);bassLFO.start();
 
-    // ── F. Pulse ──
-    /*
-      A kick on the beat, gated by intensity: silent on the title screen, driving
-      during a run. It is what makes the same bed feel like menu music in one
-      place and combat music in the other, without a second composition or a cut.
-    */
-    function pulseTick(){
-      if(!_music)return;
-      var amp=_music.intensity;
-      if(!_muted&&amp>0.01){
-        try{
-          var t=ac.currentTime;
-          var o=ac.createOscillator();o.type='sine';
-          o.frequency.setValueAtTime(125,t);
-          o.frequency.exponentialRampToValueAtTime(44,t+0.13);
-          var g=ac.createGain();
-          g.gain.setValueAtTime(0.0001,t);
-          g.gain.exponentialRampToValueAtTime(0.40*amp,t+0.012);
-          g.gain.exponentialRampToValueAtTime(0.0001,t+0.34);
-          o.connect(g);g.connect(bus);
-          o.start(t);o.stop(t+0.42);
-        }catch(e){}
-      }
-      _timers.pulse=setTimeout(pulseTick,833); // BPM 72 — the melody's own grid
-    }
-    _timers.pulse=setTimeout(pulseTick,833);
+    // ── melody ──
+    var melBus=ac.createGain();melBus.gain.value=1;
+    melBus.connect(bus);melBus.connect(conv);
 
-    // ── D. Shimmer (high-frequency air texture) ──
-    function shimmerTick(){
+    /* Intensity is a parameter now, not a switch: it rides a gain so the
+       transition into a run is a swell rather than a cut. */
+    var intG=ac.createGain();intG.gain.value=_wantIntensity;
+    var pulseBus=ac.createGain();pulseBus.gain.value=1;
+    var pulseLP=ac.createBiquadFilter();pulseLP.type='lowpass';pulseLP.frequency.value=260;
+    pulseBus.connect(pulseLP);pulseLP.connect(bus);
+
+    var timers={step:null,shimmer:null};
+    var step=0;                      // eighth notes since the track began
+    var chordIdx=-1;
+
+    function setChord(k){
+      var c=_PROG[k],t=ac.currentTime;
+      padVoices.forEach(function(pv){
+        pv.o.frequency.setTargetAtTime(c.v[pv.i]*pv.det,t,0.45);
+      });
+      bassOscs.forEach(function(b){
+        b.o.frequency.setTargetAtTime(c.bass*b.mul,t,0.5);
+      });
+    }
+
+    function note(freq,dur,vel){
+      if(_muted)return;
+      try{
+        var t=ac.currentTime;
+        var o=ac.createOscillator();o.type='triangle';
+        o.frequency.setValueAtTime(freq*0.997,t);
+        o.frequency.linearRampToValueAtTime(freq,t+0.025);
+        var vib=ac.createOscillator();vib.type='sine';vib.frequency.value=5.0;
+        var vg=ac.createGain();
+        vg.gain.setValueAtTime(0,t);
+        vg.gain.linearRampToValueAtTime(0,t+dur*0.55);
+        vg.gain.linearRampToValueAtTime(2.6,t+dur*0.9);
+        vib.connect(vg);vg.connect(o.frequency);
+        vib.start(t);vib.stop(t+dur+0.05);
+        var g=ac.createGain();
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(0.13*vel,t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0008,t+dur*1.25);
+        o.connect(g);g.connect(melBus);
+        o.start(t);o.stop(t+dur*1.35);
+      }catch(e){}
+    }
+
+    function kick(amp){
+      if(_muted||amp<0.02)return;
+      try{
+        var t=ac.currentTime;
+        var o=ac.createOscillator();o.type='sine';
+        o.frequency.setValueAtTime(115,t);
+        o.frequency.exponentialRampToValueAtTime(42,t+0.14);
+        var g=ac.createGain();
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.26*amp,t+0.014);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+        o.connect(g);g.connect(pulseBus);
+        o.start(t);o.stop(t+0.36);
+      }catch(e){}
+    }
+
+    /* One clock at eighth notes runs the whole arrangement. Everything that
+       happens is a function of the step, which is what keeps the parts in
+       time with each other without a second timer to drift against. */
+    function tick(){
+      if(!_music)return;
+      var bar=Math.floor(step/8), beat=step%8, cyc=bar%4;
+      var amp=_music.intensity;
+
+      if(beat===0){
+        var k=Math.floor(bar/2)%_PROG.length;
+        if(k!==chordIdx){chordIdx=k;setChord(k);}
+      }
+      // beats one and three carry the pulse; the off-beat only at full tilt
+      if(beat===0||beat===4)kick(amp);
+      else if(beat===2||beat===6)kick(amp*0.45);
+
+      if(cyc===0){
+        // the hook, one note every eighth for its six notes
+        if(beat<6)note(_PENTA[_HOOK[beat]],_BEAT*0.9,beat===0?1:0.82);
+      }else if(cyc===3){
+        // the bar of silence
+      }else{
+        // sparse: a couple of notes, placed off the beat as often as on it
+        if(beat===1||beat===5||(beat===3&&Math.random()<0.5)){
+          var deg=_FILL[Math.floor(Math.random()*_FILL.length)];
+          note(_PENTA[deg],_BEAT*(beat===5?1.6:1.0),0.6+Math.random()*0.25);
+        }
+      }
+
+      step++;
+      timers.step=setTimeout(tick,_STEP*1000);
+    }
+    timers.step=setTimeout(tick,900);
+
+    /* Air. This used to be a 5.8 kHz noise burst, which on headphones is close
+       to an ice pick; it is band-limited and much quieter now. */
+    function shimmer(){
       if(!_music)return;
       if(!_muted){
         try{
-          var t=ac.currentTime;
-          var nLen=Math.ceil(sr*0.18);
-          var nBuf=ac.createBuffer(1,nLen,sr);
-          var nd=nBuf.getChannelData(0);
-          for(var i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*Math.pow(1-i/nLen,1.4);
-          var nsrc=ac.createBufferSource();nsrc.buffer=nBuf;
-          var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=5800;hp.Q.value=0.6;
-          var sg=ac.createGain();sg.gain.setValueAtTime(0.04,t);sg.gain.exponentialRampToValueAtTime(0.001,t+0.18);
-          nsrc.connect(hp);hp.connect(sg);sg.connect(bus);
-          nsrc.start(t);
+          var t=ac.currentTime,nLen=Math.ceil(sr*0.6);
+          var nBuf=ac.createBuffer(1,nLen,sr),nd=nBuf.getChannelData(0);
+          for(var i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*Math.pow(1-i/nLen,1.1);
+          var ns=ac.createBufferSource();ns.buffer=nBuf;
+          var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=3200;hp.Q.value=0.5;
+          var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=8000;lp.Q.value=0.5;
+          var sg=ac.createGain();
+          sg.gain.setValueAtTime(0,t);
+          sg.gain.linearRampToValueAtTime(0.018,t+0.25);
+          sg.gain.exponentialRampToValueAtTime(0.0005,t+0.6);
+          ns.connect(hp);hp.connect(lp);lp.connect(sg);sg.connect(bus);
+          ns.start(t);
         }catch(e){}
       }
-      _timers.shimmer=setTimeout(shimmerTick,1800+Math.random()*3200);
+      timers.shimmer=setTimeout(shimmer,4200+Math.random()*5200);
     }
-    shimmerTick();
+    timers.shimmer=setTimeout(shimmer,2600);
 
     _music={
-      bus:bus,conv:conv,
-      padOscs:padOscs,breathLFO:breathLFO,
+      bus:bus,conv:conv,padOscs:padOscs,
       intensity:_wantIntensity,
+      setIntensity:function(v){
+        this.intensity=v;
+        /* the pad opens up a little under fire, which reads as more energy
+           without adding a part */
+        try{padLP.frequency.setTargetAtTime(1700+v*900,ac.currentTime,0.8);}catch(e){}
+      },
       stop:function(){
-        clearTimeout(_timers.mel);clearTimeout(_timers.melStart);
-        clearTimeout(_timers.shimmer);clearTimeout(_timers.pulse);
+        clearTimeout(timers.step);clearTimeout(timers.shimmer);
         padOscs.forEach(function(o){try{o.stop();}catch(e){}});
         try{breathLFO.stop();}catch(e){}
         try{bassLFO.stop();}catch(e){}
       }
     };
+    _music.setIntensity(_wantIntensity);
   }catch(e){console.warn('Music error:',e);}
 }
 
@@ -595,38 +722,44 @@ function setMute(m){
 // ─── SFX ─────────────────────────────────────────────────────────────────────
 var SFX={
   /*
-    Each shot is three layers: a noise click for the attack, a pitched core for
-    the weapon's identity, and a short low thump for weight. The originals were
-    a single thin oscillator each, which on a phone speaker is the one part of
-    the spectrum that does not survive.
+    Each shot is a click for the attack and a pitched core for the weapon's
+    identity. The low thump each one used to carry is gone from the rapid
+    weapons: at eight shots a second it was not weight, it was mud, and it is
+    the single biggest reason the game was tiring to listen to. It survives on
+    the slow, heavy weapons, where there is room for it.
+
+    `_repGain` is what holds the volume down while the trigger is held, and
+    lets it back up the moment the player stops firing.
   */
   shoot:function(w){
-    if(w==='normal'){osc(620,'square',0.045,0.075,190);osc(150,'sine',0.075,0.10,58);noise(0.02,0.05,2800);}
-    else if(w==='spread'){osc(430,'square',0.045,0.07,140);osc(560,'square',0.038,0.05,175);osc(130,'sine',0.07,0.08,52);noise(0.022,0.045,2400);}
-    else if(w==='laser'){osc(1180,'sawtooth',0.07,0.085,210);osc(180,'sine',0.06,0.07,70);noise(0.016,0.04,4200);}
-    else if(w==='plasma'){osc(230,'sawtooth',0.10,0.10,700);osc(96,'sine',0.13,0.13,44);noise(0.03,0.05,1500);}
-    else if(w==='missile'){osc(270,'sawtooth',0.07,0.075,88);osc(110,'sine',0.11,0.11,46);noise(0.05,0.06,1100);}
-    else if(w==='beam'){osc(1450,'sine',0.05,0.09,720);osc(200,'sine',0.055,0.075,80);noise(0.014,0.035,5200);}
+    var r=_repGain('shoot',0.34);
+    if(w==='normal'){osc(640,'square',0.035,0.05*r,230);noise(0.016,0.03*r,2400);}
+    else if(w==='spread'){osc(450,'square',0.035,0.045*r,170);osc(580,'square',0.03,0.03*r,210);noise(0.018,0.028*r,2100);}
+    else if(w==='laser'){osc(1220,'sawtooth',0.055,0.05*r,260);noise(0.012,0.022*r,3600);}
+    else if(w==='plasma'){osc(230,'sawtooth',0.09,0.07*r,700);osc(96,'sine',0.11,0.075*r,46);noise(0.026,0.032*r,1400);}
+    else if(w==='missile'){osc(275,'sawtooth',0.065,0.055*r,92);osc(112,'sine',0.10,0.07*r,48);noise(0.045,0.04*r,1000);}
+    else if(w==='beam'){osc(1480,'sine',0.042,0.055*r,760);noise(0.011,0.02*r,4200);}
   },
-  hit:function(){osc(220,'square',0.025,0.07,90);noise(0.02,0.06,1400);},
+  hit:function(){var r=_repGain('hit',0.3);osc(240,'square',0.02,0.045*r,100);noise(0.016,0.035*r,1200);},
   kill:function(t){
+    var r=_repGain('kill',0.35);
     var ff=[440,380,320,500,280,560,420,360];
     var f=ff[t%ff.length];
-    osc(f,'sine',0.05,0.12,f*0.4);noise(0.04,0.08,1600);
+    osc(f,'sine',0.05,0.085*r,f*0.4);noise(0.035,0.055*r,1400);
   },
   explode:function(big){
-    if(big){osc(30,  'sine',1.4,0.45);osc(48,'sine',1.0,0.55);noise(0.9,0.48,180);}
-    else   {osc(60,'sine',0.32,0.28);noise(0.24,0.22,700);}
+    if(big){duckMusic(0.5,0.9);osc(30,'sine',1.3,0.34);osc(48,'sine',0.95,0.4);noise(0.8,0.34,170);}
+    else   {var r=_repGain('exp',0.4);osc(60,'sine',0.3,0.2*r);noise(0.22,0.16*r,650);}
   },
-  comboUp:function(n){osc(220+n*55,'sine',0.07,0.12,440+n*80);},
-  power:function(){osc(330,'sine',0.08,0.13,660);osc(440,'sine',0.1,0.11,880);osc(660,'sine',0.12,0.1,1320);},
-  shield:function(){osc(800,'sawtooth',0.15,0.14,60);noise(0.1,0.08,1200);},
-  bomb:function(){osc(22,'sine',1.8,0.6);osc(35,'sine',1.4,0.75);noise(0.9,0.5,140);},
-  wave:function(){osc(60,'sine',0.7,0.16,110);osc(110,'sine',0.55,0.12,220);setTimeout(function(){osc(220,'sine',0.4,0.1,440);},280);},
-  boss:function(){osc(40,'sawtooth',0.45,0.2,160);noise(0.25,0.12,380);},
-  upgrade:function(){osc(440,'sine',0.09,0.15);osc(550,'sine',0.11,0.13,880);osc(660,'sine',0.13,0.11,1320);},
-  gameover:function(){osc(32,'sawtooth',1.6,0.5,16);noise(0.6,0.18,180);},
-  menuClick:function(){osc(400,'sine',0.06,0.12,800);}
+  comboUp:function(n){osc(220+n*55,'sine',0.07,0.09,440+n*80);},
+  power:function(){osc(330,'sine',0.08,0.1,660);osc(440,'sine',0.1,0.085,880);osc(660,'sine',0.12,0.075,1320);},
+  shield:function(){osc(800,'sawtooth',0.15,0.1,60);noise(0.1,0.06,1000);},
+  bomb:function(){duckMusic(0.72,1.5);osc(22,'sine',1.7,0.44);osc(35,'sine',1.3,0.55);noise(0.85,0.36,130);},
+  wave:function(){duckMusic(0.3,0.8);osc(60,'sine',0.7,0.13,110);osc(110,'sine',0.55,0.1,220);setTimeout(function(){osc(220,'sine',0.4,0.08,440);},280);},
+  boss:function(){duckMusic(0.45,1.1);osc(40,'sawtooth',0.45,0.16,160);noise(0.25,0.09,340);},
+  upgrade:function(){osc(440,'sine',0.09,0.11);osc(550,'sine',0.11,0.1,880);osc(660,'sine',0.13,0.085,1320);},
+  gameover:function(){duckMusic(0.8,2.0);osc(32,'sawtooth',1.5,0.4,16);noise(0.6,0.14,170);},
+  menuClick:function(){osc(420,'sine',0.05,0.075,840);}
 };
 
 // ─── ACHIEVEMENTS ─────────────────────────────────────────────────────────────

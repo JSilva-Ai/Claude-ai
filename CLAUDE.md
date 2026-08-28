@@ -163,6 +163,45 @@ hub — persistent progression — from a reference image of one, then to use a
 set of sixteen more reference renders (his own art) as the model for enemy
 ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
 
+- **The audio was rebuilt**, on his word that it "isn't good at all" and is
+  "still annoying to listen to". Three faults, in the order they mattered:
+
+  1. **It clipped.** One gain into `destination` and nothing else. At the
+     volume slider's top, heavy fire peaked at **1.40** with 301 samples
+     hard-clipped — that distortion is what "annoying" sounds like. There are
+     three busses now (effects through a compressor and a high shelf, music
+     through a duck) into a master into a limiter. Same test: peak **0.73**,
+     zero clipped.
+  2. **Nothing was ever refused.** Every shot fired three or four oscillators
+     with no variation and no ceiling, so a held trigger was the same sound
+     eight times a second and twenty simultaneous deaths were sixty voices of
+     mud. Every voice is detuned a few percent; a cue repeated inside 0.3 s
+     returns quieter each time (a held trigger settles 66% down) and recovers
+     fully after half a second of quiet; and 14 voices is the hard ceiling.
+  3. **The music never went anywhere.** One chord, held forever, under a fixed
+     24-note phrase with no rests, over a kick on every beat. The harmony now
+     moves — Am–F–C–G, the pad gliding between chord tones — a six-note hook
+     opens each four-bar cycle and **the fourth bar is silent**.
+
+  I cannot hear any of this, so none of it is judged by ear. The engine is
+  rendered in a real audio context through a tap on its own output and
+  measured: peak, clipped samples, RMS spread, and a spectral centroid
+  computed only over bins within 30 dB of each frame's peak. **That last part
+  matters** — the naive centroid said the new mix was much darker, which was
+  false: it was quieter, so more of its high bins fell under the analyser's
+  absolute floor. Measured at matched level the new effects are *brighter*
+  than the old (7.0% vs 4.2% of energy above 2.5 kHz). A level-dependent
+  metric will lie to you about tone.
+
+  One real bug fell out of the measurement: `AudioBufferSourceNode` fires
+  `ended` **twice** in Chrome when an explicit `stop()` lands on the buffer's
+  natural end, so the voice counter walked negative — and a negative counter
+  silently disables the ceiling, which is the one thing meant to stop the mud.
+  The decrement is guarded to fire once per voice.
+
+- **The hub screen's sub-panels all have a Back control**, and the game's
+  four sub-menus were checked and already had theirs.
+
 - **Every enemy in the game is his own art now** — six bosses and six
   regular ships, from the sixteen renders he made. The pass before this one
   had to approximate them as hand-drawn vector hulls, because he pasted the
