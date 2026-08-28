@@ -24,16 +24,46 @@ canvas{display:block;image-rendering:crisp-edges;}
   border:1px solid rgba(0,180,255,0.35);
   box-shadow:0 0 60px rgba(0,80,200,0.25),inset 0 0 40px rgba(0,20,80,0.4);
   border-radius:4px;
-  padding:48px 52px;
+  padding:0 52px 44px;
   min-width:320px;max-width:min(480px,90vw);
   max-height:90vh;overflow-y:auto;
   position:relative;text-align:center;font-family:'Share Tech Mono',monospace;
 }
+/*
+  The way out of a screen may not depend on how tall that screen is. Both of
+  these used to: the sub-menus put BACK at the very bottom of the content, so
+  on a 640-tall phone the Weapons and Achievements screens ended below the
+  fold and you had to know to scroll inside the box to find it, and the pilot
+  hub had no exit at all — no BACK, and its close button was hidden because it
+  opens with closeable:false. This bar is sticky at the top of the scrolling
+  box, so whatever the content does, the way out is on screen.
+*/
+#modal-head{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  /* No negative top margin: it pulls the bar up out of its own flow position
+     while `sticky` still pins it to the box's top edge, and the title ends up
+     under it. The bar simply is the first row of the box. */
+  margin:0 -52px 20px;padding:6px 16px;
+  background:#00102a;
+  border-bottom:1px solid rgba(0,180,255,0.14);
+  min-height:52px;
+}
+#modal-back{
+  display:none;align-items:center;gap:7px;cursor:pointer;
+  background:none;border:none;padding:0 12px;margin:0 -12px;
+  min-height:44px;min-width:64px;                 /* Apple's 44pt minimum */
+  font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;
+  color:rgba(0,190,240,0.75);transition:color .2s,transform .2s;line-height:1;
+}
+#modal-back.on{display:flex;}
+#modal-back span{font-size:20px;line-height:1;margin-top:-2px;}
+#modal-back:hover{color:#00e5ff;transform:translateX(-2px);}
 #modal-close{
-  position:absolute;top:16px;right:20px;
   background:none;border:none;cursor:pointer;
   font-size:22px;color:rgba(0,160,200,0.5);
-  transition:color .2s;line-height:1;
+  min-height:44px;min-width:44px;padding:0 8px;
+  transition:color .2s;line-height:1;margin-left:auto;
 }
 #modal-close:hover{color:#00e5ff;}
 .modal-title{
@@ -123,6 +153,8 @@ canvas{display:block;image-rendering:crisp-edges;}
 
 /* Volume slider pill */
 .vol-row{display:flex;align-items:center;gap:14px;margin-top:28px;padding-top:24px;border-top:1px solid rgba(0,100,160,0.2);}
+/* the divider belongs to the group, not to each slider in it */
+.vol-row + .vol-row{margin-top:12px;padding-top:0;border-top:none;}
 .vol-label{font-size:12px;letter-spacing:2px;color:rgba(0,165,205,0.65);min-width:38px;}
 .vol-slider{
   flex:1;-webkit-appearance:none;appearance:none;height:3px;
@@ -225,7 +257,10 @@ canvas{display:block;image-rendering:crisp-edges;}
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="modal">
   <div id="modal-box">
-    <button id="modal-close">&#10005;</button>
+    <div id="modal-head">
+      <button id="modal-back" type="button"><span>&#8249;</span><b></b></button>
+      <button id="modal-close">&#10005;</button>
+    </div>
     <div id="modal-body"></div>
   </div>
 </div>
@@ -261,7 +296,18 @@ window.addEventListener('orientationchange',function(){setTimeout(resize,200);})
 // ─── AUDIO ENGINE ─────────────────────────────────────────────────────────────
 var AC=null,_ready=false,_vol=0.65;
 var _muted=false;
-try{_muted=localStorage.getItem('vs_mute')==='1';_vol=parseFloat(localStorage.getItem('vs_vol')||'0.65');}catch(e){}
+/*
+  Music and effects get their own level. One master slider cannot answer the
+  only question that matters when someone says the sound is annoying — which
+  half of it — and it cannot let them keep the part they like.
+*/
+var _volMusic=0.7,_volSfx=0.85;
+try{
+  _muted=localStorage.getItem('vs_mute')==='1';
+  _vol=parseFloat(localStorage.getItem('vs_vol')||'0.65');
+  var _sm=localStorage.getItem('vs_vol_music'); if(_sm!==null)_volMusic=parseFloat(_sm);
+  var _ss=localStorage.getItem('vs_vol_sfx');   if(_ss!==null)_volSfx=parseFloat(_ss);
+}catch(e){}
 
 function initAC(){
   if(_ready)return;
@@ -305,7 +351,7 @@ function _master(){
 function _sfxOut(){
   if(!_master())return null;
   if(!_sfxBus){
-    _sfxBus=AC.createGain();_sfxBus.gain.value=0.8;
+    _sfxBus=AC.createGain();_sfxBus.gain.value=0.8*_volSfx;
     var comp=AC.createDynamicsCompressor();
     comp.threshold.value=-19;comp.knee.value=14;comp.ratio.value=3.5;
     comp.attack.value=0.006;comp.release.value=0.14;
@@ -318,7 +364,7 @@ function _sfxOut(){
 function _musicOut(){
   if(!_master())return null;
   if(!_musicBus){
-    _musicBus=AC.createGain();
+    _musicBus=AC.createGain();_musicBus.gain.value=_volMusic;
     _duck=AC.createGain();_duck.gain.value=1;
     _musicBus.connect(_duck);_duck.connect(_masterGain);
   }
@@ -675,6 +721,16 @@ function setVolume(v){
   try{localStorage.setItem('vs_vol',_vol);}catch(e){}
   if(_masterGain)_masterGain.gain.value=_muted?0:_vol;
 }
+function setMusicVolume(v){
+  _volMusic=Math.max(0,Math.min(1,v));
+  try{localStorage.setItem('vs_vol_music',_volMusic);}catch(e){}
+  if(_musicBus)_musicBus.gain.value=_volMusic;
+}
+function setSfxVolume(v){
+  _volSfx=Math.max(0,Math.min(1,v));
+  try{localStorage.setItem('vs_vol_sfx',_volSfx);}catch(e){}
+  if(_sfxBus)_sfxBus.gain.value=0.8*_volSfx;
+}
 function setMute(m){
   _muted=m;
   try{localStorage.setItem('vs_mute',m?'1':'0');}catch(e){}
@@ -921,12 +977,29 @@ function openModal(id,html,closeable){
   _modalStack.push({id:id,html:html,closeable:closeable!==false});
   _renderModal();
 }
+/*
+  Every screen except the two that must not be escaped — the game-over score
+  entry, and the name prompt behind it — offers a way back from the top bar.
+  On the pilot hub that means leaving to the title screen, since the hub is
+  itself a modal over it and popping the last one closes the stack.
+*/
+var _NO_BACK={gameover:1};
+function _backLabel(id){
+  if(id==='main')return 'TITLE';
+  if(id==='pause')return 'RESUME';
+  return 'BACK';
+}
 function _renderModal(){
   var m=_modalStack[_modalStack.length-1];
   if(!m){closeAllModals();return;}
   document.getElementById('modal-body').innerHTML=m.html;
   document.getElementById('modal-close').style.display=m.closeable?'block':'none';
+  var back=document.getElementById('modal-back');
+  back.classList.toggle('on',!_NO_BACK[m.id]);
+  back.querySelector('b').textContent=_backLabel(m.id);
+  back.setAttribute('aria-label',_backLabel(m.id));
   document.getElementById('modal').classList.add('open');
+  document.getElementById('modal-box').scrollTop=0;
   _attachModalEvents(m.id);
 }
 function popModal(){
@@ -939,6 +1012,7 @@ function popModal(){
 }
 function closeAllModals(){_modalStack=[];document.getElementById('modal').classList.remove('open');}
 document.getElementById('modal-close').addEventListener('click',function(){popModal();SFX.menuClick();});
+document.getElementById('modal-back').addEventListener('click',function(){popModal();SFX.menuClick();});
 
 var _dailyTick=null;
 function _clearDailyTick(){if(_dailyTick){clearInterval(_dailyTick);_dailyTick=null;}}
@@ -1284,18 +1358,39 @@ function quitToMenu(){
 
 function volRowHtml(){
   return '<div class="vol-row">'+
-    '<span class="vol-label" style="font-size:18px;"><button id="mute-btn" class="mute-btn">🔊</button></span>'+
-    '<input id="vol-slider" class="vol-slider" type="range" min="0" max="1" step="0.01">'+
-    '<span class="vol-label" style="text-align:right;color:rgba(0,160,200,0.35);">VOL</span>'+
-  '</div>';
+      '<span class="vol-label" style="font-size:18px;"><button id="mute-btn" class="mute-btn">\uD83D\uDD0A</button></span>'+
+      '<input id="vol-slider" class="vol-slider" type="range" min="0" max="1" step="0.01">'+
+      '<span class="vol-label" style="text-align:right;color:rgba(0,160,200,0.35);">VOL</span>'+
+    '</div>'+
+    '<div class="vol-row">'+
+      '<span class="vol-label" style="color:rgba(0,160,200,0.5);">MUSIC</span>'+
+      '<input id="mus-slider" class="vol-slider" type="range" min="0" max="1" step="0.01">'+
+      '<span class="vol-label"></span>'+
+    '</div>'+
+    '<div class="vol-row">'+
+      '<span class="vol-label" style="color:rgba(0,160,200,0.5);">SFX</span>'+
+      '<input id="sfx-slider" class="vol-slider" type="range" min="0" max="1" step="0.01">'+
+      '<span class="vol-label"></span>'+
+    '</div>';
 }
 function _wireVolume(){
   var vs=document.getElementById('vol-slider');
   if(vs){vs.value=_vol;vs.addEventListener('input',function(){setVolume(parseFloat(this.value));});}
+  var ms=document.getElementById('mus-slider');
+  if(ms){ms.value=_volMusic;ms.addEventListener('input',function(){setMusicVolume(parseFloat(this.value));});}
+  var ss=document.getElementById('sfx-slider');
+  if(ss){
+    ss.value=_volSfx;
+    ss.addEventListener('input',function(){
+      setSfxVolume(parseFloat(this.value));
+    });
+    // one click of feedback so the effects level can be judged while setting it
+    ss.addEventListener('change',function(){SFX.menuClick();});
+  }
   var mb=document.getElementById('mute-btn');
   if(mb){
-    mb.textContent=_muted?'🔇':'🔊';
-    mb.addEventListener('click',function(){setMute(!_muted);this.textContent=_muted?'🔇':'🔊';});
+    mb.textContent=_muted?'\uD83D\uDD07':'\uD83D\uDD0A';
+    mb.addEventListener('click',function(){setMute(!_muted);this.textContent=_muted?'\uD83D\uDD07':'\uD83D\uDD0A';});
   }
 }
 
