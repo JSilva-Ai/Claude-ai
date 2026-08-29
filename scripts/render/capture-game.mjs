@@ -123,6 +123,14 @@ await page.addInitScript(() => {
    * clip, same frames, same stills, every time and on every machine. It also
    * means the frame numbers chosen for the stills below stay meaningful
    * instead of silently pointing at whatever happens to be there next time.
+   *
+   * One caveat, because it looks like a bug the first time you meet it: the
+   * audio engine draws from this same stream. Every noise burst fills a buffer
+   * with thousands of Math.random() calls, and the melody and the per-voice
+   * detune take a few more. So a take is reproducible for a given build, but
+   * changing anything about the audio shifts the gameplay RNG and the run
+   * comes out differently — same seed, different score. If the clip and stills
+   * churn after an audio-only commit, that is why, and nothing is wrong.
    */
   let seed = 0x9e3779b9;
   Math.random = () => {

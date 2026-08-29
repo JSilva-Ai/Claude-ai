@@ -74,6 +74,13 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   200-800 Hz down 9.6 dB and no longer the loudest band, crest factor
   3.65 → 5.57, and the spread of 100 ms loudness blocks 4.7 dB → 10.3 dB.
 - **Music and effects have separate levels**, persisted, on top of the master.
+- **`scripts/audio-probe.mjs` measures any of this.** It taps the game's own
+  destination node and reports peak, RMS, crest factor, five band means and
+  the spread of 100 ms loudness blocks; `--file=` points it at a screen
+  recording instead, which is how the drone was found. Two traps are
+  documented in its header: the tap must be installed from `addInitScript`,
+  and a spectral centroid off `getByteFrequencyData` is level-dependent and
+  will tell you a quieter mix is a darker one.
 - **Output chain** — `sfx → compressor → high shelf ─┐`, `music → duck ─┴→
   master → limiter → destination`. Explosions, bombs, bosses, wave changes and
   game over duck the music and let it back up.
