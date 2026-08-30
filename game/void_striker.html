@@ -451,6 +451,13 @@ var _scale=1;
 var DPR_CAP=3;
 var _rscale=1;          // adaptive multiplier, 1 = full device resolution
 function resize(){
+  /* innerWidth/innerHeight, deliberately. In an iframe on a phone these report
+     the 980px desktop layout viewport a subframe falls back to, which looks
+     wrong until you look at the result: the browser scales that whole layout
+     down to the iframe's width, so filling it is exactly right. Clamping to
+     `screen` instead — which does report the real 390pt device — rendered the
+     game as a postage stamp in a field of black. Measure the picture, not the
+     numbers. */
   _scale=Math.min(window.innerWidth/W,window.innerHeight/H);
   var cssW=Math.floor(W*_scale),cssH=Math.floor(H*_scale);
   canvas.style.width=cssW+'px';
