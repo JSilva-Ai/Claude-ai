@@ -84,7 +84,19 @@ draws a frame — `npm run verify` there, in Chromium.
 ## State
 
 Everything is committed and pushed to `main`, which is both the default
-branch and what deploys. The site is at `https://newaivisionlabs.com/`; the
+branch and what deploys. The pilot hub, his enemy art, the audio rebuild, the
+back bars, the phone-performance work and the reference main menu were fifteen
+commits on `game/overhaul-pause-formations-balance` until he said to merge;
+they went to `main` as a fast-forward at **e08409f**, and both `deploy` and
+`checks` finished green on it. That branch is merged and can be deleted
+whenever; it is left in place only because deleting a remote branch is his
+call, not mine.
+
+**A trap that cost real time here, worth avoiding twice:** for most of that
+work the live site was serving a build from before any of it, so testing
+`newaivisionlabs.com` on a phone said nothing about whether a fix had landed.
+`<meta name="build-sha">` is the only thing that settles which build a browser
+has — check it before concluding a change did not work. The site is at `https://newaivisionlabs.com/`; the
 `github.io` URL now redirects there. Every page carries
 `<meta name="build-sha">` — that settles which build a browser is showing,
 which is not hypothetical.
