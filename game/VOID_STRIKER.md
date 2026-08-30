@@ -81,6 +81,17 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   documented in its header: the tap must be installed from `addInitScript`,
   and a spectral centroid off `getByteFrequencyData` is level-dependent and
   will tell you a quieter mix is a darker one.
+- **Render resolution adapts.** The backing store is sized from the box the
+  canvas occupies, not from the logical 520x720 — sizing it from the logical
+  size meant a 390pt iPhone drew 1560x2160 for a 1170x1620 display and ran at
+  6.7 fps. `_rscale` steps the buffer down when frames are slow and back up
+  when there is headroom, judged on the frame interval (Canvas 2D work is
+  deferred, so timing update+draw reports a comfortable 3 ms on a device
+  visibly running at 10) against a threshold above the 16.7 ms vsync floor.
+- **The pilot hub follows the supplied reference**: pilot card and scrap, the
+  skewed wordmark, three decks (weapons at their real bullet colours, the
+  hangar drawing the equipped skin, the daily reward), a clipped mission bar,
+  and a five-tile nav — weapons, hangar, awards, ranks, sound.
 - **Output chain** — `sfx → compressor → high shelf ─┐`, `music → duck ─┴→
   master → limiter → destination`. Explosions, bombs, bosses, wave changes and
   game over duck the music and let it back up.

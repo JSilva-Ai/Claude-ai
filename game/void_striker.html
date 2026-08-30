@@ -2,15 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- Added for iOS: cover lets the page reach under the notch and home
+     indicator rather than being letterboxed white, and the web-app tags make
+     an added-to-home-screen launch open full screen on the game's own black
+     instead of in a browser chrome that changes height as you play. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Void Striker">
+<meta name="theme-color" content="#000000">
 <title>VOID STRIKER</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;background:#000;}
 body{overflow:hidden;touch-action:none;user-select:none;}
-#wrap{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;}
-canvas{display:block;image-rendering:crisp-edges;}
+/* 100dvh, not 100vh. On iOS Safari 100vh is the height with the address bar
+   *hidden*, so the flex box is taller than what you can actually see and the
+   canvas centres below the middle — on a short phone its bottom row of
+   controls ends up under the toolbar. dvh is the visible height and follows
+   the toolbar as it hides. The vh line stays as the fallback. */
+#wrap{position:relative;width:100vw;height:100vh;height:100dvh;
+  display:flex;align-items:center;justify-content:center;}
+/* Smooth, not crisp-edges. The backing store is now sized to the box the
+   canvas occupies and can be stepped below it when a device is struggling, so
+   the buffer is sometimes scaled up to fit — and crisp-edges renders that as
+   hard blocky pixels where the default interpolation is simply a slightly
+   softer picture. */
+canvas{display:block;image-rendering:auto;}
 
 /* Modal overlay */
 #modal{
@@ -71,6 +91,136 @@ canvas{display:block;image-rendering:crisp-edges;}
   letter-spacing:4px;margin-bottom:32px;
   color:#00e5ff;text-shadow:0 0 18px rgba(0,180,255,0.6);
 }
+
+/* ── the pilot hub, built to the reference layout ────────────────────────
+   A header carrying the pilot card and the scrap balance, the wordmark, a
+   row of three decks, the mission bar, and a five-tile nav. The reference
+   was drawn for a phone and so is this: the modal box is at most 480px and
+   everything inside it is a column, a 3-track grid, or a 5-track grid.
+*/
+.hb-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.hb-av{
+  flex:none;width:46px;height:46px;border-radius:6px;
+  border:1px solid rgba(0,190,255,.7);
+  background:radial-gradient(circle at 50% 34%,#33547d,#12233f 58%,#070d1c);
+  display:grid;place-items:center;font-size:22px;
+  box-shadow:0 0 14px -4px rgba(0,170,255,.9);
+}
+.hb-id{flex:1;min-width:0;text-align:left;line-height:1.15;}
+.hb-name{font-family:'Orbitron',monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:#fff;}
+.hb-rank{
+  display:inline-block;margin-top:3px;padding:2px 7px;border-radius:3px;
+  border:1px solid rgba(0,190,255,.5);background:rgba(0,60,110,.6);
+  font-size:9px;letter-spacing:1.6px;color:#5fd8ff;white-space:nowrap;
+}
+.hb-xp{display:flex;align-items:center;gap:5px;margin-top:5px;}
+.hb-lvd{
+  flex:none;width:18px;height:18px;border-radius:50%;
+  border:1px solid rgba(0,190,255,.65);background:rgba(6,26,60,.95);
+  display:grid;place-items:center;font-size:8px;color:#5fd8ff;
+}
+.hb-xpt{flex:1;height:4px;border-radius:2px;background:rgba(8,24,56,.95);
+  border:1px solid rgba(0,120,190,.45);overflow:hidden;}
+.hb-xpf{height:100%;background:linear-gradient(90deg,#1f7fd0,#7fe4ff);}
+.hb-scrap2{flex:none;text-align:right;}
+.hb-scrap2 b{display:block;font-family:'Orbitron',monospace;font-weight:900;
+  font-size:15px;color:#ffb020;line-height:1.1;}
+.hb-scrap2 span{font-size:8px;letter-spacing:1.6px;color:rgba(0,165,205,.5);}
+
+/* the wordmark. Orbitron has no italic, so the lean is a skew. */
+.hb-mark{margin:2px 0 16px;line-height:.88;}
+/* Name the two lines that want to be blocks. `.hb-mark span` would outrank
+   `.hb-m3`'s own display and flatten the rules either side of the subtitle
+   into a stray dash at the left margin — the same trap, twice. */
+.hb-mark>.hb-m1,.hb-mark>.hb-m2{display:block;font-family:'Orbitron',monospace;
+  font-weight:900;letter-spacing:1px;transform:skewX(-9deg);}
+.hb-m1{font-size:30px;
+  background:linear-gradient(180deg,#fff 6%,#dff0ff 34%,#8fb6d8 64%,#4a6f96);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(130,205,255,.5));}
+.hb-m2{font-size:34px;margin-top:-2px;
+  background:linear-gradient(180deg,#f7e2ff 6%,#cf95ff 40%,#8f43ee 76%,#5c1fb4);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 16px rgba(170,90,255,.55));}
+.hb-m3{display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:7px;font-size:8.5px;letter-spacing:3px;color:#3fd0ff;text-indent:3px;}
+.hb-m3 i{display:block;width:26px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(63,208,255,.8));}
+.hb-m3 i:last-child{background:linear-gradient(270deg,transparent,rgba(63,208,255,.8));}
+
+/* three decks */
+.hb-decks{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:7px;margin-bottom:14px;}
+.hb-deck{
+  position:relative;padding:7px 6px;border-radius:5px;cursor:pointer;width:100%;
+  border:1px solid rgba(0,140,220,.4);
+  background:linear-gradient(160deg,rgba(16,38,84,.75),rgba(6,14,38,.9));
+  display:grid;grid-template-rows:auto 1fr;gap:5px;
+  transition:border-color .16s,box-shadow .16s;
+}
+.hb-deck:hover{border-color:rgba(0,200,255,.9);box-shadow:0 0 16px -5px rgba(0,180,255,.9);}
+.hb-deck h4{margin:0;font-family:'Orbitron',monospace;font-weight:700;
+  font-size:8px;letter-spacing:1.6px;color:#cfe6ff;text-align:center;}
+.hb-wrow{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.hb-wrow:last-child{margin-bottom:0;}
+.hb-wi{flex:none;width:15px;height:15px;border-radius:3px;border:1px solid;
+  display:grid;place-items:center;font-size:8px;}
+.hb-wb{flex:1;min-width:0;text-align:left;}
+.hb-wn{font-size:7px;letter-spacing:.4px;color:#dbeaff;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.hb-meter{display:flex;gap:1.5px;margin-top:2px;}
+.hb-meter s{flex:1;height:3px;border-radius:1px;background:rgba(10,26,58,.95);}
+.hb-meter s.on{background:var(--mc);}
+.hb-ship{width:100%;height:100%;min-height:52px;display:block;}
+.hb-daily2{display:grid;place-items:center;gap:4px;text-align:center;}
+.hb-daily2 b{font-family:'Orbitron',monospace;font-weight:900;font-size:13px;color:#ffb020;}
+.hb-daily2 em{font-style:normal;font-size:7px;letter-spacing:1.2px;color:rgba(0,165,205,.6);}
+.hb-claim{
+  padding:4px 9px;border-radius:3px;cursor:pointer;
+  border:1px solid #2ecc71;background:rgba(10,60,30,.8);color:#5ef0a0;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1.4px;
+}
+.hb-claim[disabled]{opacity:.45;cursor:default;}
+
+/* the mission bar: a clipped element cannot carry a border, so the rim is a
+   second clipped box behind it */
+.hb-startrow{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.hb-startrow::before,.hb-startrow::after{
+  content:"";flex:none;width:8px;height:16px;
+  border-top:2px solid rgba(63,208,255,.55);border-bottom:2px solid rgba(63,208,255,.55);}
+.hb-startrow::before{border-left:2px solid rgba(63,208,255,.55);}
+.hb-startrow::after{border-right:2px solid rgba(63,208,255,.55);}
+.hb-startwrap{
+  flex:1;min-width:0;padding:2px;
+  background:linear-gradient(180deg,#9fe9ff,#1f9fe0);
+  clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%,0 50%);
+  filter:drop-shadow(0 0 12px rgba(0,180,255,.55));
+}
+#btn-start.hb-start{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  padding:15px 18px;cursor:pointer;border:0;
+  clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%,0 50%);
+  background:linear-gradient(180deg,rgba(12,64,140,.96),rgba(3,16,46,.98));
+  font-family:'Orbitron',monospace;font-weight:900;font-size:14px;
+  letter-spacing:2.5px;color:#fff;text-shadow:0 0 12px rgba(120,220,255,.9);
+  transition:background .18s;
+}
+#btn-start.hb-start:hover{background:linear-gradient(180deg,rgba(26,104,205,.98),rgba(6,26,72,.99));}
+
+/* five-tile nav */
+.hb-nav5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.hb-nav5 button{
+  display:grid;justify-items:center;align-content:center;gap:4px;cursor:pointer;
+  padding:9px 2px;border-radius:5px;min-height:52px;
+  border:1px solid rgba(0,120,200,.5);
+  background:linear-gradient(180deg,rgba(11,26,60,.9),rgba(5,12,32,.95));
+  font-family:'Share Tech Mono',monospace;
+  transition:border-color .16s,background .16s,box-shadow .16s;
+}
+.hb-nav5 button:hover{border-color:rgba(0,200,255,.9);
+  box-shadow:inset 0 0 14px rgba(0,150,255,.28);}
+.hb-nav5 i{font-style:normal;font-size:17px;line-height:1;}
+.hb-nav5 span{font-size:7px;letter-spacing:1px;color:rgba(0,175,215,.75);}
+
 /* Big action buttons */
 .mbtn{
   display:block;width:100%;margin:12px 0;
@@ -272,9 +422,6 @@ canvas{display:block;image-rendering:crisp-edges;}
 // ─── CANVAS SETUP ────────────────────────────────────────────────────────────
 var W=520,H=720;
 var canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-var DPR=Math.min(window.devicePixelRatio||1,3);
-canvas.width=W*DPR;canvas.height=H*DPR;
-ctx.scale(DPR,DPR);
 
 /*
   The canvas is a fixed 520x720 that gets letterboxed to fit, so a phone does not
@@ -284,10 +431,36 @@ ctx.scale(DPR,DPR);
   10-unit caption is 7.5pt. Every type decision in this file is made against it.
 */
 var _scale=1;
+
+/*
+  Render resolution.
+
+  This used to be `canvas.width = W * DPR` with DPR capped at 3 — the backing
+  store sized from the game's *logical* 520x720. But the canvas is then
+  letterboxed down to fit the screen, so on a 390pt iPhone it was drawing
+  1560x2160 into a box the device shows with 1170x1620 physical pixels: a third
+  of every frame rendered and thrown away. Measured on a throttled phone-class
+  CPU that cost 6.7 fps, and dropping shadowBlur entirely only bought 0.8 —
+  it was never the shadows, it was the pixel count.
+
+  So the backing store is sized from the box the canvas actually occupies, and
+  `_rscale` steps it down further when a device cannot keep up. Nothing about
+  what the game draws changes: the transform maps the same 520x720 units onto
+  whatever the buffer happens to be.
+*/
+var DPR_CAP=3;
+var _rscale=1;          // adaptive multiplier, 1 = full device resolution
 function resize(){
   _scale=Math.min(window.innerWidth/W,window.innerHeight/H);
-  canvas.style.width=Math.floor(W*_scale)+'px';
-  canvas.style.height=Math.floor(H*_scale)+'px';
+  var cssW=Math.floor(W*_scale),cssH=Math.floor(H*_scale);
+  canvas.style.width=cssW+'px';
+  canvas.style.height=cssH+'px';
+  var dpr=Math.min(window.devicePixelRatio||1,DPR_CAP)*_rscale;
+  canvas.width=Math.max(1,Math.round(cssW*dpr));
+  canvas.height=Math.max(1,Math.round(cssH*dpr));
+  // setting width/height resets all context state, so the transform that maps
+  // game units onto the buffer has to be re-established every time
+  ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
 }
 resize();
 window.addEventListener('resize',resize);
@@ -877,12 +1050,14 @@ try{_xp=parseInt(localStorage.getItem(XPK)||'0',10)||0;}catch(e){}
 function saveScrap(){try{localStorage.setItem(SCRAPK,String(_scrap));}catch(e){}}
 function saveXp(){try{localStorage.setItem(XPK,String(_xp));}catch(e){}}
 
+/* `tint` is each weapon's own bullet colour, taken from the wmap the HUD
+   already draws with, so the hub cannot drift from what you see in a run. */
 var WPN_TYPES=[
-  {id:'spread', name:'SPREAD SHOT',   icon:'\u2726'},
-  {id:'laser',  name:'LASER CANNON',  icon:'\u26a1'},
-  {id:'plasma', name:'PLASMA TORPEDO',icon:'\u2604'},
-  {id:'missile',name:'MISSILE POD',   icon:'\u25b2'},
-  {id:'beam',   name:'BEAM CANNON',   icon:'\u25ae'},
+  {id:'spread', name:'SPREAD SHOT',   icon:'\u2726', tint:'#00ffaa'},
+  {id:'laser',  name:'LASER CANNON',  icon:'\u26a1', tint:'#ff8800'},
+  {id:'plasma', name:'PLASMA TORPEDO',icon:'\u2604', tint:'#ff44ff'},
+  {id:'missile',name:'MISSILE POD',   icon:'\u25b2', tint:'#ffaa00'},
+  {id:'beam',   name:'BEAM CANNON',   icon:'\u25ae', tint:'#ccffff'},
 ];
 var WPN_MAXLV=5;
 var _wlvl={};try{_wlvl=JSON.parse(localStorage.getItem(WLVLK)||'{}');}catch(e){}
@@ -1066,6 +1241,14 @@ function _attachModalEvents(id){
     if(wpn)wpn.addEventListener('click',function(){SFX.menuClick();openModal('weapons',buildWeaponsHtml());});
     var hg=document.getElementById('btn-hangar');
     if(hg)hg.addEventListener('click',function(){SFX.menuClick();openModal('hangar',buildHangarHtml());});
+    // the two decks are shortcuts into the same two screens
+    var dw=document.getElementById('deck-wpn');
+    if(dw)dw.addEventListener('click',function(){SFX.menuClick();openModal('weapons',buildWeaponsHtml());});
+    var dh=document.getElementById('deck-hangar');
+    if(dh)dh.addEventListener('click',function(){SFX.menuClick();openModal('hangar',buildHangarHtml());});
+    var snd=document.getElementById('btn-sound');
+    if(snd)snd.addEventListener('click',function(){SFX.menuClick();openModal('sound',buildSoundHtml());});
+    _renderDeckShip();
     var dc2=document.getElementById('daily-claim');
     if(dc2)dc2.addEventListener('click',function(){
       var amt=dailyClaim();
@@ -1117,6 +1300,7 @@ function _attachModalEvents(id){
     });
     _renderHangar();
   }
+  if(id==='sound'){_wireVolume();}
   if(id==='pause'){
     var pr=document.getElementById('pz-resume');
     if(pr)pr.addEventListener('click',function(){SFX.menuClick();resumeGame();});
@@ -1235,39 +1419,96 @@ var DCFG=[
   side by side, and it stays exactly what it already was: a modal over the
   title screen's own animated hero ship, not a second rendering surface.
 */
+/*
+  The pilot hub, laid out to the reference: pilot card and balance across the
+  top, the wordmark, three decks, the mission bar, and a five-tile nav.
+
+  Every tile goes somewhere real. The reference's third deck is "upgrades",
+  which in this game is the in-run shop and has no meta screen, so that slot
+  carries the daily reward instead — the one thing on this screen with a
+  deadline. The volume controls moved out to their own screen behind the nav's
+  last tile, which is what let the rest of this fit on a short phone.
+*/
 function buildMainHtml(){
   var lv=pilotLevel(),rk=pilotRank(),
       xpBase=xpForLevel(lv-1),xpNext=xpForLevel(lv),
       xpPct=Math.max(0,Math.min(100,Math.round((_xp-xpBase)/(xpNext-xpBase)*100)));
   var ready=dailyReady();
-  return '<div class="modal-title" style="margin-bottom:16px;">VOID STRIKER</div>'+
-    '<div class="hub-head">'+
-      '<div class="hub-avatar">🚀</div>'+
-      '<div class="hub-id">'+
-        '<div class="hub-name">PILOT</div>'+
-        '<div class="hub-rank">'+rk+' &middot; LV '+lv+'</div>'+
-        '<div class="hub-xpbar"><div class="hub-xpfill" style="width:'+xpPct+'%;"></div></div>'+
+
+  var wRows=WPN_TYPES.slice(0,4).map(function(w){
+    var wl=_wlvl[w.id]||1,segs='';
+    for(var i=0;i<WPN_MAXLV;i++)segs+='<s class="'+(i<wl?'on':'')+'"></s>';
+    return '<span class="hb-wrow">'+
+      '<i class="hb-wi" style="border-color:'+w.tint+';color:'+w.tint+';">'+w.icon+'</i>'+
+      '<span class="hb-wb"><span class="hb-wn">'+w.name+'</span>'+
+      '<span class="hb-meter" style="--mc:'+w.tint+'">'+segs+'</span></span></span>';
+  }).join('');
+
+  return '<div class="hb-head">'+
+      '<div class="hb-av">\uD83D\uDE80</div>'+
+      '<div class="hb-id">'+
+        '<div class="hb-name">PILOT &middot; LV '+lv+'</div>'+
+        '<div class="hb-rank">'+rk+'</div>'+
+        '<div class="hb-xp"><span class="hb-lvd">'+lv+'</span>'+
+          '<span class="hb-xpt"><span class="hb-xpf" style="width:'+xpPct+'%;display:block;height:100%;"></span></span>'+
+        '</div>'+
       '</div>'+
-      '<div class="hub-lv">'+lv+'</div>'+
+      '<div class="hb-scrap2"><b>'+_scrap.toLocaleString()+'</b><span>SCRAP</span></div>'+
     '</div>'+
-    '<div class="hub-scrap">⬡ '+_scrap.toLocaleString()+' SCRAP</div>'+
-    '<div class="hub-daily">'+
-      '<div><div class="hub-daily-lbl">DAILY REWARD</div>'+
-      '<div class="hub-daily-amt">+'+dailyAmount()+' SCRAP</div></div>'+
-      (ready
-        ? '<button id="daily-claim" class="hub-daily-btn">CLAIM</button>'
-        : '<div class="hub-daily-cd" id="daily-cd">'+fmtCountdown(dailyRemainMs())+'</div>')+
+
+    '<div class="hb-mark">'+
+      '<span class="hb-m1">VOID</span><span class="hb-m2">STRIKER</span>'+
+      '<span class="hb-m3"><i></i>DEEP SPACE EDITION<i></i></span>'+
     '</div>'+
-    '<div style="font-size:11px;color:rgba(0,165,205,0.55);letter-spacing:3px;margin-bottom:10px;">SELECT DIFFICULTY</div>'+
-    '<div class="diff-row" style="margin:0 0 20px;"><button id="diff-0" class="diff-btn">EASY</button><button id="diff-1" class="diff-btn sel-normal">NORMAL</button><button id="diff-2" class="diff-btn">HARD</button></div>'+
-    '<button id="btn-start" class="mbtn" style="font-size:14px;padding:20px 0;margin-bottom:18px;">▶  START MISSION</button>'+
-    '<div class="hub-nav">'+
-      '<button id="btn-wpn" class="mbtn">🔫 WEAPONS</button>'+
-      '<button id="btn-hangar" class="mbtn">🛸 HANGAR</button>'+
-      '<button id="btn-ach" class="mbtn">🏆 ACHIEVEMENTS</button>'+
-      '<button id="btn-lb" class="mbtn">🎖 LEADERBOARDS</button>'+
+
+    '<div style="font-size:9px;color:rgba(0,165,205,0.55);letter-spacing:2.5px;margin-bottom:8px;">SELECT DIFFICULTY</div>'+
+    '<div class="diff-row" style="margin:0 0 14px;"><button id="diff-0" class="diff-btn">EASY</button><button id="diff-1" class="diff-btn sel-normal">NORMAL</button><button id="diff-2" class="diff-btn">HARD</button></div>'+
+
+    '<div class="hb-decks">'+
+      '<button class="hb-deck" id="deck-wpn" type="button"><h4>WEAPONS</h4><span>'+wRows+'</span></button>'+
+      '<button class="hb-deck" id="deck-hangar" type="button"><h4>HANGAR</h4>'+
+        '<canvas id="deck-ship" class="hb-ship" width="150" height="120"></canvas></button>'+
+      '<div class="hb-deck" style="cursor:default;"><h4>DAILY</h4>'+
+        '<span class="hb-daily2"><b>+'+dailyAmount()+'</b><em>SCRAP</em>'+
+        (ready
+          ? '<button id="daily-claim" class="hb-claim">CLAIM</button>'
+          : '<span class="hb-claim" id="daily-cd" style="opacity:.55;">'+fmtCountdown(dailyRemainMs())+'</span>')+
+        '</span></div>'+
     '</div>'+
-    volRowHtml();
+
+    '<div class="hb-startrow"><div class="hb-startwrap">'+
+      '<button id="btn-start" class="hb-start" type="button">\u25B6 START MISSION</button>'+
+    '</div></div>'+
+
+    '<div class="hb-nav5">'+
+      '<button id="btn-wpn" type="button"><i>\uD83D\uDD2B</i><span>WEAPONS</span></button>'+
+      '<button id="btn-hangar" type="button"><i>\uD83D\uDEF8</i><span>HANGAR</span></button>'+
+      '<button id="btn-ach" type="button"><i>\uD83C\uDFC6</i><span>AWARDS</span></button>'+
+      '<button id="btn-lb" type="button"><i>\uD83C\uDF96</i><span>RANKS</span></button>'+
+      '<button id="btn-sound" type="button"><i>\uD83D\uDD0A</i><span>SOUND</span></button>'+
+    '</div>';
+}
+
+/* The volume controls, on their own screen now. */
+function buildSoundHtml(){
+  return '<div class="modal-title">SOUND</div>'+
+    volRowHtml()+
+    '<button class="mbtn" onclick="popModal()" style="margin-top:18px;">BACK</button>';
+}
+
+/* The hangar deck draws the equipped ship, the same way the hangar screen does. */
+function _renderDeckShip(){
+  var cv=document.getElementById('deck-ship');
+  if(!cv)return;
+  var cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);
+  var skin=null;
+  for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===_skin)skin=SKINS[i];
+  var img=(skin&&skin.hue!=null)?_tintedShipCanvas(skin):_shipImg;
+  if(img&&_shipImgReady){
+    var sc=Math.min(cv.width/SHIP_IMG_W,cv.height/SHIP_IMG_H)*0.9;
+    var dw=SHIP_IMG_W*sc,dh=SHIP_IMG_H*sc;
+    cx.drawImage(img,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
+  }
 }
 
 function buildWeaponsHtml(){
@@ -3283,7 +3524,52 @@ window.submitScore=function(){
 // ─── LOOP ─────────────────────────────────────────────────────────────────────
 buildNebula();
 buildMoon();
-function loop(){update();draw();requestAnimationFrame(loop);}
+/*
+  Dynamic resolution. A phone that cannot hold 60fps gets a smaller buffer
+  rather than a slideshow; one with headroom climbs back up.
+
+  Two wrong turns are worth recording, because both looked right.
+
+  Timing update()+draw() does not measure the frame. Canvas 2D work is
+  deferred — the JS returns in three milliseconds while the browser spends a
+  hundred rasterising a 1.9 megapixel buffer — so a device visibly running at
+  10fps reported a comfortable three, and nothing ever adapted. The interval
+  between frames is the only honest signal available from script.
+
+  But the interval is floored by vsync at 16.7ms, so a naive "is there
+  headroom" test of `avg < 13` can never be true on a 60Hz screen, and the
+  resolution ratchets down on one slow second at load and never comes back.
+  Hence a threshold above the floor, and three consecutive good windows before
+  climbing, so it does not step up into a frame budget it cannot afford.
+
+  The window is a second of wall time rather than a count of frames: counting
+  frames makes the help arrive slowest exactly where it is needed most, since
+  sixty frames at 10fps is six seconds of slideshow before anything happens.
+*/
+var _perfT0=0,_perfN=0,_perfPrev=0,_perfAcc=0,_perfHold=0,_perfGood=0;
+var _now=(window.performance&&performance.now)
+  ? function(){return performance.now();}
+  : function(){return Date.now();};
+function _adaptResolution(now){
+  if(_perfPrev){
+    var dt=now-_perfPrev;
+    if(dt>0&&dt<400){_perfAcc+=dt;_perfN++;}   // ignore load-time hitches
+  }
+  _perfPrev=now;
+  if(!_perfT0)_perfT0=now;
+  if(now-_perfT0<1000||_perfN<10)return;
+  var avg=_perfAcc/_perfN;
+  _perfAcc=0;_perfN=0;_perfT0=now;
+  if(_perfHold>0){_perfHold--;return;}
+  if(avg>22&&_rscale>0.6){          // under ~45fps
+    _rscale=Math.max(0.6,_rscale-0.2);resize();_perfHold=2;_perfGood=0;
+  }else if(avg<17.5&&_rscale<1){    // sitting on the vsync floor, with room
+    if(++_perfGood>=3){_rscale=Math.min(1,_rscale+0.2);resize();_perfHold=2;_perfGood=0;}
+  }else{
+    _perfGood=0;
+  }
+}
+function loop(){update();draw();_adaptResolution(_now());requestAnimationFrame(loop);}
 loop();
 
 })();

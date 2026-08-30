@@ -163,6 +163,47 @@ hub — persistent progression — from a reference image of one, then to use a
 set of sixteen more reference renders (his own art) as the model for enemy
 ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
 
+- **The game ran at 6.7fps on a phone, and the main menu was never the one he
+  asked for.** Both on his report; both measured before being touched.
+
+  **Performance.** `canvas.width = W * DPR` sized the backing store from the
+  game's *logical* 520x720 with DPR capped at 3 — but the canvas is letterboxed
+  down to fit, so a 390pt iPhone was rendering 1560x2160 into a box the device
+  shows with 1170x1620 physical pixels. A third of every frame was drawn and
+  thrown away. On a CPU throttled to phone class that measured **6.7 fps**, and
+  neutralising `shadowBlur` entirely bought 0.8 — it was never the shadows, it
+  was the pixel count. The buffer is now sized from the box the canvas actually
+  occupies, and a dynamic-resolution step gives pixels back when a device
+  cannot keep up: **30 fps** on the same throttled run, full 1.9 MP at 60 fps
+  where there is headroom.
+
+  Two wrong turns are recorded at the code, because both looked right. Timing
+  `update()+draw()` does not measure a frame — Canvas 2D work is deferred, so a
+  device visibly at 10 fps reported a comfortable 3 ms and nothing adapted. And
+  the frame *interval* is floored by vsync at 16.7 ms, so a naive "is there
+  headroom" test of `avg < 13` can never be true on a 60 Hz screen: the first
+  version ratcheted down on one slow second at load and never came back.
+
+  **Apple.** `viewport-fit=cover` and the web-app meta tags; `100dvh` beside
+  the `100vh` fallback, because on iOS Safari `100vh` is the height with the
+  address bar hidden, so the flex box was taller than the visible area and the
+  canvas centred below the middle; and `image-rendering:auto` in place of
+  `crisp-edges`, which would have rendered a stepped-down buffer as hard blocky
+  pixels rather than a slightly softer picture.
+
+  **The main menu** is now the layout from his two reference images — pilot
+  card and scrap across the top, the skewed wordmark over `DEEP SPACE
+  EDITION`, three decks (weapons with their real bullet colours, the hangar
+  drawing the equipped ship, the daily reward), a clipped mission bar with
+  bracket marks, and a five-tile nav. It had only ever been built as a
+  standalone mockup; the game itself still had the plain modal. The volume
+  controls moved behind the nav's SOUND tile, which is what let the rest fit.
+
+  Worth noting: `.hb-mark span` outranking `.hb-m3` flattened the rules either
+  side of the subtitle into a stray dash at the margin — the **identical**
+  specificity trap already hit and fixed once on the mockup. Name the elements
+  that want `display:block` rather than reaching for a descendant selector.
+
 - **A recording with sound finally settled the audio argument.** He sent three
   screen recordings; the first two had no audio track at all, the third did.
   Extracting it and measuring rather than guessing:
