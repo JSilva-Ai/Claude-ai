@@ -1,0 +1,69 @@
+{
+  "@@locale": "es",
+
+  "appTitle": "LOOP",
+  "appTagline": "La aplicación que evita que lo importante de tu vida quede sin terminar.",
+
+  "menuButton": "Menú",
+  "profileButton": "Tu perfil",
+  "statusOnline": "En línea",
+
+  "greetingMorning": "Buenos días",
+  "greetingAfternoon": "Buenas tardes",
+  "greetingEvening": "Buenas noches",
+  "greetingWithName": "{greeting}, {name}.",
+  "heresWhatsImportant": "Esto es lo importante de hoy.",
+
+  "loopsActive": "LOOPS\nACTIVOS",
+  "activeLoopsSemantics": "{count, plural, =1{1 loop activo} other{{count} loops activos}}",
+
+  "atRisk": "EN RIESGO",
+  "atRiskDescription": "Necesita tu atención",
+  "waiting": "EN ESPERA",
+  "waitingDescription": "Esperando a otros",
+  "today": "HOY",
+  "todayDescription": "Previsto para hoy",
+  "done": "HECHO",
+  "doneDescription": "Loops cerrados",
+
+  "summaryCardSemantics": "{title}, {description}, {count, plural, =0{ningún loop} =1{1 loop} other{{count} loops}}",
+
+  "aiInsight": "INSIGHT DE IA",
+  "upNext": "A CONTINUACIÓN",
+  "addToCalendar": "Añadir al calendario",
+
+  "upNextToday": "Hoy, {time}",
+  "upNextTomorrow": "Mañana, {time}",
+  "upNextOnDate": "{date}, {time}",
+
+  "countdownDaysHours": "en {days} d {hours} h",
+  "countdownHoursMinutes": "en {hours} h {minutes} min",
+  "countdownMinutes": "en {minutes} min",
+  "countdownNow": "ahora",
+  "countdownOverdue": "atrasado",
+
+  "navHome": "Inicio",
+  "navLoops": "Loops",
+  "navCreate": "Crear",
+  "navFocus": "Enfoque",
+  "navMore": "Más",
+
+  "comingSoonTitle": "{section} llegará pronto",
+  "comingSoonBody": "Esta pantalla forma parte de una fase posterior. La Home es la primera pieza de LOOP.",
+  "close": "Cerrar",
+
+  "language": "Idioma",
+  "languageSystem": "Sistema",
+  "languageEnglish": "English",
+  "languagePortuguese": "Português",
+  "languageSpanish": "Español",
+
+  "loading": "Cargando tus loops…",
+  "errorTitle": "No pudimos cargar tus loops",
+  "errorBody": "Algo falló de nuestro lado. No se perdió nada.",
+  "retry": "Intentar de nuevo",
+  "emptyTitle": "No hay nada abierto",
+  "emptyBody": "Todos los loops están cerrados. Disfrútalo.",
+
+  "refresh": "Actualizar"
+}

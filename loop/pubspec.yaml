@@ -1,0 +1,27 @@
+name: loop
+description: LOOP — the app that makes sure nothing important in your life gets left unfinished.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Required by the code that `flutter gen-l10n` generates. No other runtime
+  # dependency is added in this phase: state is ChangeNotifier, the visuals are
+  # CustomPainter and native widgets, and the data layer is a plain repository.
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # Turns on the l10n code generation described by l10n.yaml.
+  generate: true

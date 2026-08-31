@@ -1,0 +1,5 @@
+# The screenshot tool is tagged so it can be excluded by name as well as by
+# its environment variable: `flutter test --exclude-tags screenshots`.
+tags:
+  screenshots:
+    description: Renders the Home to PNG files; not an assertion.
