@@ -18,6 +18,7 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
     required this.today,
     required this.done,
     required this.ai,
+    required this.aiText,
     required this.aiAlt,
     required this.textSecondary,
     required this.textTertiary,
@@ -32,6 +33,11 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
   final Color today;
   final Color done;
   final Color ai;
+
+  /// The violet for text and for icons that carry meaning. See
+  /// [LoopColors.aiText] for why it is not the same value as [ai].
+  final Color aiText;
+
   final Color aiAlt;
   final Color textSecondary;
   final Color textTertiary;
@@ -46,6 +52,7 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
     today: LoopColors.today,
     done: LoopColors.done,
     ai: LoopColors.ai,
+    aiText: LoopColors.aiText,
     aiAlt: LoopColors.aiAlt,
     textSecondary: LoopColors.textSecondary,
     textTertiary: LoopColors.textTertiary,
@@ -62,6 +69,7 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
     Color? today,
     Color? done,
     Color? ai,
+    Color? aiText,
     Color? aiAlt,
     Color? textSecondary,
     Color? textTertiary,
@@ -76,6 +84,7 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
       today: today ?? this.today,
       done: done ?? this.done,
       ai: ai ?? this.ai,
+      aiText: aiText ?? this.aiText,
       aiAlt: aiAlt ?? this.aiAlt,
       textSecondary: textSecondary ?? this.textSecondary,
       textTertiary: textTertiary ?? this.textTertiary,
@@ -95,6 +104,7 @@ class LoopAccents extends ThemeExtension<LoopAccents> {
       today: Color.lerp(today, other.today, t)!,
       done: Color.lerp(done, other.done, t)!,
       ai: Color.lerp(ai, other.ai, t)!,
+      aiText: Color.lerp(aiText, other.aiText, t)!,
       aiAlt: Color.lerp(aiAlt, other.aiAlt, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,

@@ -33,6 +33,20 @@ class LoopRadius {
   static const BorderRadius sheet = BorderRadius.vertical(top: xl);
 }
 
+/// Where the layout changes shape.
+///
+/// The two numbers are Material's window-size classes, which is not a
+/// coincidence worth fighting: they land where the hardware actually lands —
+/// [medium] is a large phone in landscape or a small tablet, [expanded] is a
+/// tablet held properly.
+@immutable
+class LoopBreakpoints {
+  const LoopBreakpoints._();
+
+  static const double medium = 600;
+  static const double expanded = 905;
+}
+
 @immutable
 class LoopSizes {
   const LoopSizes._();
@@ -48,7 +62,8 @@ class LoopSizes {
   static const double createButton = 56;
   static const double bottomNavHeight = 64;
 
-  /// On a tablet the column stops growing and centres. A 1000pt-wide card of
-  /// four words is not a premium layout, it is a stretched phone.
+  /// The compact-window content width. The wider windows have their own, in
+  /// [LoopLayout] — a 1000pt-wide card of four words is not a premium layout,
+  /// it is a stretched phone.
   static const double maxContentWidth = 560;
 }

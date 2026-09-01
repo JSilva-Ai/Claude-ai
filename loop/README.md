@@ -35,7 +35,7 @@ flutter gen-l10n
 ```bash
 dart format lib test
 flutter analyze                     # clean
-flutter test                        # 32 tests
+flutter test                        # 60 tests
 LOOP_SCREENSHOTS=1 flutter test --update-goldens test/screenshots
 ```
 
@@ -56,10 +56,11 @@ lib/
     localization/               ARB files, generated delegates, locale control
     animations/                 the staggered entrance
     utils/                      clock, greeting hours, countdown arithmetic
-    widgets/                    Pressable, LoopSurface, LoopWordmark, LoopMark
+    widgets/                    Pressable, LoopSurface, LoopWordmark,
+                                LoopMark, LoopCompletion
   features/home/
-    models/                     UserProfile, LoopSummary, AIInsight,
-                                UpcomingItem, HomeSnapshot
+    models/                     UserProfile, LoopSummary, LoopItem,
+                                AIInsight, UpcomingItem, HomeSnapshot
     data/                       HomeRepository + the mock implementation
     state/                      HomeController (ChangeNotifier) + HomeScope
     presentation/
@@ -86,6 +87,45 @@ show six active loops above cards reading 3, 2 and 4 without contradicting
 itself. Where a source cannot tell distinct loops apart, the open cards are
 summed as a fallback.
 
+**Depth is a surface, not a shadow.** On a near-black ground a grey drop
+shadow reads as dirt, so the only shadows in the app are coloured glows on the
+three things meant to look lit, and they all come from `LoopElevation`. Cards
+are separated by their border and by which rung of the surface ladder they sit
+on (page → surface → muted → raised).
+
+**A loop closing is one 720 ms gesture**, in `LoopCompletion`: the circle
+draws shut, the check strokes through it with a tenth of the timeline
+overlapping so there is no stutter between them, the mark settles by four
+percent, and the word lands last. One controller, one painter, one opacity —
+no filter, no clip, nothing animated that would force a repaint of anything
+around it. This will eventually play several times a day, which is the reason
+it is short.
+
+**`LoopItem` exists before anything renders it.** The Home draws counts, and
+counts are all four cards need — but everything the product is eventually
+about is a property of the individual loop and not of the count: who is
+waiting on whom, when it stops being recoverable, how long it has been silent,
+what the one next move is. Defining that shape late would mean discovering
+late that the summary was the wrong thing to build on.
+
+**Contrast is a test, not an opinion.** Every text colour is asserted at 4.5:1
+against every ground it is actually painted on — including the tinted card,
+where the accent is washed over the surface at 16% and the maths changes. Two
+colours failed that bar and were fixed at the token: the violet has a separate
+`aiText` value for labels (the fill measured 3.68:1 on its own card, and
+lifting the fill would have changed the ring and the create button), and the
+tertiary grey went from 4.01:1 to 4.61:1 in its worst case. The hierarchy
+between secondary and tertiary text is now carried by size and weight rather
+than by luminance; that is the trade the guideline forces.
+
+**A tablet gets a tablet layout.** `LoopLayout` resolves the window into
+compact / medium / expanded from the width the page is actually given — so a
+split-screen window gets the phone layout, correctly. Wider windows get bigger
+gutters, a bigger ring, the four states in two columns (open on the left,
+settled on the right), and a column centred vertically between the header and
+the navigation bar rather than stacked at the top with half a tablet of
+nothing underneath.
+
 **Nothing is drawn from a bitmap.** The ring, the loop mark in the AI card and
 the one in the navigation bar are `CustomPainter` and a gradient. They are
 sharp at any pixel ratio, they cost no asset download, and they follow the
@@ -101,6 +141,13 @@ files, in all three languages, including the accessibility labels. What is
 *not* localized is mock content — "Dentist appointment", the insight sentence
 — because that is data, and the engine that will eventually produce it will
 produce it in the user's language.
+
+**The language preference has a seam, not a store.** `LocalePreferences` is
+an interface with two methods; `LocaleController` already reads it at startup
+and writes through it on every choice. The implementation that ships forgets,
+because remembering means a plugin — a platform channel, a version to track, a
+native build to keep working — which is more than this phase should spend to
+persist one string. Real storage is one class and one argument in `app.dart`.
 
 **Countdowns are computed, never stored.** `UpcomingItem` holds a `DateTime`.
 "in 4h 18m" is a fact about the moment it is read, so it is derived at render
@@ -133,6 +180,14 @@ Portuguese it still reads.
 
 Nothing else. No state package, no icon package, no font package, no
 animation package.
+
+## Brand assets
+
+`branding/` is where the official icon and splash art go. It is empty and
+documented rather than absent, so that adding them is a drop-in: the file
+names, the sizes, the iOS no-alpha rule and the Android adaptive safe zone are
+written down there. All four platform icon slots currently hold Flutter's
+placeholder.
 
 ## The bundle id
 

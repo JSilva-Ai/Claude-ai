@@ -4,6 +4,7 @@ import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/widgets/loop_logo.dart';
+import '../../../../core/widgets/pressable.dart';
 
 /// Where a later phase's screen will be.
 ///
@@ -49,6 +50,32 @@ class _ComingSoonSheet extends StatelessWidget {
             ),
             const SizedBox(height: LoopSpacing.xs),
             Text(l10n.comingSoonBody, style: context.text.bodyMedium),
+            const SizedBox(height: LoopSpacing.lg),
+            // A named way out, not just the drag handle. A sheet whose only
+            // dismissal is a gesture is a sheet a screen-reader user is stuck
+            // in, and the handle carries no label of its own.
+            Align(
+              alignment: Alignment.centerRight,
+              child: Pressable(
+                onPressed: () => Navigator.of(context).pop(),
+                semanticLabel: l10n.close,
+                minSize: LoopSizes.minTouchTarget,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: LoopSpacing.lg,
+                    vertical: LoopSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.accents.surfaceRaised,
+                    borderRadius: const BorderRadius.all(LoopRadius.sm),
+                    border: Border.all(color: context.accents.borderStrong),
+                  ),
+                  child: ExcludeSemantics(
+                    child: Text(l10n.close, style: context.text.titleMedium),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

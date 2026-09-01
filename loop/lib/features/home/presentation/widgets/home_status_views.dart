@@ -5,7 +5,7 @@ import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_motion.dart';
 import '../../../../core/theme/loop_theme.dart';
-import '../../../../core/widgets/loop_logo.dart';
+import '../../../../core/widgets/loop_completion.dart';
 import '../../../../core/widgets/loop_surface.dart';
 import '../../../../core/widgets/pressable.dart';
 
@@ -164,7 +164,8 @@ class HomeEmptyView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const LoopMark(size: 72, strokeWidth: 5, completion: 1),
+          // The only place in phase 1 where a loop actually closes on screen.
+          LoopCompletion(label: l10n.done),
           const SizedBox(height: LoopSpacing.lg),
           Text(l10n.emptyTitle, style: context.text.titleLarge),
           const SizedBox(height: LoopSpacing.xxs),

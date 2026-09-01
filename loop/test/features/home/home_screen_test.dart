@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loop/app.dart';
+import 'package:loop/core/localization/locale_preferences.dart';
+import 'package:loop/core/theme/loop_dimens.dart';
 import 'package:loop/core/utils/clock.dart';
 import 'package:loop/features/home/data/home_repository.dart';
 import 'package:loop/features/home/data/mock_home_repository.dart';
@@ -11,6 +13,19 @@ import 'package:loop/features/home/models/home_snapshot.dart';
 /// machine's clock happened to say.
 final DateTime _nineFortyOne = DateTime(2026, 8, 31, 9, 41);
 final FixedClock _clock = FixedClock(_nineFortyOne);
+
+/// Preferences that already hold a choice, as they would on a second launch.
+class _StoredLocale implements LocalePreferences {
+  const _StoredLocale(this.locale);
+
+  final Locale locale;
+
+  @override
+  Future<Locale?> load() async => locale;
+
+  @override
+  Future<void> save(Locale? locale) async {}
+}
 
 class _FailingRepository implements HomeRepository {
   const _FailingRepository();
@@ -189,6 +204,40 @@ void main() {
       expect(find.text('AT RISK'), findsOneWidget);
     });
 
+    testWidgets('puts the four states in two columns on a tablet', (
+      WidgetTester tester,
+    ) async {
+      await _pumpHome(
+        tester,
+        size: const Size(834, 1112),
+        locale: const Locale('en'),
+      );
+
+      final Offset atRisk = tester.getTopLeft(find.text('AT RISK'));
+      final Offset waiting = tester.getTopLeft(find.text('WAITING'));
+      final Offset today = tester.getTopLeft(find.text('TODAY'));
+      final Offset done = tester.getTopLeft(find.text('DONE'));
+
+      // Left column: what can still go wrong. Right column: what is settled.
+      expect(atRisk.dy, moreOrLessEquals(today.dy, epsilon: 1));
+      expect(waiting.dy, moreOrLessEquals(done.dy, epsilon: 1));
+      expect(today.dx, greaterThan(atRisk.dx));
+
+      // And the page is not a phone column stranded in the middle: the
+      // gutters grew with the window.
+      expect(atRisk.dx, greaterThan(LoopSpacing.pagePadding));
+    });
+
+    testWidgets('keeps one column on a phone', (WidgetTester tester) async {
+      await _pumpHome(tester, locale: const Locale('en'));
+
+      final Offset atRisk = tester.getTopLeft(find.text('AT RISK'));
+      final Offset today = tester.getTopLeft(find.text('TODAY'));
+
+      expect(today.dx, moreOrLessEquals(atRisk.dx, epsilon: 1));
+      expect(today.dy, greaterThan(atRisk.dy));
+    });
+
     testWidgets('shows the error state and recovers on retry', (
       WidgetTester tester,
     ) async {
@@ -228,6 +277,42 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('AT RISK is coming'), findsOneWidget);
+
+      // And it can be left by a labelled control, not only by a drag.
+      await tester.tap(find.bySemanticsLabel('Close'));
+      await tester.pumpAndSettle();
+      expect(find.text('AT RISK is coming'), findsNothing);
+    });
+
+    testWidgets('the pull-to-refresh gesture is announced', (
+      WidgetTester tester,
+    ) async {
+      await _pumpHome(tester, locale: const Locale('en'));
+
+      expect(
+        tester
+            .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+            .semanticsLabel,
+        'Refresh',
+      );
+    });
+
+    testWidgets('opens in the language it remembered', (
+      WidgetTester tester,
+    ) async {
+      // No locale passed in: the app asks its preferences, as it would on a
+      // cold start after the user chose Spanish last week.
+      await tester.pumpWidget(
+        LoopApp(
+          repository: MockHomeRepository(clock: _clock, delay: Duration.zero),
+          clock: _clock,
+          localePreferences: const _StoredLocale(Locale('es')),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('EN RIESGO'), findsOneWidget);
+      addTearDown(() async => tester.pumpWidget(const SizedBox.shrink()));
     });
 
     testWidgets('the menu switches language for the whole app', (

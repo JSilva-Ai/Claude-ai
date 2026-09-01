@@ -51,7 +51,7 @@ Future<void> showLanguageSheet(BuildContext context) {
                   trailing: controller.locale == locale
                       ? Icon(
                           Icons.check_rounded,
-                          color: sheetContext.accents.ai,
+                          color: sheetContext.accents.aiText,
                         )
                       : null,
                   selected: controller.locale == locale,

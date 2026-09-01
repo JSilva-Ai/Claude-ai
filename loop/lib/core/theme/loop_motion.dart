@@ -17,6 +17,11 @@ class LoopMotion {
   /// The ring is the one element allowed to take its time; it is the brand.
   static const Duration ring = Duration(milliseconds: 1100);
 
+  /// A loop closing: the circle shuts, the check strokes through, the word
+  /// lands. Shorter than the ring's entrance because this one will play
+  /// several times a day.
+  static const Duration completion = Duration(milliseconds: 720);
+
   /// Gap between one entrance element and the next.
   static const Duration stagger = Duration(milliseconds: 55);
 

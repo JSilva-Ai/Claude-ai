@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
+import '../../../../core/theme/loop_elevation.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/theme/loop_typography.dart';
 import '../../../../core/widgets/loop_surface.dart';
@@ -107,16 +108,10 @@ class _CategoryIcon extends StatelessWidget {
         shape: BoxShape.circle,
         color: LoopColors.surface,
         border: Border.all(color: color.withValues(alpha: 0.55), width: 1.5),
-        // A single soft shadow in the accent colour. This is the "glow" from
-        // the reference; it is one shadow, not a blur filter, so it costs the
-        // rasteriser almost nothing.
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: color.withValues(alpha: 0.22),
-            blurRadius: 14,
-            spreadRadius: -2,
-          ),
-        ],
+        // The "glow" from the reference: one shadow in the accent colour, from
+        // the elevation tokens, not a blur filter — it costs the rasteriser
+        // almost nothing.
+        boxShadow: LoopElevation.glowSmall(color),
       ),
       child: Icon(icon, size: 21, color: color),
     );

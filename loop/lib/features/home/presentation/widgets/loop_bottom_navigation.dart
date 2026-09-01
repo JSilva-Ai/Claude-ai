@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
+import '../../../../core/theme/loop_elevation.dart';
 import '../../../../core/theme/loop_motion.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/widgets/loop_logo.dart';
@@ -177,21 +178,14 @@ class _CreateButton extends StatelessWidget {
         child: Container(
           width: LoopSizes.createButton,
           height: LoopSizes.createButton,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: <Color>[LoopColors.ai, LoopColors.aiAlt],
             ),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Color(0x667C5CFF),
-                blurRadius: 20,
-                spreadRadius: -4,
-                offset: Offset(0, 4),
-              ),
-            ],
+            boxShadow: LoopElevation.floating(LoopColors.ai),
           ),
           child: const Icon(Icons.add_rounded, size: 26, color: Colors.white),
         ),

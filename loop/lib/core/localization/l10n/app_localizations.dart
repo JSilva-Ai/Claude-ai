@@ -106,12 +106,6 @@ abstract class AppLocalizations {
   /// **'LOOP'**
   String get appTitle;
 
-  /// Positioning line, used by the app switcher entry and the menu sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'The app that makes sure nothing important gets left unfinished.'**
-  String get appTagline;
-
   /// Accessibility label for the header menu button.
   ///
   /// In en, this message translates to:

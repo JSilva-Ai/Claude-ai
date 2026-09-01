@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core/localization/l10n/app_localizations.dart';
 import 'core/localization/locale_controller.dart';
+import 'core/localization/locale_preferences.dart';
 import 'core/theme/loop_theme.dart';
 import 'core/utils/clock.dart';
 import 'features/home/data/home_repository.dart';
@@ -21,6 +24,7 @@ class LoopApp extends StatefulWidget {
     this.repository = const MockHomeRepository(),
     this.clock = const Clock(),
     this.initialLocale,
+    this.localePreferences = const EphemeralLocalePreferences(),
     super.key,
   });
 
@@ -35,6 +39,10 @@ class LoopApp extends StatefulWidget {
   /// the menu, and so a saved preference has somewhere to be restored into.
   final Locale? initialLocale;
 
+  /// Where the language choice is remembered. The default forgets it at exit;
+  /// see [LocalePreferences] for why real storage is not in this phase.
+  final LocalePreferences localePreferences;
+
   @override
   State<LoopApp> createState() => _LoopAppState();
 }
@@ -43,13 +51,18 @@ class _LoopAppState extends State<LoopApp> {
   late final HomeController _home = HomeController(
     repository: widget.repository,
   );
-  late final LocaleController _locale = LocaleController()
-    ..select(widget.initialLocale);
+  late final LocaleController _locale = LocaleController(
+    preferences: widget.localePreferences,
+  )..select(widget.initialLocale);
 
   @override
   void initState() {
     super.initState();
     _home.load();
+    // A locale passed in explicitly wins over a stored one: it is what a test
+    // or a screenshot run asked for, and restoring over it would be ignoring
+    // the caller.
+    if (widget.initialLocale == null) unawaited(_locale.restore());
   }
 
   @override

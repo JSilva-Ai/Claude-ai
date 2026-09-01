@@ -12,10 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'LOOP';
 
   @override
-  String get appTagline =>
-      'The app that makes sure nothing important gets left unfinished.';
-
-  @override
   String get menuButton => 'Menu';
 
   @override

@@ -4,6 +4,7 @@ import '../../../../core/animations/entrance.dart';
 import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
+import '../../../../core/theme/loop_layout.dart';
 import '../../../../core/utils/clock.dart';
 import '../../models/ai_insight.dart';
 import '../../models/home_snapshot.dart';
@@ -53,49 +54,57 @@ class _HomeScreenState extends State<HomeScreen> {
       body: HomeBackground(
         child: SafeArea(
           bottom: false,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: LoopSizes.maxContentWidth,
-              ),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      LoopSpacing.pagePadding,
-                      LoopSpacing.xs,
-                      LoopSpacing.pagePadding,
-                      LoopSpacing.xs,
-                    ),
-                    child: _Header(controller: controller),
-                  ),
-                  Expanded(
-                    child: switch (controller.state) {
-                      HomeLoading() => const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: LoopSpacing.pagePadding,
-                          ),
-                          child: HomeLoadingView(),
+          // Resolved from the width the page is actually given, not from the
+          // device: a split-screen window on a tablet is a phone-sized page,
+          // and it is right that it gets the phone layout.
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final LoopLayout layout = LoopLayout.of(constraints.maxWidth);
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: layout.maxContentWidth),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          layout.pagePadding,
+                          LoopSpacing.xs,
+                          layout.pagePadding,
+                          LoopSpacing.xs,
                         ),
-                      HomeFailure() => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: LoopSpacing.pagePadding,
-                          ),
-                          child: HomeErrorView(onRetry: controller.load),
-                        ),
-                      HomeReady(snapshot: final HomeSnapshot snapshot) =>
-                        snapshot.isEmpty
-                            ? const HomeEmptyView()
-                            : _HomeContent(
-                                snapshot: snapshot,
-                                clock: widget.clock,
-                                onRefresh: controller.refresh,
+                        child: _Header(controller: controller),
+                      ),
+                      Expanded(
+                        child: switch (controller.state) {
+                          HomeLoading() => Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: layout.pagePadding,
                               ),
-                    },
+                              child: const HomeLoadingView(),
+                            ),
+                          HomeFailure() => Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: layout.pagePadding,
+                              ),
+                              child: HomeErrorView(onRetry: controller.load),
+                            ),
+                          HomeReady(snapshot: final HomeSnapshot snapshot) =>
+                            snapshot.isEmpty
+                                ? const HomeEmptyView()
+                                : _HomeContent(
+                                    snapshot: snapshot,
+                                    clock: widget.clock,
+                                    layout: layout,
+                                    onRefresh: controller.refresh,
+                                  ),
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -152,11 +161,13 @@ class _HomeContent extends StatelessWidget {
   const _HomeContent({
     required this.snapshot,
     required this.clock,
+    required this.layout,
     required this.onRefresh,
   });
 
   final HomeSnapshot snapshot;
   final Clock clock;
+  final LoopLayout layout;
   final Future<void> Function() onRefresh;
 
   @override
@@ -169,67 +180,81 @@ class _HomeContent extends StatelessWidget {
     // rather than everything appearing at the same instant.
     int step = 0;
 
+    final EdgeInsets padding = EdgeInsets.fromLTRB(
+      layout.pagePadding,
+      LoopSpacing.md,
+      layout.pagePadding,
+      LoopSpacing.lg,
+    );
+
+    final List<Widget> sections = <Widget>[
+      Entrance(
+        index: step++,
+        child: _GreetingRow(snapshot: snapshot, clock: clock, layout: layout),
+      ),
+      SizedBox(height: layout.sectionGap),
+      _SummaryCards(snapshot: snapshot, layout: layout, firstIndex: step),
+      if (insight != null) ...<Widget>[
+        SizedBox(height: layout.sectionGap - LoopSpacing.xs),
+        Entrance(
+          index: step + LoopCategory.values.length,
+          child: AIInsightCard(
+            insight: insight,
+            onPressed: () => showComingSoonSheet(context, l10n.aiInsight),
+          ),
+        ),
+        SizedBox(height: layout.cardGap),
+      ],
+      if (upNext != null)
+        Entrance(
+          index: step + LoopCategory.values.length + 1,
+          child: UpNextCard(
+            item: upNext,
+            clock: clock,
+            onPressed: () => showComingSoonSheet(context, l10n.upNext),
+            onAddToCalendar: upNext.isOnCalendar
+                ? null
+                : () => showComingSoonSheet(context, l10n.addToCalendar),
+          ),
+        ),
+    ];
+
     return RefreshIndicator(
       onRefresh: onRefresh,
+      semanticsLabel: l10n.refresh,
       color: LoopColors.aiAlt,
       backgroundColor: LoopColors.surface,
-      child: ListView(
-        // Always scrollable: on a small phone the page overflows and on a
-        // tablet it does not, and pull-to-refresh has to work in both.
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          LoopSpacing.pagePadding,
-          LoopSpacing.md,
-          LoopSpacing.pagePadding,
-          LoopSpacing.lg,
-        ),
-        children: <Widget>[
-          Entrance(
-            index: step++,
-            child: _GreetingRow(snapshot: snapshot, clock: clock),
-          ),
-          const SizedBox(height: LoopSpacing.lg),
-          for (final LoopCategory category in LoopCategory.values) ...<Widget>[
-            Entrance(
-              index: step++,
-              child: LoopSummaryCard(
-                summary: LoopSummary(
-                  category: category,
-                  count: snapshot.countOf(category),
+      // Always scrollable in both branches: on a small phone the page
+      // overflows and on a tablet it does not, and pull-to-refresh has to work
+      // in either case.
+      child: layout.isCompact
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: padding,
+              children: sections,
+            )
+          // On a wide window the content does not fill the height, and letting
+          // it stack at the top leaves half a tablet of nothing underneath.
+          // Centred between the header and the navigation bar it reads as a
+          // composition; it still scrolls the moment it grows past the
+          // viewport, which is what the minimum height buys.
+          : LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) =>
+                  SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: padding,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - padding.vertical,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: sections,
+                  ),
                 ),
-                onPressed: () => showComingSoonSheet(
-                  context,
-                  CategoryPresentation.of(context, category).title,
-                ),
               ),
             ),
-            const SizedBox(height: LoopSpacing.xs + 2),
-          ],
-          if (insight != null) ...<Widget>[
-            const SizedBox(height: LoopSpacing.xs),
-            Entrance(
-              index: step++,
-              child: AIInsightCard(
-                insight: insight,
-                onPressed: () => showComingSoonSheet(context, l10n.aiInsight),
-              ),
-            ),
-            const SizedBox(height: LoopSpacing.sm),
-          ],
-          if (upNext != null)
-            Entrance(
-              index: step++,
-              child: UpNextCard(
-                item: upNext,
-                clock: clock,
-                onPressed: () => showComingSoonSheet(context, l10n.upNext),
-                onAddToCalendar: upNext.isOnCalendar
-                    ? null
-                    : () => showComingSoonSheet(context, l10n.addToCalendar),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
@@ -241,10 +266,15 @@ class _HomeContent extends StatelessWidget {
 /// list, so it holds on a split-screen Android window as well as on a small
 /// iPhone.
 class _GreetingRow extends StatelessWidget {
-  const _GreetingRow({required this.snapshot, required this.clock});
+  const _GreetingRow({
+    required this.snapshot,
+    required this.clock,
+    required this.layout,
+  });
 
   final HomeSnapshot snapshot;
   final Clock clock;
+  final LoopLayout layout;
 
   static const double _stackBelow = 340;
 
@@ -257,6 +287,7 @@ class _GreetingRow extends StatelessWidget {
     final Widget ring = ActiveLoopsIndicator(
       activeLoops: snapshot.activeLoops,
       ratio: snapshot.openRatio,
+      size: layout.ringSize,
     );
 
     return LayoutBuilder(
@@ -280,6 +311,80 @@ class _GreetingRow extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// The four states.
+///
+/// One column on a phone, two on anything wider. Two is not decoration: at
+/// tablet width a single column leaves the four cards stranded in a strip
+/// down the middle, and the point of the screen is that the whole state of
+/// someone's day is one glance.
+class _SummaryCards extends StatelessWidget {
+  const _SummaryCards({
+    required this.snapshot,
+    required this.layout,
+    required this.firstIndex,
+  });
+
+  final HomeSnapshot snapshot;
+  final LoopLayout layout;
+
+  /// Where this block sits in the page's entrance stagger.
+  final int firstIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> cards = <Widget>[
+      for (int i = 0; i < LoopCategory.values.length; i++)
+        Entrance(
+          index: firstIndex + i,
+          child: LoopSummaryCard(
+            summary: LoopSummary(
+              category: LoopCategory.values[i],
+              count: snapshot.countOf(LoopCategory.values[i]),
+            ),
+            onPressed: () => showComingSoonSheet(
+              context,
+              CategoryPresentation.of(context, LoopCategory.values[i]).title,
+            ),
+          ),
+        ),
+    ];
+
+    if (layout.columns == 1) {
+      return Column(
+        children: <Widget>[
+          for (int i = 0; i < cards.length; i++) ...<Widget>[
+            cards[i],
+            if (i != cards.length - 1) SizedBox(height: layout.cardGap),
+          ],
+        ],
+      );
+    }
+
+    // Paired by consequence rather than dealt across: the two states that can
+    // still go wrong stay together in the left column, the two that are
+    // settled in the right.
+    Widget column(List<Widget> children) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            children.first,
+            SizedBox(height: layout.cardGap),
+            children.last,
+          ],
+        );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(child: column(cards.sublist(0, 2))),
+          SizedBox(width: layout.cardGap),
+          Expanded(child: column(cards.sublist(2))),
+        ],
+      ),
     );
   }
 }

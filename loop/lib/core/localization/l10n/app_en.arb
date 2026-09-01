@@ -4,9 +4,6 @@
   "appTitle": "LOOP",
   "@appTitle": { "description": "The product name. Not translated." },
 
-  "appTagline": "The app that makes sure nothing important gets left unfinished.",
-  "@appTagline": { "description": "Positioning line, used by the app switcher entry and the menu sheet." },
-
   "menuButton": "Menu",
   "@menuButton": { "description": "Accessibility label for the header menu button." },
   "profileButton": "Your profile",

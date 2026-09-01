@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
+import '../../../../core/theme/loop_elevation.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/widgets/loop_logo.dart';
 import '../../../../core/widgets/loop_surface.dart';
@@ -28,9 +29,18 @@ class AIInsightCard extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final LoopAccents accents = context.accents;
 
+    // Two colours, not one: the fill tints the card and lights the mark, the
+    // label is read. On the violet card the fill measures 3.68:1 against its
+    // own tint, so a label painted with it would be decoration pretending to
+    // be text.
     final Color accent = switch (insight.tone) {
       InsightTone.positive => accents.ai,
       InsightTone.neutral => accents.ai,
+      InsightTone.attention => accents.waiting,
+    };
+    final Color labelColor = switch (insight.tone) {
+      InsightTone.positive => accents.aiText,
+      InsightTone.neutral => accents.aiText,
       InsightTone.attention => accents.waiting,
     };
 
@@ -57,7 +67,7 @@ class AIInsightCard extends StatelessWidget {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Icon(Icons.auto_awesome, size: 15, color: accent),
+                      Icon(Icons.auto_awesome, size: 15, color: labelColor),
                       const SizedBox(width: LoopSpacing.xs),
                       Flexible(
                         child: Text(
@@ -105,13 +115,7 @@ class _InsightMark extends StatelessWidget {
         height: 64,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: accent.withValues(alpha: 0.28),
-              blurRadius: 24,
-              spreadRadius: -6,
-            ),
-          ],
+          boxShadow: LoopElevation.glowMedium(accent),
         ),
         child: const Center(
           child: LoopMark(

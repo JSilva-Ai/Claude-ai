@@ -97,7 +97,9 @@ class _UpNextCardState extends State<UpNextCard> {
             children: <Widget>[
               Text(
                 l10n.upNext,
-                style: context.text.labelMedium?.copyWith(color: accents.ai),
+                style: context.text.labelMedium?.copyWith(
+                  color: accents.aiText,
+                ),
               ),
               const SizedBox(height: LoopSpacing.sm),
               Row(
@@ -145,7 +147,7 @@ class _UpNextCardState extends State<UpNextCard> {
                       left,
                       textAlign: TextAlign.end,
                       style: context.text.titleMedium?.copyWith(
-                        color: accents.ai,
+                        color: accents.aiText,
                       ),
                     ),
                   ),
@@ -219,7 +221,7 @@ class _CalendarButton extends StatelessWidget {
       child: Icon(
         Icons.calendar_month_rounded,
         size: 19,
-        color: context.accents.ai,
+        color: context.accents.aiText,
       ),
     );
   }

@@ -12,10 +12,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appTitle => 'LOOP';
 
   @override
-  String get appTagline =>
-      'La aplicación que evita que lo importante de tu vida quede sin terminar.';
-
-  @override
   String get menuButton => 'Menú';
 
   @override
