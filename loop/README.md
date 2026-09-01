@@ -35,7 +35,7 @@ flutter gen-l10n
 ```bash
 dart format lib test
 flutter analyze                     # clean
-flutter test                        # 60 tests
+flutter test                        # 70 tests
 LOOP_SCREENSHOTS=1 flutter test --update-goldens test/screenshots
 ```
 
@@ -56,11 +56,13 @@ lib/
     localization/               ARB files, generated delegates, locale control
     animations/                 the staggered entrance
     utils/                      clock, greeting hours, countdown arithmetic
+    models/                     LoopCategory, LoopSummary, LoopItem
     widgets/                    Pressable, LoopSurface, LoopWordmark,
-                                LoopMark, LoopCompletion
+                                LoopMark, LoopCompletion, PrimaryButton,
+                                LoopIconButton, StatusBadge
   features/home/
-    models/                     UserProfile, LoopSummary, LoopItem,
-                                AIInsight, UpcomingItem, HomeSnapshot
+    models/                     UserProfile, AIInsight, UpcomingItem,
+                                HomeSnapshot
     data/                       HomeRepository + the mock implementation
     state/                      HomeController (ChangeNotifier) + HomeScope
     presentation/
@@ -86,6 +88,25 @@ be at risk *and* planned for today, and that is one loop, not two. So
 show six active loops above cards reading 3, 2 and 4 without contradicting
 itself. Where a source cannot tell distinct loops apart, the open cards are
 summed as a fallback.
+
+**The screens own no buttons.** `PrimaryButton`, `LoopIconButton` and
+`StatusBadge` are the three controls the Home is assembled from, and no screen
+builds its own: the retry control, the sheet's close control and the calendar
+action had each grown their own padding, radius and border, drifting a couple
+of pixels apart at a time. `LoopIconButton` carries the name of the house
+rather than shadowing Material's `IconButton`, and its hit area is exactly
+`max(button, 48pt)` — the defect it guards against is real, and it once made a
+tap on the header's menu open the profile.
+
+`StatusBadge` is the single answer to "what does AT RISK look like", in both
+shapes it is drawn in: the ring on a summary card and the pill under a closed
+loop. It never relies on colour alone — every variant carries the category's
+icon, the pill its word, and both announce the state's localized name.
+
+Because the design system draws them, `LoopCategory`, `LoopSummary` and
+`LoopItem` live in `core/models`: they describe what a loop *is*, not what the
+Home *shows*. What stayed in `features/home/models` is the material of one
+screen.
 
 **Depth is a surface, not a shadow.** On a near-black ground a grey drop
 shadow reads as dirt, so the only shadows in the app are coloured glows on the

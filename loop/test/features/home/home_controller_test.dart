@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loop/features/home/data/home_repository.dart';
 import 'package:loop/features/home/models/home_snapshot.dart';
-import 'package:loop/features/home/models/loop_category.dart';
+import 'package:loop/core/models/loop_category.dart';
 import 'package:loop/features/home/models/user_profile.dart';
 import 'package:loop/features/home/state/home_controller.dart';
 import 'package:loop/features/home/state/home_state.dart';

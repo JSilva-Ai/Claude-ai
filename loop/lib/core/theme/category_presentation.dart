@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/localization/l10n/app_localizations.dart';
-import '../../../../core/theme/loop_theme.dart';
-import '../../models/loop_category.dart';
+import '../localization/l10n/app_localizations.dart';
+import 'loop_theme.dart';
+import '../models/loop_category.dart';
 
 /// Everything the presentation layer needs to know about a category: its
 /// words, its colour and its icon.

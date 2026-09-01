@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loop/features/home/models/home_snapshot.dart';
-import 'package:loop/features/home/models/loop_category.dart';
+import 'package:loop/core/models/loop_category.dart';
 import 'package:loop/features/home/models/user_profile.dart';
 
 void main() {

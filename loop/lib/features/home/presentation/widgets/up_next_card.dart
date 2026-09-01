@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/l10n/app_localizations.dart';
-import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/utils/clock.dart';
 import '../../../../core/utils/countdown.dart';
+import '../../../../core/widgets/loop_icon_button.dart';
 import '../../../../core/widgets/loop_surface.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../models/upcoming_item.dart';
@@ -139,28 +139,33 @@ class _UpNextCardState extends State<UpNextCard> {
                     ),
                   ),
                   const SizedBox(width: LoopSpacing.sm),
-                  // The countdown is allowed to wrap rather than being pinned
-                  // to one line: "en 4 h 18 min" is half again the width of
-                  // "in 4h 18m", and it must not push the button off the card.
-                  Flexible(
+                  // Sized by its own text, not by a share of the row. As a
+                  // second flex child it split the line down the middle with
+                  // the title however short it was, which is what broke
+                  // "Dentist appointment" onto two lines where the reference
+                  // keeps it on one. Capped and allowed to wrap instead,
+                  // because "en 4 h 18 min" is half again the width of
+                  // "in 4h 18m" and must never push the button off the card.
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 116),
                     child: Text(
                       left,
                       textAlign: TextAlign.end,
-                      style: context.text.titleMedium?.copyWith(
+                      style: context.text.labelLarge?.copyWith(
                         color: accents.aiText,
+                        letterSpacing: 0.2,
                       ),
                     ),
                   ),
                   if (widget.onAddToCalendar != null) ...<Widget>[
                     const SizedBox(width: LoopSpacing.sm),
-                    Semantics(
-                      button: true,
-                      label: l10n.addToCalendar,
-                      child: Pressable(
-                        onPressed: widget.onAddToCalendar,
-                        minSize: LoopSizes.minTouchTarget,
-                        child: const _CalendarButton(),
-                      ),
+                    LoopIconButton(
+                      icon: Icons.calendar_month_rounded,
+                      onPressed: widget.onAddToCalendar,
+                      semanticLabel: l10n.addToCalendar,
+                      variant: LoopIconButtonVariant.raised,
+                      color: accents.aiText,
+                      iconSize: 19,
                     ),
                   ],
                 ],
@@ -202,27 +207,5 @@ class _UpNextCardState extends State<UpNextCard> {
       CountdownUnit.daysHours =>
         l10n.countdownDaysHours(countdown.major, countdown.minor),
     };
-  }
-}
-
-class _CalendarButton extends StatelessWidget {
-  const _CalendarButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: LoopSizes.headerButton,
-      height: LoopSizes.headerButton,
-      decoration: BoxDecoration(
-        color: LoopColors.surfaceRaised,
-        borderRadius: const BorderRadius.all(LoopRadius.sm),
-        border: Border.all(color: context.accents.border),
-      ),
-      child: Icon(
-        Icons.calendar_month_rounded,
-        size: 19,
-        color: context.accents.aiText,
-      ),
-    );
   }
 }

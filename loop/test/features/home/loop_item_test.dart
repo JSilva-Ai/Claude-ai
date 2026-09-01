@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:loop/features/home/models/loop_category.dart';
-import 'package:loop/features/home/models/loop_item.dart';
+import 'package:loop/core/models/loop_category.dart';
+import 'package:loop/core/models/loop_item.dart';
 
 void main() {
   final DateTime now = DateTime(2026, 8, 31, 9, 41);

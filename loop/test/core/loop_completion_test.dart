@@ -90,15 +90,17 @@ void main() {
       expect(marks(tester).check, 0);
     });
 
-    testWidgets('the word lands last', (WidgetTester tester) async {
-      await tester.pumpWidget(wrap(const LoopCompletion(label: 'DONE')));
+    testWidgets('the footer lands last', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        wrap(const LoopCompletion(footer: Text('DONE'))),
+      );
       await tester.pump();
       await tester.pump(LoopMotion.completion * 0.5);
 
       expect(
         tester.widget<Opacity>(find.byType(Opacity)).opacity,
         0,
-        reason: 'the label must not appear before the check',
+        reason: 'the footer must not appear before the check',
       );
 
       await tester.pumpAndSettle();

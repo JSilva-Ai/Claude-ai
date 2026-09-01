@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart';
 
+// These live in core rather than under features/home because they describe
+// what a loop *is*, not what the Home *shows*: the design system's StatusBadge
+// draws them, and the Loops screen will read them. What stayed behind in
+// features/home/models is the material of one screen — the snapshot, the
+// insight, the next appointment.
+
 /// The four states a loop can be in, in the order the Home shows them.
 ///
 /// Ordered by consequence, not by count: what can still go wrong comes before

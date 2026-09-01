@@ -4,7 +4,7 @@ import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/widgets/loop_logo.dart';
-import '../../../../core/widgets/pressable.dart';
+import '../../../../core/widgets/primary_button.dart';
 
 /// Where a later phase's screen will be.
 ///
@@ -56,24 +56,10 @@ class _ComingSoonSheet extends StatelessWidget {
             // in, and the handle carries no label of its own.
             Align(
               alignment: Alignment.centerRight,
-              child: Pressable(
+              child: PrimaryButton(
+                label: l10n.close,
+                variant: PrimaryButtonVariant.quiet,
                 onPressed: () => Navigator.of(context).pop(),
-                semanticLabel: l10n.close,
-                minSize: LoopSizes.minTouchTarget,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: LoopSpacing.lg,
-                    vertical: LoopSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.accents.surfaceRaised,
-                    borderRadius: const BorderRadius.all(LoopRadius.sm),
-                    border: Border.all(color: context.accents.borderStrong),
-                  ),
-                  child: ExcludeSemantics(
-                    child: Text(l10n.close, style: context.text.titleMedium),
-                  ),
-                ),
               ),
             ),
           ],

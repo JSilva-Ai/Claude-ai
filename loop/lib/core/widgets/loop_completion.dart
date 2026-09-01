@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import '../theme/loop_colors.dart';
 import '../theme/loop_dimens.dart';
 import '../theme/loop_motion.dart';
-import '../theme/loop_typography.dart';
 import 'loop_logo.dart';
 
 /// The product's one signature moment: a loop closing.
@@ -31,7 +30,7 @@ class LoopCompletion extends StatefulWidget {
   const LoopCompletion({
     this.size = 72,
     this.strokeWidth = 5,
-    this.label,
+    this.footer,
     this.autoPlay = true,
     this.onCompleted,
     super.key,
@@ -40,9 +39,10 @@ class LoopCompletion extends StatefulWidget {
   final double size;
   final double strokeWidth;
 
-  /// The word under the mark — "DONE" in the user's language. Omit it where
-  /// the surrounding copy already says so.
-  final String? label;
+  /// What lands under the mark once the check is drawn — the state's badge,
+  /// or nothing where the surrounding copy already says it. A widget rather
+  /// than a string so the badge can be the product's own, not a bare word.
+  final Widget? footer;
 
   /// False holds the widget at its start, for a caller that wants to trigger
   /// the moment itself later.
@@ -125,7 +125,7 @@ class _LoopCompletionState extends State<LoopCompletion>
 
   @override
   Widget build(BuildContext context) {
-    final String? label = widget.label;
+    final Widget? footer = widget.footer;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -142,18 +142,13 @@ class _LoopCompletionState extends State<LoopCompletion>
               trackColor: LoopColors.surfaceRaised,
             ),
           ),
-          if (label != null) ...<Widget>[
+          if (footer != null) ...<Widget>[
             SizedBox(height: LoopSpacing.sm * _word.value),
             Opacity(
               opacity: _word.value,
               child: Transform.translate(
                 offset: Offset(0, (1 - _word.value) * 6),
-                child: Text(
-                  label,
-                  style: LoopTypography.textTheme.labelMedium?.copyWith(
-                    color: LoopColors.done,
-                  ),
-                ),
+                child: footer,
               ),
             ),
           ],

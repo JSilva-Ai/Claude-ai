@@ -1,7 +1,7 @@
 import '../../../core/utils/clock.dart';
 import '../models/ai_insight.dart';
 import '../models/home_snapshot.dart';
-import '../models/loop_category.dart';
+import '../../../core/models/loop_category.dart';
 import '../models/upcoming_item.dart';
 import '../models/user_profile.dart';
 import 'home_repository.dart';

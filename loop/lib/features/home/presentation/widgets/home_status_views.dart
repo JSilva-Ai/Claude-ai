@@ -5,9 +5,11 @@ import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_motion.dart';
 import '../../../../core/theme/loop_theme.dart';
+import '../../../../core/models/loop_category.dart';
 import '../../../../core/widgets/loop_completion.dart';
 import '../../../../core/widgets/loop_surface.dart';
-import '../../../../core/widgets/pressable.dart';
+import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/status_badge.dart';
 
 /// Loading, error and empty.
 ///
@@ -127,22 +129,12 @@ class HomeErrorView extends StatelessWidget {
             const SizedBox(height: LoopSpacing.xxs),
             Text(l10n.errorBody, style: context.text.bodyMedium),
             const SizedBox(height: LoopSpacing.lg),
-            Pressable(
+            // The one thing this screen is for, so it carries the brand
+            // gradient rather than a quiet border.
+            PrimaryButton(
+              label: l10n.retry,
+              icon: Icons.refresh_rounded,
               onPressed: onRetry,
-              semanticLabel: l10n.retry,
-              minSize: LoopSizes.minTouchTarget,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: LoopSpacing.lg,
-                  vertical: LoopSpacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: context.accents.surfaceRaised,
-                  borderRadius: const BorderRadius.all(LoopRadius.sm),
-                  border: Border.all(color: context.accents.borderStrong),
-                ),
-                child: Text(l10n.retry, style: context.text.titleMedium),
-              ),
             ),
           ],
         ),
@@ -165,7 +157,9 @@ class HomeEmptyView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           // The only place in phase 1 where a loop actually closes on screen.
-          LoopCompletion(label: l10n.done),
+          const LoopCompletion(
+            footer: StatusBadge(category: LoopCategory.done),
+          ),
           const SizedBox(height: LoopSpacing.lg),
           Text(l10n.emptyTitle, style: context.text.titleLarge),
           const SizedBox(height: LoopSpacing.xxs),

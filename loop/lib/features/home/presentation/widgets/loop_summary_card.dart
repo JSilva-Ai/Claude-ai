@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/l10n/app_localizations.dart';
-import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
-import '../../../../core/theme/loop_elevation.dart';
 import '../../../../core/theme/loop_theme.dart';
 import '../../../../core/theme/loop_typography.dart';
 import '../../../../core/widgets/loop_surface.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../../../../core/widgets/pressable.dart';
-import '../../models/loop_category.dart';
-import 'category_presentation.dart';
+import '../../../../core/models/loop_category.dart';
+import '../../../../core/theme/category_presentation.dart';
 
 /// One state of the user's life, as a row: icon, name, what it means, count.
 ///
@@ -47,7 +46,10 @@ class LoopSummaryCard extends StatelessWidget {
           ),
           child: Row(
             children: <Widget>[
-              _CategoryIcon(color: style.color, icon: style.icon),
+              StatusBadge(
+                category: summary.category,
+                variant: StatusBadgeVariant.icon,
+              ),
               const SizedBox(width: LoopSpacing.md),
               Expanded(
                 child: Column(
@@ -89,31 +91,6 @@ class LoopSummaryCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _CategoryIcon extends StatelessWidget {
-  const _CategoryIcon({required this.color, required this.icon});
-
-  final Color color;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: LoopSizes.summaryIcon,
-      height: LoopSizes.summaryIcon,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: LoopColors.surface,
-        border: Border.all(color: color.withValues(alpha: 0.55), width: 1.5),
-        // The "glow" from the reference: one shadow in the accent colour, from
-        // the elevation tokens, not a blur filter — it costs the rasteriser
-        // almost nothing.
-        boxShadow: LoopElevation.glowSmall(color),
-      ),
-      child: Icon(icon, size: 21, color: color),
     );
   }
 }

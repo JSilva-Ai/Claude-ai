@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'ai_insight.dart';
-import 'loop_category.dart';
+import '../../../core/models/loop_category.dart';
 import 'upcoming_item.dart';
 import 'user_profile.dart';
 

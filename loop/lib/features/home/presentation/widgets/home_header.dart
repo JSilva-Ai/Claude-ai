@@ -4,6 +4,7 @@ import '../../../../core/localization/l10n/app_localizations.dart';
 import '../../../../core/theme/loop_colors.dart';
 import '../../../../core/theme/loop_dimens.dart';
 import '../../../../core/theme/loop_theme.dart';
+import '../../../../core/widgets/loop_icon_button.dart';
 import '../../../../core/widgets/loop_logo.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../models/user_profile.dart';
@@ -38,11 +39,10 @@ class HomeHeader extends StatelessWidget {
           const Center(child: LoopWordmark()),
           Align(
             alignment: Alignment.centerLeft,
-            child: Pressable(
+            child: LoopIconButton(
+              icon: Icons.menu_rounded,
               onPressed: onMenuPressed,
               semanticLabel: l10n.menuButton,
-              minSize: LoopSizes.minTouchTarget,
-              child: const _MenuButton(),
             ),
           ),
           Align(
@@ -61,28 +61,6 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MenuButton extends StatelessWidget {
-  const _MenuButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: LoopSizes.headerButton,
-      height: LoopSizes.headerButton,
-      decoration: BoxDecoration(
-        color: LoopColors.surface.withValues(alpha: 0.7),
-        borderRadius: const BorderRadius.all(LoopRadius.sm),
-        border: Border.all(color: context.accents.border),
-      ),
-      child: const Icon(
-        Icons.menu_rounded,
-        size: 20,
-        color: LoopColors.textPrimary,
       ),
     );
   }
