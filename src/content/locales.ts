@@ -30,8 +30,21 @@ export interface Locale {
 
 export const locales: Record<LocaleCode, Locale> = {
   en: { code: 'en', lang: 'en', dir: 'ltr', prefix: '', endonym: 'English', ogLocale: 'en_US' },
-  pt: { code: 'pt', lang: 'pt', dir: 'ltr', prefix: 'pt', endonym: 'Português', ogLocale: 'pt_PT' },
+  /*
+   * Brazil, on the owner's decision. The URL stays `/pt/` — short, and it is
+   * the language that is being offered rather than a country — while `lang`
+   * and `hreflang` say `pt-BR`, which is what actually reaches a search engine
+   * and a screen reader. A reader in Portugal is served this and understands
+   * it; the tag says which variant was written, not who may read it.
+   */
+  pt: { code: 'pt', lang: 'pt-BR', dir: 'ltr', prefix: 'pt', endonym: 'Português', ogLocale: 'pt_BR' },
   es: { code: 'es', lang: 'es', dir: 'ltr', prefix: 'es', endonym: 'Español', ogLocale: 'es_ES' },
+  /*
+   * Plain `ar`, not a country. Modern Standard Arabic reads across the region,
+   * and regionalising the tag without regionalising the copy claims a
+   * distinction that would not exist in the text. Revisit only if there is a
+   * country-specific strategy to go with it.
+   */
   ar: { code: 'ar', lang: 'ar', dir: 'rtl', prefix: 'ar', endonym: 'العربية', ogLocale: 'ar_AR' },
 };
 
