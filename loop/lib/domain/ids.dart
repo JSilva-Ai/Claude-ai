@@ -51,6 +51,18 @@ extension type const ActionSuggestionId(String value) implements Object {
       ActionSuggestionId(_checked(raw, 'ActionSuggestionId'));
 }
 
+/// Identifies a detector's interpretation of some evidence — never a
+/// [Commitment]. Composed deterministically from what produced it (the
+/// evidence, the policy version, the interpretation itself), the same
+/// discipline `ActionSuggestion.identifiedBy` already applies: two
+/// evaluations of the same evidence under the same policy always produce the
+/// same id, so a re-run is comparable to the one before it rather than a new,
+/// unrelated candidate.
+extension type const CommitmentCandidateId(String value) implements Object {
+  static CommitmentCandidateId parse(String raw) =>
+      CommitmentCandidateId(_checked(raw, 'CommitmentCandidateId'));
+}
+
 String _checked(String raw, String type) {
   if (raw.trim().isEmpty) {
     throw ArgumentError.value(raw, type, 'An id may not be empty');

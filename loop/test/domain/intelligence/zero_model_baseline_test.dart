@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:loop/domain/evidence/data_sensitivity.dart';
 import 'package:loop/domain/intelligence/action_kind.dart';
 import 'package:loop/domain/intelligence/action_suggestion.dart';
 import 'package:loop/domain/intelligence/loop_signals.dart';
 import 'package:loop/domain/intelligence/ports/intelligence_ports.dart';
 import 'package:loop/domain/intelligence/ports/rule_based_ports.dart';
+import 'package:loop/domain/intelligence/ports/source_signal.dart';
 import 'package:loop/domain/intelligence/risk_assessment.dart';
 import 'package:loop/domain/intelligence/risk_policy.dart';
 import 'package:loop/domain/loop/loop_state.dart';
@@ -41,6 +43,20 @@ void main() {
       const NextActionRecommender recommender =
           RuleBasedNextActionRecommender();
       expect(recommender, isA<RuleBasedNextActionRecommender>());
+    });
+
+    test(
+        'CommitmentDetector has exactly one implementation, and it is rule-based '
+        '(3C)', () {
+      const CommitmentDetector detector = RuleBasedCommitmentDetector();
+      expect(detector, isA<RuleBasedCommitmentDetector>());
+    });
+
+    test(
+        'EntityExtractor has exactly one implementation, and it is rule-based '
+        '(3C)', () {
+      const EntityExtractor extractor = RuleBasedEntityExtractor();
+      expect(extractor, isA<RuleBasedEntityExtractor>());
     });
 
     test('no source file under lib/ implements a vendor client for these ports',
@@ -121,21 +137,53 @@ void main() {
         direct.reasons.map((RiskReasonEntry r) => r.reason),
       );
     });
+
+    test(
+        'CommitmentDetector.detect produces a real, explainable detection with '
+        'no I/O (3C)', () {
+      const CommitmentDetector detector = RuleBasedCommitmentDetector();
+      const SourceSignal signal = SourceSignal(
+        text: "I'll send it Friday",
+        sensitivity: DataSensitivity.ordinary,
+      );
+
+      final CommitmentDetection detection = detector.detect(signal);
+
+      expect(detection.looksLikeCommitment, isTrue);
+      expect(detection.claim, isNotNull);
+    });
+
+    test(
+        'EntityExtractor.extractFrom produces real mention-level entities with '
+        'no I/O (3C)', () {
+      const EntityExtractor extractor = RuleBasedEntityExtractor();
+      const SourceSignal signal = SourceSignal(
+        text: 'Can you send it to me tomorrow?',
+        sensitivity: DataSensitivity.ordinary,
+      );
+
+      final List<ExtractedEntity> entities = extractor.extractFrom(signal);
+
+      expect(entities, isNotEmpty);
+      expect(
+        entities.map((ExtractedEntity e) => e.kind),
+        contains(EntityKind.date),
+      );
+    });
   });
 
   group('ports without a baseline are honestly unimplemented, not faked', () {
-    test(
-        'EntityExtractor, CommitmentDetector and ContextIntelligence have zero implementations',
-        () {
-      // Grepping the source is the honest check here: unlike RiskPredictor and
-      // NextActionRecommender, these three have no rule that could stand in for
-      // a model, and the brief is explicit that 2B must not invent one. Their
-      // absence is the correct state, not a gap to be embarrassed about.
+    test('ContextIntelligence has zero implementations', () {
+      // Grepping the source is the honest check here: unlike the other four
+      // ports, ContextIntelligence has no rule that could stand in for a
+      // model, and the brief is explicit that this layer must not invent
+      // one. 3C's own signals never span more than one piece of evidence at
+      // a time, so cross-evidence summarisation — the one thing this port is
+      // for — still has nothing to read. Its absence is the correct state,
+      // not a gap to be embarrassed about.
       final String rules = File(
         'lib/domain/intelligence/ports/rule_based_ports.dart',
       ).readAsStringSync();
-      expect(rules.contains('implements EntityExtractor'), isFalse);
-      expect(rules.contains('implements CommitmentDetector'), isFalse);
       expect(rules.contains('implements ContextIntelligence'), isFalse);
     });
   });
