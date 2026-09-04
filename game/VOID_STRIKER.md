@@ -88,6 +88,13 @@ VOID STRIKER is a fully functional single-file browser space shooter game (`void
   when there is headroom, judged on the frame interval (Canvas 2D work is
   deferred, so timing update+draw reports a comfortable 3 ms on a device
   visibly running at 10) against a threshold above the 16.7 ms vsync floor.
+- **One home screen.** The game used to open on a title card — wordmark,
+  feature chips, personal best, TAP TO START — and the hub was a second screen
+  behind it, so it cost a tap before showing anything you could act on. The
+  card is gone. The hub opens on load and is the game's first screen; the
+  canvas behind it draws the scene the reference art shows in the middle (the
+  squadron and the player's ship under thrust) and the hub floats over it with
+  its middle left open as a window. Nothing on the canvas is tappable there.
 - **The pilot hub follows the supplied reference**: pilot card and scrap, the
   skewed wordmark, three decks (weapons at their real bullet colours, the
   hangar drawing the equipped skin, the daily reward), a clipped mission bar,

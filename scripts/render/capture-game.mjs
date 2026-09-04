@@ -164,11 +164,15 @@ await page.goto(`file://${GAME}`);
 await page.waitForTimeout(400);
 await page.evaluate(() => document.fonts.ready);
 
-// Draw the title screen, then open the menu and start a NORMAL run.
+// Draw the home screen, then start a NORMAL run.
+//
+// There used to be a `page.click('canvas')` here, because the game opened on a
+// title card you tapped through to reach the menu. That card is gone and the
+// hub opens on load, so the modal now covers the canvas and clicking it timed
+// out — this script failed loudly rather than silently, which is the good
+// version of this failure.
 await page.evaluate(() => window.__step(30));
-await page.screenshot({ path: join(TMP, 'title.png') });
-await page.click('canvas', { position: { x: W / 2, y: H / 2 } });
-await page.waitForTimeout(250);
+await page.screenshot({ path: join(TMP, 'home.png') });
 // #btn-start rather than matching the button's own label text — the pilot
 // hub renamed START GAME to START MISSION and this broke silently until the
 // next capture ran; an id survives a copy change the way text can't.
@@ -359,7 +363,7 @@ if (args.shots) {
   const SHOTS = join(ROOT, 'public', 'media', 'apps', 'void-striker');
   mkdirSync(SHOTS, { recursive: true });
   const picks = [
-    ['title.png', '01'],
+    ['home.png', '01'],          // the hub, which is now the game's first screen
     [`f${pad(242)}.png`, '02'],   // busiest gameplay frame of the take
     [existsSync(join(TMP, 'shop.png')) ? 'shop.png' : `f${pad(359)}.png`, '03'],
     [`f${pad(475)}.png`, '04'],   // a later moment, well clear of the other two

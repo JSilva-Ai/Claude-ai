@@ -174,6 +174,29 @@ hub — persistent progression — from a reference image of one, then to use a
 set of sixteen more reference renders (his own art) as the model for enemy
 ships. The detail is in `game/VOID_STRIKER.md`. Most recent:
 
+- **The game had two home screens; it has one.** A title card you tapped
+  through, then the hub behind it. On his instruction the card is deleted: the
+  hub opens on load, and the canvas behind it now draws only what the reference
+  art puts in the middle — the squadron and the player's ship — with the hub's
+  own middle left open as a window onto it. The hub carries no back control,
+  because there is nothing behind it any more.
+
+  Two things came out of it. The squadron was positioned at `H*.108`, above
+  where the old wordmark sat, and started off-screen left to drift in over
+  about ten seconds — fine for a card you sat looking at, an empty window on a
+  home screen. It sits at `H*.29`, in the window, already in formation. And
+  `capture-game.mjs` broke: it clicked the canvas to open the menu, and the hub
+  now covers the canvas, so the click timed out. **It failed loudly this time**
+  rather than silently as when the start button was renamed, which is the good
+  version of that failure.
+
+  The reference has SCORE / WAVE / CREDITS across the top. This screen is not a
+  run, so those three slots carry the honest equivalents — best score, best
+  wave, scrap held — rather than a mocked-up score. Difficulty moved off the
+  home screen into SETTINGS, and the third deck is UPGRADES, listing what the
+  in-run shop offers and what it costs, read-only: a reference card, not a
+  second economy.
+
 - **The game ran at 6.7fps on a phone, and the main menu was never the one he
   asked for.** Both on his report; both measured before being touched.
 
