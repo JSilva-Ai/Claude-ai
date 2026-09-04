@@ -190,27 +190,82 @@ texture and nothing else.
 ## Checks
 
 ```bash
-npm run check      # types + lint
-npm run qa         # eight routes × six viewports
-npm run qa:a11y    # axe-core, keyboard walk, touch targets
-npm run qa:perf    # Core Web Vitals and measured frame rate
-npm run brand      # regenerate og.jpg and brand/mark-512.png
-npm run demo       # rebuild the game into public/ from game/void_striker.html
-npm run capture    # re-record the 520x720 gameplay clip
+npm run ci            # everything CI runs, at the base CI runs it at
+npm run ci -- --skip-build   # reuse the dist on disk
+npm run ci -- --only=a11y    # one suite (a11y | qa | rtl)
 ```
 
-Everything except `check` and `brand` needs the built site being served:
-`npm run build` then `npm run preview`. Point them elsewhere with `--url=…`.
-`qa:a11y` audits one route at a time; pass `--url` per route.
+`scripts/ci.mjs` **is** what `.github/workflows/checks.yml` runs, rather than a
+local approximation of it. That is the only arrangement where "it passed
+locally" and "it passed CI" mean the same thing, and it is here because both
+halves of that sentence had already been false once: the workflow's
+hand-written accessibility route list went on checking eight routes months
+after there were thirteen, and a base-path bug reached `main` because every
+local run had been at `/` while CI builds at `/Claude-ai/`.
 
-Current numbers on the home page, at 4× CPU throttle with software WebGL:
+It builds at `BASE_PATH=/Claude-ai/`, **passes the same base to the preview
+server**, refuses to run if the server comes up anywhere else, reads the route
+list off the build rather than from a list someone maintains, and then runs the
+accessibility, visual and RTL suites over it.
 
-| | |
-|---|---|
-| LCP | 0.58 s |
-| CLS | 0.0000 |
-| Total transfer | ~364 KB |
-| axe-core | no violations on any route, at rest and with the menu open |
+The base matters. Production builds at the domain root because `public/CNAME`
+is present, so testing at `/` would leave every base-relative URL — which is
+all of them, since links go through `lib/url.ts` — untested in the harder of
+the two configurations.
+
+The individual suites, if you want one on its own:
+
+```bash
+node scripts/a11y.mjs  --url=…   # axe-core, keyboard walk, target sizes
+node scripts/shoot.mjs --url=…   # screenshots; console, request and overflow checks
+node scripts/rtl.mjs   --url=…   # right-to-left regression coverage
+npm run qa:perf                  # Core Web Vitals, informational
+```
+
+### Right-to-left coverage
+
+`scripts/rtl.mjs` forces `dir="rtl"` on a site whose only published locale is
+English. The Latin text then reads oddly, which does not matter: none of what it
+checks is about language. It renders each route in both directions and compares
+them.
+
+- the document must not be wider than the viewport
+- nothing may hang past either edge
+- **an element's distance from the start edge must be the same in both
+  directions** — this is the check that catches a physical property that did not
+  flip, and it is scoped to elements whose width did not change, because a
+  different width means the text wrapped differently and the comparison would be
+  measuring the wrap
+- the `↗` arrow must be mirrored, since a glyph does not mirror itself
+
+It exists as a permanent suite rather than a one-off because a one-off already
+found one: converting a list's `padding-left` to `padding-inline-start` while
+leaving its bullet at `left: calc(…)` pushed `/support/` three pixels wide in
+RTL. Nothing was out of bounds, nothing looked wrong left-to-right, and the
+whole suite stayed green — because every check in it ran left-to-right.
+
+Deliberate exceptions are listed in `EXEMPT` at the top of the script, with the
+reason. Today that is the home page's phone mockup: a phone's side button is on
+the right of the device whichever way the language on its screen reads.
+
+### Screenshot coverage by locale
+
+`scripts/shoot.mjs` sweeps the default locale in full — thirteen routes across
+six viewports — and a translated locale as a sample: five routes at two
+viewports, chosen because between them they carry every component on the site.
+
+That is deliberate arithmetic. Four locales swept the way English is would be
+312 screenshots a run, and a suite slow enough to skip catches nothing. What
+differs in a translation is text — its length, its wrapping, its direction — and
+that breaks a layout at the narrowest width first.
+
+```bash
+node scripts/shoot.mjs --locales=en          # default
+node scripts/shoot.mjs --locales=en,pt       # once /pt/ exists
+```
+
+The run prints which locales it covered and at what depth, so a green result is
+never mistaken for more coverage than it was.
 
 ## Deploying
 

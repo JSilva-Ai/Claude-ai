@@ -16,9 +16,11 @@ concurrency:
 # at "/" here while deploy.yml builds at "/<repo>/" would leave every
 # base-relative URL — which is all of them, since links go through lib/url.ts —
 # untested in exactly the configuration that ships.
+# scripts/ci.mjs defaults to this base and passes it to both the build and the
+# preview server. It is repeated here so the value is visible in the run's log
+# and so any step added later inherits it rather than guessing.
 env:
   BASE_PATH: /Claude-ai/
-  QA_URL: http://127.0.0.1:4173/Claude-ai/
 
 jobs:
   checks:
@@ -46,47 +48,32 @@ jobs:
       # Only Chromium; the suites all drive it directly.
       - run: npx playwright install --with-deps chromium
 
-      - name: Types and lint
-        run: npm run check
-
-      - name: Build
-        run: npm run build
-
-      # nohup and a redirect, not a bare &: the step's shell exits as soon as
-      # the script returns, and a child still attached to it goes with it.
-      - name: Serve the build
-        run: |
-          nohup npx vite preview --port 4173 --host 127.0.0.1 > /tmp/preview.log 2>&1 &
-          for _ in $(seq 1 30); do
-            curl -sf -o /dev/null "$QA_URL" && break
-            sleep 1
-          done
-          curl -sf -o /dev/null "$QA_URL" || {
-            echo "preview server did not come up" >&2
-            cat /tmp/preview.log >&2
-            exit 1
-          }
-
-      # Every route, not just the home page: the legal pages are the ones a
-      # store reviewer opens, and a contrast or target-size regression on those
-      # is exactly as disqualifying as one on the front page.
-      - name: Accessibility
-        run: |
-          fail=0
-          for route in "" apps/ apps/void-striker/ demo/ support/ privacy/ terms/ data-deletion/; do
-            echo "── /$route"
-            node scripts/a11y.mjs --url="${QA_URL}${route}" || fail=1
-          done
-          exit $fail
-
-      - name: Visual QA across six viewports
-        run: npm run qa
+      # One command, and the same one a person runs locally.
+      #
+      # This used to be five separate steps — check, build, serve, a11y over a
+      # hand-written route list, then the visual sweep — which is how the
+      # accessibility step came to be checking eight routes months after there
+      # were thirteen, and how a base-path bug reached main: every local run had
+      # been at "/" while this file quietly built at /Claude-ai/. Both failures
+      # were the same failure, a second definition drifting from the first.
+      #
+      # scripts/ci.mjs is now the only definition. `npm run ci` here and `npm
+      # run ci` on a laptop do the same work, at the same base, over the same
+      # routes — which is the only arrangement where "it passed locally" is
+      # worth anything.
+      - name: Checks
+        run: npm run ci
 
       # Informational: prints Core Web Vitals and measured frame rate so a
       # regression is visible in the log without failing the run on the noise
       # of a shared CI runner.
+      # Informational, and outside `npm run ci` on purpose: it needs its own
+      # server and it must never fail the run on the noise of a shared runner.
       - name: Performance
-        run: npm run qa:perf
+        run: |
+          BASE_PATH=/Claude-ai/ npx vite preview --port 4173 --host 127.0.0.1 &
+          for _ in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:4173/Claude-ai/ && break; sleep 1; done
+          npm run qa:perf
         continue-on-error: true
 
       # The screenshots are the useful artefact when a visual check fails.

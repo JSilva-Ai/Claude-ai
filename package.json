@@ -15,7 +15,9 @@
     "qa:perf": "node scripts/perf.mjs --cpu=4",
     "brand": "node scripts/render/brand.mjs",
     "demo": "node scripts/install-demo.mjs",
-    "capture": "node scripts/render/capture-game.mjs"
+    "capture": "node scripts/render/capture-game.mjs",
+    "ci": "node scripts/ci.mjs",
+    "ci:fast": "node scripts/ci.mjs --skip-build"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

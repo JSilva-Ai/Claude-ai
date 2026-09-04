@@ -105,8 +105,21 @@ has — check it before concluding a change did not work. The site is at `https:
 `<meta name="build-sha">` — that settles which build a browser is showing,
 which is not hypothetical.
 
-Verify with: `npm run check`, `npm run qa`, and `node scripts/a11y.mjs --url=…`
-per route. All were passing at the last commit.
+**Verify with `npm run ci`.** That script *is* what
+`.github/workflows/checks.yml` runs — not a local approximation of it — which is
+the only arrangement where "it passed locally" means anything. It builds at
+`BASE_PATH=/Claude-ai/`, passes the same base to the preview server, refuses to
+run if the server comes up anywhere else, reads the route list off the build,
+and runs the accessibility, visual and RTL suites over it.
+
+Both halves of that were false once, and the failures were the same failure —
+a second definition drifting from the first. The workflow's hand-written
+accessibility route list went on checking eight routes months after there were
+thirteen. And a base-path bug reached `main` because every local run had been
+at `/` while CI builds at `/Claude-ai/`: tags injected by a Vite plugin do not
+go through the base rewrite that literal HTML does, so `/favicon.svg` 404'd
+under a subpath. Production was never affected — it builds at the root — but
+nothing local would have caught it.
 
 ## The Apple enrollment, and the domain
 
