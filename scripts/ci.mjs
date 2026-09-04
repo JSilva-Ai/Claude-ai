@@ -114,16 +114,35 @@ step(`Serve ${URL}`);
  * "/" and every subpath request falls through to the SPA fallback, which serves
  * the home page — a failure that looks like the one it hides.
  */
+/*
+ * `detached` so the server gets its own process group.
+ *
+ * `npx vite preview` is a wrapper: npx spawns node, node is the thing listening.
+ * Killing the npx process leaves the listener running, holding the port and this
+ * script's event loop open — the suite prints its result and then never exits.
+ * That is not a cosmetic problem: the CI job has a 20-minute timeout, so a run
+ * where every check passed would still fail. Its own group means `stop()` can
+ * take the whole tree down.
+ */
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--host', '127.0.0.1'], {
   env: { ...process.env, BASE_PATH: BASE },
   stdio: ['ignore', 'pipe', 'pipe'],
+  detached: true,
 });
 let serverLog = '';
 server.stdout.on('data', (d) => (serverLog += d));
 server.stderr.on('data', (d) => (serverLog += d));
 
+let stopped = false;
 const stop = () => {
-  if (!server.killed) server.kill('SIGTERM');
+  if (stopped) return;
+  stopped = true;
+  try {
+    // Negative pid: the group, not just the wrapper.
+    process.kill(-server.pid, 'SIGTERM');
+  } catch {
+    /* already gone */
+  }
 };
 process.on('exit', stop);
 process.on('SIGINT', () => {
@@ -196,3 +215,10 @@ if (failed.length) {
   process.exit(1);
 }
 console.log('\x1b[32m✓ everything CI runs, green\x1b[0m');
+/*
+ * Explicit, and not redundant. Anything still holding the event loop open —
+ * a socket the preview server has not finished closing, a browser handle —
+ * would otherwise keep a finished run alive until CI's job timeout kills it,
+ * and report a failure for work that passed.
+ */
+process.exit(0);
