@@ -71,7 +71,14 @@ export const dataDeletion = {
   title: 'Data Deletion',
   description:
     'How to delete data from New AI Vision Labs apps. Nothing is stored on our servers, so deletion happens on your device.',
-  updated: '[TODO — set on the day this is published]',
+  /*
+   * The same day the privacy policy and the terms were published, and factual
+   * for this page: its content was final on 17 August and has not changed
+   * since, so 21 August is when it went live rather than when it was written.
+   * All three store-facing documents agreeing is also what a reviewer
+   * comparing them expects.
+   */
+  updated: 'August 21, 2026',
   headline: 'Deleting your data.',
   lede: 'There is nothing on our servers to delete, because nothing is ever sent there. Everything our apps save stays on your own device, and you control it.',
   intro: [
