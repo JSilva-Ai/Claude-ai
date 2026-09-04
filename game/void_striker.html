@@ -1392,7 +1392,19 @@ function _attachModalEvents(id){
       SFX.menuClick();
       openModal('lb',buildLBHtml());
     });
-    if(rb)rb.addEventListener('click',function(){closeAllModals();openModal('main',buildMainHtml(),false);});
+    /*
+      PLAY AGAIN used to open the hub, which is not what it says: the run was
+      over and the button that promised another one dropped you at the menu.
+      It now starts a run at the difficulty just played, and MAIN MENU is the
+      way back to the hub -- there was no way back at all before.
+    */
+    if(rb)rb.addEventListener('click',function(){
+      SFX.menuClick();
+      closeAllModals();
+      startGame(gs.difficulty);
+    });
+    var mb2=document.getElementById('go-menu');
+    if(mb2)mb2.addEventListener('click',function(){SFX.menuClick();quitToMenu();});
     if(ni)ni.addEventListener('keydown',function(e){if(e.key==='Enter'&&sb)sb.click();});
     _wireVolume();
   }
@@ -1693,6 +1705,7 @@ function buildGameoverHtml(){
       '<button id="go-submit" class="mbtn green">SUBMIT SCORE</button>'+
     '</div>'+
     '<button id="go-retry" class="mbtn">PLAY AGAIN</button>'+
+    '<button id="go-menu" class="mbtn">\u25C0  MAIN MENU</button>'+
     volRowHtml();
 }
 
