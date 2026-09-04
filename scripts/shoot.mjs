@@ -34,7 +34,15 @@ const VIEWPORTS = {
   small: { width: 320, height: 640, dsf: 2 },
 };
 
-/** Route → filename stem. Keep in step with public/sitemap.xml. */
+/**
+ * Route → filename stem, for the default locale.
+ *
+ * Routes are the routes *within* a locale. A locale is a prefix in front of
+ * them, applied below — which is what keeps this list from being multiplied by
+ * hand the day a second language exists.
+ *
+ * Keep in step with public/sitemap.xml.
+ */
 const ROUTES = [
   ['', 'home'],
   ['apps/', 'apps'],
@@ -51,12 +59,75 @@ const ROUTES = [
   ['data-deletion/', 'data-deletion'],
 ];
 
+/**
+ * How much of the site each locale is swept at.
+ *
+ * Not every route in every locale at every viewport. Thirteen routes across six
+ * viewports is 78 screenshots; four locales that way is 312, and a suite that
+ * takes long enough to be skipped catches nothing at all.
+ *
+ * The default locale gets everything, because that is where a layout change
+ * lands first and where the copy is authored. A translated locale gets a
+ * sample, because what differs there is *text* — its length, its wrapping, its
+ * direction — and the five routes below carry every component the site has:
+ * the home page has the hero, the approach grid and the product cards; /apps/
+ * the grouped grid; a product page the detail layout and the side rail;
+ * /support/ the prose and its lists; /privacy/ the long-form document and its
+ * rail. Two viewports rather than six, for the same reason: a translation
+ * breaks a layout by being longer than the English, and that shows at the
+ * narrowest width and at one comfortable one.
+ *
+ * Everything after this is a switch on `coverage`, so widening a locale to a
+ * full sweep is one word.
+ */
+const SAMPLE_ROUTES = ['', 'apps/', 'apps/void-striker/', 'support/', 'privacy/'];
+const SAMPLE_VIEWPORTS = ['desktop', 'mobile'];
+
+/**
+ * The locales to sweep, and how deeply.
+ *
+ * `en` is the default and unprefixed. The others are listed but not swept,
+ * because they are not published — passing --locales=pt once /pt/ exists is
+ * what turns them on, and the run says plainly which it covered so a green
+ * result is never mistaken for more coverage than it was.
+ */
+const LOCALES = {
+  en: { prefix: '', coverage: 'full' },
+  pt: { prefix: 'pt/', coverage: 'sample' },
+  es: { prefix: 'es/', coverage: 'sample' },
+  ar: { prefix: 'ar/', coverage: 'sample' },
+};
+
+const locales = String(args.locales ?? 'en')
+  .split(',')
+  .filter((l) => l in LOCALES);
+
+if (locales.length === 0) {
+  console.error(`No known locale in --locales. Known: ${Object.keys(LOCALES).join(', ')}`);
+  process.exit(1);
+}
+
 const wanted = (args.vp ? String(args.vp).split(',') : ['desktop', 'mobile']).filter(
   (v) => v in VIEWPORTS,
 );
-const routes = args.routes
-  ? ROUTES.filter(([r]) => String(args.routes).split(',').includes(r))
-  : ROUTES;
+const explicit = args.routes ? String(args.routes).split(',') : null;
+
+/**
+ * The full shot list: one entry per locale, route and viewport actually swept.
+ * Built up front so the run can say what it is about to do, and so the totals
+ * in the summary are the real ones rather than a nested loop's leftovers.
+ */
+function shotsFor(code) {
+  const { prefix, coverage } = LOCALES[code];
+  const full = coverage === 'full';
+  const routes = explicit
+    ? ROUTES.filter(([r]) => explicit.includes(r))
+    : full
+      ? ROUTES
+      : ROUTES.filter(([r]) => SAMPLE_ROUTES.includes(r));
+  const vps = wanted.filter((v) => full || explicit || SAMPLE_VIEWPORTS.includes(v));
+  return { prefix, routes, vps, coverage };
+}
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -67,7 +138,14 @@ const browser = await chromium.launch({
 
 const problems = [];
 
-for (const name of wanted) {
+for (const code of locales) {
+  const { prefix, routes, vps, coverage } = shotsFor(code);
+  console.log(
+    `\n${code} — ${coverage} coverage: ${routes.length} route${routes.length === 1 ? '' : 's'} ` +
+      `x ${vps.length} viewport${vps.length === 1 ? '' : 's'} = ${routes.length * vps.length} shots`,
+  );
+
+for (const name of vps) {
   const vp = VIEWPORTS[name];
 
   for (const [route, stem] of routes) {
@@ -79,7 +157,7 @@ for (const name of wanted) {
       reducedMotion: args.motion === 'reduce' ? 'reduce' : 'no-preference',
     });
     const page = await context.newPage();
-    const tag = `${stem}/${name}`;
+    const tag = `${code === 'en' ? '' : code + ':'}${stem}/${name}`;
 
     page.on('console', (m) => {
       if (m.type() === 'error') problems.push(`[${tag}] console: ${m.text()}`);
@@ -94,7 +172,7 @@ for (const name of wanted) {
       problems.push(`[${tag}] request failed: ${r.url()} — ${r.failure()?.errorText}`);
     });
 
-    const res = await page.goto(URL + route, { waitUntil: 'networkidle' });
+    const res = await page.goto(URL + prefix + route, { waitUntil: 'networkidle' });
     if (!res || res.status() !== 200) {
       problems.push(`[${tag}] HTTP ${res ? res.status() : 'no response'} for /${route}`);
     }
@@ -116,7 +194,7 @@ for (const name of wanted) {
       await page.waitForTimeout(500);
     }
 
-    await page.screenshot({ path: `${OUT}/${stem}-${name}.png` });
+    await page.screenshot({ path: `${OUT}/${code === 'en' ? '' : code + '-'}${stem}-${name}.png` });
 
     // Broken images do not 404 behind a static host's directory handling —
     // decode state is the only honest signal.
@@ -152,6 +230,7 @@ for (const name of wanted) {
     await context.close();
   }
   console.log(`  shot ${name} — ${routes.length} routes`);
+}
 }
 
 await browser.close();
