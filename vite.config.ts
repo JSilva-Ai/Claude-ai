@@ -136,13 +136,35 @@ function buildStamp() {
  */
 function pageMeta() {
   const ORIGIN = 'https://newaivisionlabs.com';
+
+  /*
+   * The deployed base path, resolved from Vite rather than assumed.
+   *
+   * Vite rewrites root-absolute URLs it finds written in an index.html, but
+   * attributes on a tag injected by a plugin never go through that pass — the
+   * injection happens after it. So `/favicon.svg` written here stays
+   * `/favicon.svg`, which is correct at a domain root and a 404 under a
+   * subpath. Every asset href below is built from this instead.
+   *
+   * This is the one thing the head refactor got wrong, and it was invisible
+   * locally because the local builds were all at "/". CI builds at
+   * "/Claude-ai/" precisely so that the configuration nobody develops in is
+   * still the configuration that gets tested.
+   */
+  let base = '/';
   /** Used as the social card everywhere; its alt describes the studio, not the page. */
   const OG_IMAGE = `${ORIGIN}/og.jpg`;
   const OG_ALT = 'New AI Vision Labs — independent technology studio';
   const abs = (route: string) => (route === '' ? `${ORIGIN}/` : `${ORIGIN}/${route}/`);
 
+  /** A file in public/, resolved against the base the build is deployed at. */
+  const publicAsset = (path: string) => base + path.replace(/^\/+/, '');
+
   return {
     name: 'page-meta',
+    configResolved(config: { base: string }) {
+      base = config.base;
+    },
     transformIndexHtml(html: string, ctx: { filename: string }) {
       const rel = relative(root, ctx.filename).replace(/\\/g, '/');
       const fullRoute = rel.replace(/\/?index\.html$/, '');
@@ -233,9 +255,9 @@ function pageMeta() {
           link({ rel: 'canonical', href: canonical }),
           ...alternates,
 
-          link({ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }),
-          link({ rel: 'apple-touch-icon', href: '/brand/mark-512.png' }),
-          link({ rel: 'manifest', href: '/site.webmanifest' }),
+          link({ rel: 'icon', href: publicAsset('/favicon.svg'), type: 'image/svg+xml' }),
+          link({ rel: 'apple-touch-icon', href: publicAsset('/brand/mark-512.png') }),
+          link({ rel: 'manifest', href: publicAsset('/site.webmanifest') }),
 
           // The display face is the first thing painted; preloading it removes
           // the width-axis reflow on the headline.
@@ -243,7 +265,7 @@ function pageMeta() {
             rel: 'preload',
             as: 'font',
             type: 'font/woff2',
-            href: '/fonts/archivo-latin-wdth-normal.woff2',
+            href: publicAsset('/fonts/archivo-latin-wdth-normal.woff2'),
             crossorigin: '',
           }),
 
