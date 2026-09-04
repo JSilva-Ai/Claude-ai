@@ -301,7 +301,7 @@
   .appgrid:has(> :only-child) .appcard__art {
     flex: 0 0 16rem;
     border-bottom: 0;
-    border-right: 1px solid var(--line);
+    border-inline-end: 1px solid var(--line);
   }
 
   /* Top-aligned, not centred. Centring parked the name, tagline and platform
@@ -786,7 +786,7 @@
   display: grid;
   gap: var(--space-2xs);
   margin-block: var(--space-s);
-  padding-left: var(--space-m);
+  padding-inline-start: var(--space-m);
 }
 
 .prose__list li {
@@ -797,7 +797,12 @@
 .prose__list li::before {
   content: '';
   position: absolute;
-  left: calc(var(--space-m) * -1);
+  /* Logical, and it has to move with the padding above it. Converting the
+     list's padding to `padding-inline-start` while this stayed `left` put the
+     bullet on the far side of the text in RTL and pushed the document 3px
+     wide — caught by the RTL sweep, invisible to every LTR check. Convert a
+     pair together or not at all. */
+  inset-inline-start: calc(var(--space-m) * -1);
   top: 0.72em;
   width: 5px;
   height: 5px;

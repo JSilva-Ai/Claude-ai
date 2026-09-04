@@ -156,7 +156,9 @@ p {
 /* --- Skip link ----------------------------------------------------------- */
 .skip {
   position: absolute;
-  left: var(--gutter);
+  /* The first thing a keyboard reaches, so it belongs at the start of the
+     line in whichever direction the page reads. */
+  inset-inline-start: var(--gutter);
   top: var(--space-2xs);
   z-index: calc(var(--z-nav) + 1);
   padding: var(--space-2xs) var(--space-s);

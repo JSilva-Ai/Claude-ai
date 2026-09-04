@@ -142,6 +142,11 @@
   z-index: 2;
 }
 
+/* Physical `right`, deliberately, and one of the two places on the site that
+   should not become logical: this is a phone's side button, and a phone's
+   side button is on the right of the object regardless of which way the
+   language on its screen reads. Mirroring it would draw a phone that does not
+   exist. The island above is centred, so it is direction-neutral already. */
 .hero__phone-button {
   position: absolute;
   right: -1px;
