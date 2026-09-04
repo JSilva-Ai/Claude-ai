@@ -16,8 +16,11 @@ These came from the owner and hold until he says otherwise.
   release dates. Where a real fact is missing the value is a visible `[TODO]`,
   so it fails loudly in review instead of shipping as though it were true.
   The testimonials component exists and is deliberately empty and disabled.
-- **English only.** No i18n, no language switcher. Natural American English,
-  independent-studio tone, no inflated marketing language.
+- **English is the source language, and the only one published.** Natural
+  American English, independent-studio tone, no inflated marketing language.
+  See "Multilingual" below: the English-only rule was revoked by directive, the
+  architecture now has to carry PT, ES and AR, and no locale may go live until
+  its copy has been reviewed and approved.
 - **The EIN never enters this repo.** It is required nowhere and is useful to
   anyone attempting fraud in the company's name. Same for formation documents
   and the D-U-N-S number — the latter is not secret, it is simply not needed
@@ -391,6 +394,54 @@ The earlier pass:
   (double speed on every difficulty), `Q` was a free unlimited screen-clear, and
   the clean-wave credit bonus always paid out because it compared a value
   against itself.
+
+## Multilingual
+
+**The old rule — "English only. No i18n, no language switcher" — was revoked by
+directive.** It is written here rather than deleted because that rule was
+followed for months and a session finding four locales' worth of plumbing
+against a rule forbidding it would reasonably try to undo the work.
+
+The directive, in his words:
+
+- English remains the default and canonical source language.
+- The architecture must support Portuguese, Spanish and Arabic.
+- **No translated locale may be publicly activated until its copy has been
+  reviewed and explicitly approved.** Machine-published translation is out.
+- Arabic requires true RTL and an **approved** Arabic typeface. System fallback
+  is not an acceptable final brand solution, and no font ships without the
+  choice being presented for approval first.
+- **Privacy Policy and Terms stay officially in English.** No localised legal
+  instrument is published until separately approved — a translated policy is a
+  legal instrument in that jurisdiction, not a convenience, and the English has
+  still not been read by a lawyer.
+- No visible language selector until it would expose only published locales.
+
+The audit behind this is at
+`https://claude.ai/code/artifact/7c6a0a34-7e94-408d-854a-dbdd4572f17d`.
+Three findings from it that the code now depends on:
+
+- **A locale is a directory.** `findPages` walks the repository for
+  `index.html`, so a locale needs no registration — and an unfinished one ships
+  the moment it reaches `main`. Build a locale on a branch; merge it complete.
+- **`url()` in `src/lib/url.ts` builds every internal href on the site.** It is
+  the single chokepoint, which is why locale prefixing is a small change rather
+  than a sweep. Never hand-write an internal href.
+- **The brand's display voice does not exist in Arabic.** Both faces are
+  self-hosted Latin subsets, and `--vf-display: 'wdth' 76, 'wght' 800` is an
+  instruction to Archivo's width axis that means nothing to a fallback face.
+  Arabic needs a chosen family, self-hosted — the privacy policy asserts,
+  verified, that no route contacts a third-party host, so a font CDN is not
+  available — and its own scale: more line-height, and neither letter-spacing
+  nor uppercase, both of which this design uses on every label.
+
+**URL strategy: path prefix, English unprefixed.** `/`, `/pt/`, `/es/`, `/ar/`.
+Every existing English URL stays byte-identical — nothing indexed moves, and
+nothing given to Apple moves. `x-default` maps onto the unprefixed root.
+
+**VOID STRIKER is not localisable by this program.** It is one self-contained
+file with `lang="en"` hardcoded and its English drawn into a canvas. An Arabic
+page would frame an English game. That is accepted, not overlooked.
 
 ## The portfolio
 
