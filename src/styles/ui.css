@@ -110,15 +110,31 @@
   width: fit-content;
 }
 
+/* The four stages, encoded by intensity rather than by hue.
+   Four colours would read as a legend to decode; one accent getting steadily
+   louder as a product gets closer to release reads as progress at a glance,
+   and keeps the blue meaning the same thing here that it means everywhere else
+   on the site. */
+.pill--research {
+  border-color: var(--line);
+  color: var(--chrome-dim);
+}
+
 .pill--dev {
+  border-color: var(--line-strong);
+  color: var(--chrome);
+}
+
+.pill--testing {
   border-color: var(--blue-a35);
   color: var(--blue-lift);
   background: var(--blue-a10);
 }
 
 .pill--live {
-  border-color: var(--line-strong);
+  border-color: var(--blue-a60);
   color: var(--white);
+  background: var(--blue-a20);
 }
 
 /* --- Store badges ---------------------------------------------------------

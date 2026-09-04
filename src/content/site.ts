@@ -74,9 +74,9 @@ export const site = {
 
   /** The proposition, in one sentence. Read it out loud before changing it. */
   proposition:
-    'We are an independent app studio. We design, build, and publish our own apps on the App Store and Google Play.',
+    'We are an independent technology studio. We design and build our own products — intelligent applications and original games — and publish them under our own name.',
   /** Shorter form, for meta descriptions and the footer. */
-  blurb: 'An independent app studio building for iOS and Android.',
+  blurb: 'An independent technology studio building intelligent applications and original games.',
 };
 
 /**
@@ -94,16 +94,16 @@ export const routes = {
 } as const;
 
 export const nav = [
-  { route: routes.apps, label: 'Apps' },
+  { route: routes.apps, label: 'Products' },
   { route: routes.demo, label: 'Demo' },
   { route: routes.support, label: 'Support' },
 ] as const;
 
 export const home = {
   hero: {
-    eyebrow: 'Independent app studio',
+    eyebrow: 'Independent technology studio',
     /** Set as three lines so the break is authored, not left to the browser. */
-    headline: ['We build', 'the apps', 'we want to use.'],
+    headline: ['We build', 'the software', 'we want to use.'],
     accentWord: 'use.',
     lede: site.proposition,
     primaryCta: { label: 'See what we are building', route: routes.apps },
@@ -112,7 +112,7 @@ export const home = {
   approach: {
     index: '01',
     label: 'How we work',
-    headline: 'Small team. Whole product.',
+    headline: 'Small studio. Whole product.',
     body: [
       'We are a small studio, and everything we publish is our own. There is no client work behind the scenes and no white-label version of what you see here.',
       'The same people write the code, draw the interface, and answer the support email. That is a real constraint on how much we can ship at once, and it is also the reason the details hold up.',
@@ -120,20 +120,34 @@ export const home = {
     points: [
       {
         title: 'We ship our own work',
-        body: 'Every app under our name is designed and built in-house, start to finish.',
+        body: 'Every product under our name is designed and built in-house, start to finish.',
       },
       {
         title: 'We keep data collection minimal',
-        body: 'We ask for what an app needs to function and nothing else. What each app collects is written on its own privacy page.',
+        body: 'We ask for what a product needs to function and nothing else. What each one collects is written on its own privacy page.',
       },
       {
-        title: 'Support is a person',
-        body: 'Email reaches us directly. There is no ticket queue and no chatbot in front of it.',
+        title: 'We say which stage things are at',
+        body: 'Every product on this site carries its real stage, from research to released. Nothing here is described as finished before it is.',
       },
     ],
   },
-  demoCallout: {
+  /**
+   * The portfolio section head on the home page.
+   *
+   * The home page shows the same two groups as /products, so a visitor who
+   * never clicks through still leaves knowing this is a studio with several
+   * products rather than a site for one.
+   */
+  portfolio: {
     index: '02',
+    label: 'Portfolio',
+    headline: 'Six products, four stages.',
+    body: 'Four intelligent applications and two games, each marked with the stage it is actually at.',
+    cta: { label: 'All products', route: routes.apps },
+  },
+  demoCallout: {
+    index: '03',
     label: 'Playable',
     headline: 'Try something we made.',
     body: 'VOID STRIKER runs right here in the page — the real build, not a trailer. Six weapons, boss waves, and an upgrade shop between them.',
@@ -167,14 +181,52 @@ export interface Screenshot {
   height: number;
 }
 
+/**
+ * Where a product sits in the portfolio.
+ *
+ * Two groups rather than one long list, because they are read differently: an
+ * application is judged on what it does for you, a game on whether it looks
+ * worth an evening. Mixing them makes a visitor sort them mentally before they
+ * can react to either.
+ */
+export type Category = 'app' | 'game';
+
+/**
+ * How far along a product is.
+ *
+ * Four values, ordered. They are the studio's real internal stages, not
+ * marketing words, and the pill says exactly the one a product is at:
+ *
+ *   'Product discovery'  research; the shape of the thing is still open
+ *   'In development'     being built
+ *   'Final testing'      built, being tested before release
+ *   'On the stores'      published, with a store link that works
+ *
+ * Nothing may carry 'On the stores' without a real href in `stores`.
+ */
+export type Status = 'Product discovery' | 'In development' | 'Final testing' | 'On the stores';
+
 export interface App {
   slug: string;
   name: string;
+  category: Category;
+  /** What kind of thing it is, e.g. 'AI · Digital protection'. Shown on the card. */
+  kind: string;
+  /**
+   * The product's own line, where one has been settled — "Know before you
+   * trust." It is the headline on the product's page, so it is the sentence
+   * that has to carry the idea on its own. Omitted rather than invented.
+   */
+  positioning?: string;
   /** One line, shown on the card and under the title. */
   tagline: string;
-  /** 'In development' | 'On the stores' — drives the status pill. */
-  status: 'In development' | 'On the stores';
-  platforms: string[];
+  status: Status;
+  /**
+   * Optional on purpose. A product early enough that the platforms are not
+   * decided says nothing here, rather than guessing at iOS and Android
+   * because that is what a studio usually ships.
+   */
+  platforms?: string[];
   /** Longer description for the app's own page. Paragraphs. */
   description: string[];
   screenshots: Screenshot[];
@@ -186,27 +238,100 @@ export interface App {
 }
 
 /**
- * The studio's apps. One entry today.
+ * The studio's portfolio.
+ *
+ * Everything on this list is written from what the studio has actually
+ * decided. Where a product is early, the entry says so and stops — the rule
+ * that no page may describe unshipped behaviour is not a stylistic preference
+ * here, it is what keeps the two discovery-stage entries below from reading as
+ * a security product and a financial product that exist. They do not.
  *
  * VOID STRIKER's description is written from the game's own source, which is
- * vendored at game/void_striker.html — every feature named below was read out
- * of it rather than assumed. What is still open is the store plan, and that is
- * marked inline.
+ * vendored at game/void_striker.html — every feature named was read out of it
+ * rather than assumed.
  *
- * Adding an app also means adding its page: copy apps/void-striker/index.html
- * to apps/<slug>/index.html and change the slug it imports. See README.
+ * Order within each category is the order they appear. Adding an app also
+ * means adding its page: copy apps/void-striker/index.html to
+ * apps/<slug>/index.html and change the slug it imports. See README.
  */
 export const apps: App[] = [
   {
+    slug: 'loop',
+    name: 'LOOP',
+    category: 'app',
+    kind: 'AI · Consumer application',
+    positioning: 'Intelligence that stays one step ahead.',
+    tagline: 'A consumer application in active development, built multilingual from the start.',
+    status: 'In development',
+    description: [
+      'LOOP is a consumer application we are actively building, engineered around proactive intelligence.',
+      'It is multilingual from the first line rather than the last: English, Portuguese and Spanish. That was decided early because adding a second language to a finished product is not a feature, it is a rewrite.',
+      'What it does in detail is not described here yet. It is still being built, and we would rather say nothing than describe something that changes before it ships. There is no release date on this page for the same reason.',
+    ],
+    screenshots: [],
+    stores: [],
+  },
+  {
+    slug: 'shield',
+    name: 'SHIELD',
+    category: 'app',
+    kind: 'AI · Digital protection',
+    positioning: 'Know before you trust.',
+    tagline: 'A product concept in discovery, built around one question: can I trust this?',
+    status: 'Product discovery',
+    description: [
+      'SHIELD starts from a question people already ask themselves several times a week. A message from a number they do not know. A link in an email that looks almost right. A screenshot, an invoice, a QR code on a parking meter.',
+      'The idea we are exploring is personal trust intelligence: helping someone weigh a digital interaction before they click it, answer it, or send money to it.',
+      'SHIELD is at the research stage. Nothing is built and nothing is released. Nothing on this page describes behaviour that exists today, and we will not say it detects scams or keeps anyone safe until there is a product that has been tested against those words.',
+    ],
+    screenshots: [],
+    stores: [],
+  },
+  {
+    slug: 'guard',
+    name: 'GUARD',
+    category: 'app',
+    kind: 'AI · Financial protection',
+    positioning: 'Know before you lose.',
+    tagline: 'A product concept in discovery, about the money that leaves quietly.',
+    status: 'Product discovery',
+    description: [
+      'Most money lost quietly is lost to a date nobody was watching. A trial that converted. A subscription renewed for another year. A return window that closed on Tuesday. A price that went up between one bill and the next.',
+      'GUARD is the concept we are exploring around that — what we describe internally as an AI money guardian.',
+      'It is at the research stage. Nothing is built and nothing is released. It does not connect to a bank, cancel anything, claim a refund, or move money, and it will not be described as doing any of those things until there is a product that does them.',
+    ],
+    screenshots: [],
+    stores: [],
+  },
+  {
+    slug: 'biblelink',
+    name: 'BIBLELINK',
+    category: 'app',
+    kind: 'Application',
+    tagline: 'Built, and going through final testing before release.',
+    status: 'Final testing',
+    description: [
+      'BIBLELINK is finished and is going through final testing.',
+      'What it does, and what it looks like, are not on this page yet. They go up together, when the product is ready to be shown rather than announced — which is a short wait from here rather than a long one.',
+    ],
+    screenshots: [],
+    stores: [
+      { store: 'appStore', href: '' },
+      { store: 'googlePlay', href: '' },
+    ],
+  },
+  {
     slug: 'void-striker',
     name: 'VOID STRIKER',
+    category: 'game',
+    kind: 'Game',
     tagline: 'An arcade space shooter, playable in the browser right now.',
-    status: 'In development',
-    platforms: ['Browser'],
+    status: 'Final testing',
+    platforms: ['iOS', 'Android', 'Browser'],
     description: [
       'A vertical-scrolling arcade shooter: waves of enemies, six weapons picked up as you go, a boss every fifth wave, and an upgrade shop that opens every third wave so a good run compounds. Enemies arrive in five movement formations and the boss rotates through three hulls. Three difficulty levels change enemy speed, fire rate, and toughness, and the score multiplier along with them.',
       'It is written as a single file with no engine and no libraries — the rendering is Canvas 2D and the music is synthesised in the browser with the Web Audio API rather than streamed. It collects nothing: your scores, achievements and settings are saved on your own device and never sent anywhere, and there is no account to make.',
-      'The browser build is finished and you can watch a run of it on the demo page. Which stores it reaches, and in what form, is not decided yet — so there is no release date here, because we would only move it.',
+      'The browser build is finished and you can play it from the demo page. The iOS and Android builds are packaged and in final testing. Neither has been submitted to a store yet, so there is no download link here and no release date — we would only have to move it.',
     ],
     screenshots: [
       {
@@ -245,17 +370,58 @@ export const apps: App[] = [
     ],
     demoRoute: routes.demo,
   },
+  {
+    slug: 'galaxy-forge',
+    name: 'GALAXY FORGE',
+    category: 'game',
+    kind: 'Game',
+    tagline: 'A second game, in development.',
+    status: 'In development',
+    description: [
+      'GALAXY FORGE is the studio\'s second game and is being built now.',
+      'Nothing about how it plays is described here yet. It is early, the answers change weekly at this stage, and a page that guessed at them would be out of date before anyone read it.',
+    ],
+    screenshots: [],
+    stores: [],
+  },
 ];
+
+/**
+ * The two halves of the portfolio, in the order they are shown.
+ *
+ * Derived from `apps` rather than listed again, so adding a product to the
+ * array above is the whole change — there is no second place to remember.
+ */
+export const portfolio = [
+  {
+    id: 'applications',
+    label: 'AI & applications',
+    headline: 'Intelligent applications.',
+    items: apps.filter((a) => a.category === 'app'),
+  },
+  {
+    id: 'games',
+    label: 'Games',
+    headline: 'Original games.',
+    items: apps.filter((a) => a.category === 'game'),
+  },
+] as const;
 
 export const appsPage = {
   index: '',
-  label: 'Apps',
+  label: 'Products',
   headline: 'What we are building.',
-  lede: 'Everything here is our own work. This page will grow as things ship; right now there is one.',
+  lede: 'Six products, at four different stages. Everything here is our own work, and each one says where it actually is rather than where we would like it to be.',
   /** Shown when an app has no store links yet. */
   notYetOnStores: 'Not on the stores yet',
+  /**
+   * Shown on any product page that is not published. The wording covers all
+   * three unreleased stages on purpose — a research-stage concept and a
+   * product in final testing are both "nothing to download", and writing a
+   * sentence per stage invites one of them to go stale.
+   */
   inDevelopmentNote:
-    'This app is still in development. There is no download link because there is nothing to download yet.',
+    'This product has not been released. There is no download link because there is nothing to download yet.',
 };
 
 /* -------------------------------------------------------------------------
@@ -338,10 +504,23 @@ export const ui = {
   skipToContent: 'Skip to content',
   menu: 'Menu',
   close: 'Close',
-  backToApps: 'All apps',
+  backToApps: 'All products',
   screenshotsLabel: 'Screenshots',
   gameplayLabel: 'Gameplay',
-  noScreenshots: '[TODO] Screenshots go in public/media/apps/<slug>/ and are listed in src/content/site.ts.',
+  /**
+   * Shown on a product page that has no artwork yet.
+   *
+   * This used to be a `[TODO]`, which rendered as a loud orange box aimed at
+   * whoever was building the site. That was right while one product had a page
+   * and it was fully illustrated. With four unreleased products holding pages,
+   * it would put four developer notes in front of visitors. A missing
+   * screenshot is not a false claim — saying plainly that there is nothing to
+   * show yet is both honest and finished. Screenshots go in
+   * public/media/apps/<slug>/ and are listed in src/content/site.ts.
+   */
+  noScreenshots: 'Nothing to show yet. Screenshots go up when there is something worth looking at.',
+  kindLabel: 'Category',
+  stageLabel: 'Stage',
   supportShort: 'Support',
   emailUs: 'Email us',
   onThisPage: 'On this page',
@@ -354,7 +533,7 @@ export const footer = {
     {
       title: 'Studio',
       links: [
-        { label: 'Apps', route: routes.apps },
+        { label: 'Products', route: routes.apps },
         { label: 'Demo', route: routes.demo },
       ],
     },

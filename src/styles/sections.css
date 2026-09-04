@@ -178,14 +178,20 @@
   object-fit: cover;
 }
 
-/* No screenshot yet: an empty framed panel carrying the mark's peak. Honest
-   about being empty, rather than a stock device mockup standing in for a
-   product that does not exist yet. */
-.appcard__empty {
+/* No artwork yet: a plain cover rather than an empty frame.
+   Honest about there being no screenshot, and still a designed surface — the
+   name and the product's own line give a tall panel something true to hold,
+   where an empty frame at this size reads as a failed image. */
+.appcard__cover {
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  padding: var(--space-l);
+  text-align: center;
   background:
     radial-gradient(120% 90% at 50% 120%, var(--blue-ink) 0%, transparent 62%),
     repeating-linear-gradient(
@@ -195,12 +201,49 @@
     );
 }
 
-.appcard__empty-mark {
-  width: 34px;
-  height: 26px;
+.appcard__cover-mark {
+  width: 30px;
+  height: 23px;
   clip-path: polygon(50% 0, 100% 100%, 78% 100%, 50% 44%, 22% 100%, 0 100%);
   background: var(--gradient-blue);
-  opacity: 0.5;
+  opacity: 0.55;
+  flex: none;
+}
+
+.appcard__cover-name {
+  font-variation-settings: var(--vf-display);
+  font-size: var(--step-3);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  text-wrap: balance;
+}
+
+.appcard__cover-line {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--chrome-dim);
+  max-width: 24ch;
+  text-wrap: balance;
+}
+
+/* --- Portfolio groups ------------------------------------------------------
+   Two groups on one page, so the second needs air above it without a second
+   ruled border cutting the page in half again. */
+.portfolio-group + .portfolio-group {
+  margin-top: var(--space-3xl);
+}
+
+/* The group heading sits closer to its own grid than to the group above it,
+   so the pairing is unambiguous without a rule between them. */
+.portfolio-group > .head__title--sm {
+  margin-bottom: var(--space-l);
+}
+
+.portfolio__more {
+  margin-top: var(--space-2xl);
 }
 
 .appcard__meta .pill {
@@ -279,6 +322,25 @@
 }
 
 /* --- App detail ------------------------------------------------------------ */
+/* The tagline under the pill, where the page's lede is the positioning line
+   instead. Sets the plain-English version below the slogan. */
+.app__tagline {
+  color: var(--chrome);
+  font-size: var(--step-0);
+  max-width: 54ch;
+}
+
+/* "Nothing to show yet." Quiet and finished-looking — the loud orange [TODO]
+   treatment is for an unfinished claim, not for artwork that has not been made
+   yet. */
+.app__empty {
+  color: var(--chrome-dim);
+  font-size: var(--step--1);
+  padding: var(--space-l) 0;
+  border-top: 1px solid var(--line-weak);
+  max-width: 54ch;
+}
+
 .app {
   display: grid;
   gap: var(--space-2xl);

@@ -3,6 +3,7 @@ import { StoreBadge } from './StoreBadge';
 import { apps, appsPage, routes, site, ui } from '../content/site';
 import { asset, url } from '../lib/url';
 import { GameClip } from './GameClip';
+import { statusModifier } from '../lib/status';
 
 /**
  * The per-app page template.
@@ -29,15 +30,17 @@ export function AppPage({ slug }: { slug: string }) {
       <PageHead
         label={<a href={url(routes.apps)}>{ui.backToApps}</a>}
         title={app.name}
-        lede={app.tagline}
+        /* The product's own line where it has one — that sentence is the whole
+           idea in eight words, and it earns the lede slot over a description of
+           what stage the thing is at. */
+        lede={app.positioning ?? app.tagline}
       />
 
       <section className="section section--ruled">
         <div className="container app">
           <div className="app__body">
-            <p className={`pill pill--${app.status === 'In development' ? 'dev' : 'live'}`}>
-              {app.status}
-            </p>
+            <p className={`pill pill--${statusModifier(app.status)}`}>{app.status}</p>
+            {app.positioning && <p className="app__tagline">{app.tagline}</p>}
             {app.description.map((p) => (
               <p className={p.includes('[TODO') ? 'todo' : 'app__para'} key={p.slice(0, 24)}>
                 {p}
@@ -55,18 +58,35 @@ export function AppPage({ slug }: { slug: string }) {
           </div>
 
           <aside className="app__side">
-            <h2 className="label">Get it</h2>
-            {app.status === 'In development' && (
-              <p className="app__note">{appsPage.inDevelopmentNote}</p>
+            {/* The "Get it" block appears only once a store is the actual plan.
+                A research-stage concept has no stores array, and printing two
+                greyed-out badges under it would suggest a submission that is
+                years away from being made. */}
+            {app.stores.length > 0 && (
+              <>
+                <h2 className="label">Get it</h2>
+                {app.status !== 'On the stores' && (
+                  <p className="app__note">{appsPage.inDevelopmentNote}</p>
+                )}
+                <div className="app__badges">
+                  {app.stores.map((s) => (
+                    <StoreBadge key={s.store} link={s} />
+                  ))}
+                </div>
+              </>
             )}
-            <div className="app__badges">
-              {app.stores.map((s) => (
-                <StoreBadge key={s.store} link={s} />
-              ))}
-            </div>
 
-            <h2 className="label app__side-h">Platforms</h2>
-            <p className="mono app__platforms">{app.platforms.join(' · ')}</p>
+            <h2 className={`label${app.stores.length > 0 ? ' app__side-h' : ''}`}>
+              {ui.kindLabel}
+            </h2>
+            <p className="mono app__platforms">{app.kind}</p>
+
+            {app.platforms && (
+              <>
+                <h2 className="label app__side-h">Platforms</h2>
+                <p className="mono app__platforms">{app.platforms.join(' · ')}</p>
+              </>
+            )}
 
             {/* Required by both stores, per app. */}
             <h2 className="label app__side-h">Legal &amp; support</h2>
@@ -102,7 +122,7 @@ export function AppPage({ slug }: { slug: string }) {
           </div>
 
           {app.screenshots.length === 0 ? (
-            !app.clip && <p className="todo">{ui.noScreenshots}</p>
+            !app.clip && <p className="app__empty">{ui.noScreenshots}</p>
           ) : (
             <ul className="shots">
               {app.screenshots.map((s) => (

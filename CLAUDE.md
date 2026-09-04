@@ -4,8 +4,9 @@ Read this first. It exists so a new session starts with the state of play
 instead of rediscovering it, and so the decisions below are not quietly
 reversed by someone who was not in the room when they were made.
 
-The site: an independent app studio, **New AI Vision Labs LLC**, publishing to
-the App Store and Google Play. One product so far, VOID STRIKER.
+The site: an independent technology studio, **New AI Vision Labs LLC**,
+building intelligent applications and original games. Six products, at four
+stages — see "The portfolio" below.
 
 ## The rules that are not mine to change
 
@@ -140,20 +141,18 @@ and the second one cost a confused ten minutes:
 What is left is his: resubmit the enrollment with `https://newaivisionlabs.com`,
 replying against ID TZRBLU4CMC so it reaches the same reviewer.
 
-The `[TODO]` markers below are the other half of this. They render as loud
-orange boxes on `/privacy` and `/terms`, and `Last updated: [TODO — date of
-publication]` sits directly under the `<h1>` on both — the pages a store
-reviewer opens first. They are deliberate and they are his; they are also the
-first thing anyone assessing whether this is a real company will read.
+Both legal pages are published and carry no `[TODO]` markers: he supplied the
+publication date and the per-app rating policy, and told me to remove the
+notice asking for a lawyer to read the terms. That notice is gone from the page;
+the review it asked for has still not happened, and is listed as open below.
 
 ## Open, and whose they are
 
 His:
 - DKIM at Hostinger publishes an **empty key** (`v=DKIM1;p=`), which reads as
   revoked and is worse than absent. MX, SPF and DMARC are fine.
-- Age rating, once the store questionnaires are filled — closes the `[TODO]`
-  in the policy's "Children" section.
-- A lawyer to read the terms; the publication date.
+- A lawyer to read the terms. He decided to publish without one; the notice
+  came off the page, the need did not.
 - Resubmitting the Apple enrollment now that the domain serves the site.
 - Any future change to the DNS zone: **only the `A` records and the `www`
   CNAME.** Touching nameservers, or any "connect a website" / "reset DNS"
@@ -369,6 +368,37 @@ The earlier pass:
   (double speed on every difficulty), `Q` was a free unlimited screen-clear, and
   the clean-wave credit bonus always paid out because it compared a value
   against itself.
+
+## The portfolio
+
+Six products, added on his brief. `src/content/site.ts` is the single source:
+one `apps` array, and `portfolio` derives the two display groups from it by
+`category`, so adding a product is one entry plus its page. Four decisions in
+there are worth not re-opening:
+
+- **Four stages, not two.** `Status` is `'Product discovery' | 'In development'
+  | 'Final testing' | 'On the stores'`, and the pill encodes them by intensity
+  of the one accent rather than by four colours — a rainbow reads as a legend
+  to decode, an accent getting louder as a product nears release reads as
+  progress. Nothing may carry `'On the stores'` without a real href.
+- **SHIELD and GUARD are concepts, and the copy has to keep saying so.** Both
+  are at research stage. Their pages state plainly that nothing is built, and
+  explicitly refuse the claims that would be natural to make — SHIELD does not
+  "detect scams" or keep anyone safe; GUARD does not touch a bank, cancel a
+  subscription, or move money. That wording is the product of his own
+  instruction and is the difference between a roadmap and a false claim about a
+  security product and a financial one. Do not soften it into marketing.
+- **He described a 4+ rating for Bible apps.** BIBLELINK's entry does not
+  mention it and no Bible app is named as a product beyond BIBLELINK itself,
+  because only BIBLELINK exists. The privacy policy's "Children" section is
+  written per app for the same reason, and already covers whatever ships next.
+- **A product with no artwork gets a cover, not an empty frame.** The mark,
+  the name and the product's own line, on the same 520x720 slot a screenshot
+  would fill. Five of six have no media at all; an empty panel at that size
+  reads as an image that failed to load.
+
+Internal workflow — which tool builds which product — is his to disclose and
+appears nowhere on the site, on his explicit instruction.
 
 ## Egress
 

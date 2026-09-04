@@ -38,7 +38,12 @@ const VIEWPORTS = {
 const ROUTES = [
   ['', 'home'],
   ['apps/', 'apps'],
-  ['apps/void-striker/', 'app'],
+  ['apps/loop/', 'app-loop'],
+  ['apps/shield/', 'app-shield'],
+  ['apps/guard/', 'app-guard'],
+  ['apps/biblelink/', 'app-biblelink'],
+  ['apps/void-striker/', 'app-void-striker'],
+  ['apps/galaxy-forge/', 'app-galaxy-forge'],
   ['demo/', 'demo'],
   ['support/', 'support'],
   ['privacy/', 'privacy'],

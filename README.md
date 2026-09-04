@@ -31,7 +31,7 @@ answers 404 is a rejected listing. Real files answer 200.
 ```
 index.html                 → src/pages/home.tsx
 apps/index.html            → src/pages/apps.tsx
-apps/void-striker/         → src/pages/app-void-striker.tsx
+apps/<slug>/               → src/pages/app-<slug>.tsx   (one per product)
 demo/                      → src/pages/demo.tsx
 support/  privacy/  terms/  data-deletion/
 ```
@@ -64,9 +64,13 @@ scripts/
   render/brand.mjs regenerates og.jpg and the app tile from the mark
 ```
 
-## Adding an app
+## Adding a product
 
-1. Add an entry to `apps` in `src/content/site.ts`.
+1. Add an entry to `apps` in `src/content/site.ts`. `category` puts it in the
+   applications or the games group — `portfolio` derives both from the array,
+   so there is no second list to update. `status` is one of four stages, and
+   `platforms` is optional: leave it off rather than guessing at iOS and
+   Android for something too early to have decided.
 2. Copy `apps/void-striker/index.html` to `apps/<slug>/index.html` and update
    its title, description, and canonical.
 3. Copy `src/pages/app-void-striker.tsx` to `src/pages/app-<slug>.tsx`, change
