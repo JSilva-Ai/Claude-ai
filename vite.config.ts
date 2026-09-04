@@ -250,9 +250,24 @@ function legalNoscript() {
   return {
     name: 'legal-noscript',
     transformIndexHtml(_html: string, ctx: { filename: string }) {
-      const key = Object.keys(docs).find((k) =>
-        ctx.filename.replace(/\\/g, '/').includes(`/${k}/index.html`),
-      );
+      /*
+       * Matched on the document's exact route, not on a substring of its path.
+       *
+       * This used to ask whether the filename contained `/privacy/index.html`,
+       * which is true of `/privacy/index.html` and equally true of
+       * `/pt/privacy/index.html`. The moment a locale directory exists, the
+       * English policy would be injected into the Portuguese page — silently,
+       * and defeating the exact automated check this plugin was written to
+       * satisfy, since what Google Play fetches without a script engine would
+       * be a policy in the wrong language.
+       *
+       * Deriving the route the same way `findPages` and `pageMeta` do means
+       * `pt/privacy` is a different key from `privacy`, and a locale that has
+       * no approved legal copy gets no <noscript> at all rather than the wrong
+       * one. Silence is recoverable; a confident wrong answer is not.
+       */
+      const route = relative(root, ctx.filename).replace(/\\/g, '/').replace(/\/?index\.html$/, '');
+      const key = Object.keys(docs).find((k) => k === route);
       if (!key) return;
       return [
         {
