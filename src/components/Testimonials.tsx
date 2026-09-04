@@ -1,4 +1,4 @@
-import { testimonials } from '../content/site';
+import { testimonials } from '../content/en/site';
 
 /**
  * Reviews.

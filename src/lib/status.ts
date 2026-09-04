@@ -1,4 +1,4 @@
-import type { Status } from '../content/site';
+import type { Status } from '../content/en/site';
 
 /**
  * The status pill's modifier class.

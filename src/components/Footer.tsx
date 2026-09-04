@@ -1,5 +1,5 @@
 import { Logo } from './Logo';
-import { footer, site } from '../content/site';
+import { footer, site } from '../content/en/site';
 import { url } from '../lib/url';
 
 /**

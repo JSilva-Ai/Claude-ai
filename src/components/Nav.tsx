@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Lockup } from './Logo';
-import { nav, routes, site, ui } from '../content/site';
+import { nav, routes, site, ui } from '../content/en/site';
 import { isCurrent, url } from '../lib/url';
 import { useMediaQuery, useScrollY } from '../lib/hooks';
 import './nav.css';

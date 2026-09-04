@@ -1,4 +1,4 @@
-import type { App } from '../content/site';
+import type { App } from '../content/en/site';
 import { asset, url } from '../lib/url';
 import { GameClip } from './GameClip';
 import { useReveal } from '../lib/hooks';

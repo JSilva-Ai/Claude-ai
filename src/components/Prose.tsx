@@ -1,4 +1,4 @@
-import type { Block, Section } from '../content/legal';
+import type { Block, Section } from '../content/en/legal';
 
 /**
  * Renders legal and help copy.

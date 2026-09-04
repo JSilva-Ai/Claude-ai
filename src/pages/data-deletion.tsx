@@ -1,8 +1,8 @@
 import { mount } from './mount';
 import { PageHead } from '../components/Shell';
 import { Blocks } from '../components/Prose';
-import { dataDeletion as dd } from '../content/help';
-import { site, ui } from '../content/site';
+import { dataDeletion as dd } from '../content/en/help';
+import { site, ui } from '../content/en/site';
 
 mount(
   <>

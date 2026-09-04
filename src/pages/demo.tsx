@@ -1,7 +1,7 @@
 import { mount } from './mount';
 import { PageHead } from '../components/Shell';
 import { GameClip } from '../components/GameClip';
-import { demo } from '../content/site';
+import { demo } from '../content/en/site';
 import { asset, url } from '../lib/url';
 
 mount(

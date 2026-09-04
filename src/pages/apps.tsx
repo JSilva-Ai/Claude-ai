@@ -1,7 +1,7 @@
 import { mount } from './mount';
 import { PageHead, SectionHead } from '../components/Shell';
 import { AppCard } from '../components/AppCard';
-import { appsPage, portfolio } from '../content/site';
+import { appsPage, portfolio } from '../content/en/site';
 
 /**
  * The portfolio, in two groups.

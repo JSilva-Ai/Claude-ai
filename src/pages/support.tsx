@@ -1,8 +1,8 @@
 import { mount } from './mount';
 import { PageHead } from '../components/Shell';
 import { Blocks, Sections } from '../components/Prose';
-import { support } from '../content/help';
-import { site } from '../content/site';
+import { support } from '../content/en/help';
+import { site } from '../content/en/site';
 
 mount(
   <>

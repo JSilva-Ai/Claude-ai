@@ -4,7 +4,7 @@ import { Approach } from '../components/Approach';
 import { Testimonials } from '../components/Testimonials';
 import { SectionHead } from '../components/Shell';
 import { AppCard } from '../components/AppCard';
-import { home, portfolio } from '../content/site';
+import { home, portfolio } from '../content/en/site';
 import { url } from '../lib/url';
 
 /**

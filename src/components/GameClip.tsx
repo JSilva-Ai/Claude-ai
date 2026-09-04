@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { GameClipSources } from '../content/site';
+import type { GameClipSources } from '../content/en/site';
 import { asset } from '../lib/url';
 import { useReducedMotion } from '../lib/hooks';
 

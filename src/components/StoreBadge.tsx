@@ -1,5 +1,5 @@
-import type { StoreLink } from '../content/site';
-import { appsPage } from '../content/site';
+import type { StoreLink } from '../content/en/site';
+import { appsPage } from '../content/en/site';
 
 const LABEL: Record<StoreLink['store'], string> = {
   appStore: 'App Store',

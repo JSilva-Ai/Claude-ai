@@ -1,6 +1,6 @@
 import { PageHead } from './Shell';
 import { StoreBadge } from './StoreBadge';
-import { apps, appsPage, routes, site, ui } from '../content/site';
+import { apps, appsPage, routes, site, ui } from '../content/en/site';
 import { asset, url } from '../lib/url';
 import { GameClip } from './GameClip';
 import { statusModifier } from '../lib/status';

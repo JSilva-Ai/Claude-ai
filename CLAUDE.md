@@ -439,6 +439,24 @@ Three findings from it that the code now depends on:
 Every existing English URL stays byte-identical — nothing indexed moves, and
 nothing given to Apple moves. `x-default` maps onto the unprefixed root.
 
+**Where the machinery lives, after the foundation phases:**
+
+- `src/content/locales.ts` — the four locales, `DEFAULT_LOCALE`, and
+  **`PUBLISHED`**, which is the approval gate. A locale directory whose code is
+  not in `PUBLISHED` **fails the build**, naming the file. That is the only
+  thing standing between an unapproved translation and the live site, because
+  pages are discovered by walking directories.
+- `src/content/en/` — English copy: `site.ts`, `legal.ts`, `help.ts`, and
+  `pages.ts`, the route table. A second locale is a sibling directory
+  implementing the same exported types, so a missing or renamed key is a
+  compile error rather than a blank space on a live page.
+- `pageMeta()` in `vite.config.ts` — renders every head from the route table:
+  title, description, canonical, `hreflang` over `PUBLISHED` only, `og:locale`,
+  and `lang`/`dir` on `<html>`. A page with no row fails the build too.
+- `url()` and `isCurrent()` in `src/lib/url.ts` — locale from
+  `document.documentElement.lang`, which is the same fact the browser and a
+  screen reader use rather than a second copy baked into the bundle.
+
 **VOID STRIKER is not localisable by this program.** It is one self-contained
 file with `lang="en"` hardcoded and its English drawn into a canvas. An Arabic
 page would frame an English game. That is accepted, not overlooked.

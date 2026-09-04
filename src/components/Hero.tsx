@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { apps, home, routes } from '../content/site';
+import { apps, home, routes } from '../content/en/site';
 import { GameClip } from './GameClip';
 import { url } from '../lib/url';
 import { usePointer, useReducedMotion } from '../lib/hooks';

@@ -4,9 +4,10 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { privacy, terms } from './src/content/legal';
-import { support, dataDeletion } from './src/content/help';
-import { pages } from './src/content/pages';
+import { privacy, terms } from './src/content/en/legal';
+import { support, dataDeletion } from './src/content/en/help';
+import { pages } from './src/content/en/pages';
+import { DEFAULT_LOCALE, PUBLISHED, locales, localeFromRoute, routeIn } from './src/content/locales';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 
@@ -138,22 +139,34 @@ function pageMeta() {
   /** Used as the social card everywhere; its alt describes the studio, not the page. */
   const OG_IMAGE = `${ORIGIN}/og.jpg`;
   const OG_ALT = 'New AI Vision Labs — independent technology studio';
+  const abs = (route: string) => (route === '' ? `${ORIGIN}/` : `${ORIGIN}/${route}/`);
 
   return {
     name: 'page-meta',
-    transformIndexHtml(_html: string, ctx: { filename: string }) {
+    transformIndexHtml(html: string, ctx: { filename: string }) {
       const rel = relative(root, ctx.filename).replace(/\\/g, '/');
-      const route = rel.replace(/\/?index\.html$/, '');
-      const page = pages.find((p) => p.route === route);
+      const fullRoute = rel.replace(/\/?index\.html$/, '');
+      const { locale, rest } = localeFromRoute(fullRoute);
+
+      if (!PUBLISHED.includes(locale.code)) {
+        throw new Error(
+          `The page at ${rel} is in the "${locale.code}" locale, which is not in ` +
+            `PUBLISHED in src/content/locales.ts. A locale goes live the moment its ` +
+            `directory reaches main, so this build fails rather than shipping copy ` +
+            `that has not been approved.`,
+        );
+      }
+
+      const page = pages.find((p) => p.route === rest);
       if (!page) {
         throw new Error(
-          `No entry in src/content/pages.ts for the page at ${rel}. ` +
-            `Add a row with route: '${route}' — a page without one would ship ` +
+          `No entry in src/content/en/pages.ts for the page at ${rel}. ` +
+            `Add a row with route: '${rest}' — a page without one would ship ` +
             `with no title and no canonical.`,
         );
       }
 
-      const canonical = route === '' ? `${ORIGIN}/` : `${ORIGIN}/${route}/`;
+      const canonical = abs(fullRoute);
       const meta = (name: string, content: string) => ({
         tag: 'meta',
         attrs: { name, content },
@@ -164,52 +177,92 @@ function pageMeta() {
         attrs: { property, content },
         injectTo: 'head' as const,
       });
+      const link = (attrs: Record<string, string>) => ({
+        tag: 'link',
+        attrs,
+        injectTo: 'head' as const,
+      });
 
-      return [
-        {
-          tag: 'meta',
-          attrs: { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-          injectTo: 'head' as const,
-        },
-        meta('color-scheme', 'dark'),
-        meta('theme-color', '#050507'),
+      /*
+       * hreflang lists published locales only.
+       *
+       * While English is the only one, that is a single self-referencing
+       * alternate plus x-default — which is correct rather than pointless: it
+       * states that this page is the English one and the default, and it means
+       * the shape is already right when a second locale is approved. Naming
+       * unpublished locales here would advertise URLs that answer 404.
+       */
+      const alternates = PUBLISHED.map((code) =>
+        link({
+          rel: 'alternate',
+          hreflang: locales[code].lang,
+          href: abs(routeIn(locales[code], rest)),
+        }),
+      );
+      alternates.push(
+        link({
+          rel: 'alternate',
+          hreflang: 'x-default',
+          href: abs(routeIn(locales[DEFAULT_LOCALE], rest)),
+        }),
+      );
 
-        { tag: 'title', children: page.title, injectTo: 'head' as const },
-        meta('description', page.description),
-        { tag: 'link', attrs: { rel: 'canonical', href: canonical }, injectTo: 'head' as const },
+      return {
+        /*
+         * `lang` and `dir` are attributes on <html>, which no injected tag can
+         * reach — so this is the one part of the head that is a string rewrite
+         * rather than a tag list. Every document declares both explicitly,
+         * including the English ones: `dir="ltr"` written down is a statement,
+         * where an absent `dir` is an assumption that happens to be right.
+         */
+        html: html.replace(
+          /<html[^>]*>/,
+          `<html lang="${locale.lang}" dir="${locale.dir}">`,
+        ),
+        tags: [
+          {
+            tag: 'meta',
+            attrs: { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+            injectTo: 'head' as const,
+          },
+          meta('color-scheme', 'dark'),
+          meta('theme-color', '#050507'),
 
-        { tag: 'link', attrs: { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }, injectTo: 'head' as const },
-        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/brand/mark-512.png' }, injectTo: 'head' as const },
-        { tag: 'link', attrs: { rel: 'manifest', href: '/site.webmanifest' }, injectTo: 'head' as const },
+          { tag: 'title', children: page.title, injectTo: 'head' as const },
+          meta('description', page.description),
+          link({ rel: 'canonical', href: canonical }),
+          ...alternates,
 
-        // The display face is the first thing painted; preloading it removes
-        // the width-axis reflow on the headline.
-        {
-          tag: 'link',
-          attrs: {
+          link({ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }),
+          link({ rel: 'apple-touch-icon', href: '/brand/mark-512.png' }),
+          link({ rel: 'manifest', href: '/site.webmanifest' }),
+
+          // The display face is the first thing painted; preloading it removes
+          // the width-axis reflow on the headline.
+          link({
             rel: 'preload',
             as: 'font',
             type: 'font/woff2',
             href: '/fonts/archivo-latin-wdth-normal.woff2',
             crossorigin: '',
-          },
-          injectTo: 'head' as const,
-        },
+          }),
 
-        og('og:type', 'website'),
-        og('og:site_name', 'New AI Vision Labs'),
-        og('og:title', page.title),
-        og('og:description', page.description),
-        og('og:url', canonical),
-        og('og:image', OG_IMAGE),
-        og('og:image:width', '1200'),
-        og('og:image:height', '630'),
-        og('og:image:alt', OG_ALT),
-        meta('twitter:card', 'summary_large_image'),
-        meta('twitter:title', page.title),
-        meta('twitter:description', page.description),
-        meta('twitter:image', OG_IMAGE),
-      ];
+          og('og:type', 'website'),
+          og('og:site_name', 'New AI Vision Labs'),
+          og('og:locale', locale.ogLocale),
+          og('og:title', page.title),
+          og('og:description', page.description),
+          og('og:url', canonical),
+          og('og:image', OG_IMAGE),
+          og('og:image:width', '1200'),
+          og('og:image:height', '630'),
+          og('og:image:alt', OG_ALT),
+          meta('twitter:card', 'summary_large_image'),
+          meta('twitter:title', page.title),
+          meta('twitter:description', page.description),
+          meta('twitter:image', OG_IMAGE),
+        ],
+      };
     },
   };
 }

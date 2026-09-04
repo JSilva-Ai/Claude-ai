@@ -1,6 +1,6 @@
 import { SectionHead } from './Shell';
 import { useReveal } from '../lib/hooks';
-import { home } from '../content/site';
+import { home } from '../content/en/site';
 
 export function Approach() {
   return (
