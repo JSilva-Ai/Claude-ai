@@ -2,36 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#050507" />
-
-    <title>New AI Vision Labs — independent technology studio</title>
-    <meta name="description" content="New AI Vision Labs is an independent technology studio. We design and build our own products — intelligent applications and original games — and publish them under our own name." />
-    <link rel="canonical" href="https://newaivisionlabs.com/" />
-
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/brand/mark-512.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-
-    <!-- The display face is the first thing painted; preloading it removes the
-         width-axis reflow on the headline. -->
-    <link rel="preload" as="font" type="font/woff2"
-          href="/fonts/archivo-latin-wdth-normal.woff2" crossorigin />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="New AI Vision Labs" />
-    <meta property="og:title" content="New AI Vision Labs — independent technology studio" />
-    <meta property="og:description" content="New AI Vision Labs is an independent technology studio. We design and build our own products — intelligent applications and original games — and publish them under our own name." />
-    <meta property="og:url" content="https://newaivisionlabs.com/" />
-    <meta property="og:image" content="https://newaivisionlabs.com/og.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="New AI Vision Labs — independent technology studio" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="New AI Vision Labs — independent technology studio" />
-    <meta name="twitter:description" content="New AI Vision Labs is an independent technology studio. We design and build our own products — intelligent applications and original games — and publish them under our own name." />
-    <meta name="twitter:image" content="https://newaivisionlabs.com/og.jpg" />
+    <!-- The rest of this head is rendered from src/content/pages.ts by the
+         page-meta plugin in vite.config.ts. Only the charset and the module
+         script below stay literal: Vite has to read both without executing
+         anything. Do not add tags here — add them to the plugin, or they will
+         exist on one page and be forgotten on the other twelve. -->
+  </head>
+  <body>
+    <div id="root"></div>
     <!--
       Organization structured data.
 
@@ -63,9 +41,6 @@
         }
       }
     </script>
-  </head>
-  <body>
-    <div id="root"></div>
     <script type="module" src="/src/pages/home.tsx"></script>
   </body>
 </html>

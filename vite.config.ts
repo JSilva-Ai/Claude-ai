@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { privacy, terms } from './src/content/legal';
 import { support, dataDeletion } from './src/content/help';
+import { pages } from './src/content/pages';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 
@@ -109,6 +110,110 @@ function buildStamp() {
  * rather than two renderings of it — but it needs the components to survive
  * SSR, and this closes the compliance hole today.
  */
+/**
+ * The head of every page, rendered from the route table.
+ *
+ * Each index.html carries only what Vite has to read literally — the charset
+ * and the module script that is the page's entry. Everything else in the head
+ * comes from `pages` in src/content/pages.ts: the title, the description, the
+ * canonical, the icons, the font preload, and the Open Graph and Twitter tags
+ * that are the same three strings repeated under different names.
+ *
+ * Two reasons, one now and one shortly.
+ *
+ * Now: thirteen documents each carrying twenty head tags is a copy-paste
+ * surface. A canonical pointing at the wrong page is invisible in a browser,
+ * invisible in the build, and expensive once a search engine has believed it.
+ *
+ * Shortly: a four-locale site is fifty-two documents. The same head rendered
+ * from one table is what makes that routine instead of unmaintainable, and it
+ * is the reason this refactor comes before any locale work rather than after.
+ *
+ * A document with no row fails the build. That is deliberate — the failure
+ * mode it replaces is a page shipping with no title and no canonical, which
+ * nothing else here would have caught.
+ */
+function pageMeta() {
+  const ORIGIN = 'https://newaivisionlabs.com';
+  /** Used as the social card everywhere; its alt describes the studio, not the page. */
+  const OG_IMAGE = `${ORIGIN}/og.jpg`;
+  const OG_ALT = 'New AI Vision Labs — independent technology studio';
+
+  return {
+    name: 'page-meta',
+    transformIndexHtml(_html: string, ctx: { filename: string }) {
+      const rel = relative(root, ctx.filename).replace(/\\/g, '/');
+      const route = rel.replace(/\/?index\.html$/, '');
+      const page = pages.find((p) => p.route === route);
+      if (!page) {
+        throw new Error(
+          `No entry in src/content/pages.ts for the page at ${rel}. ` +
+            `Add a row with route: '${route}' — a page without one would ship ` +
+            `with no title and no canonical.`,
+        );
+      }
+
+      const canonical = route === '' ? `${ORIGIN}/` : `${ORIGIN}/${route}/`;
+      const meta = (name: string, content: string) => ({
+        tag: 'meta',
+        attrs: { name, content },
+        injectTo: 'head' as const,
+      });
+      const og = (property: string, content: string) => ({
+        tag: 'meta',
+        attrs: { property, content },
+        injectTo: 'head' as const,
+      });
+
+      return [
+        {
+          tag: 'meta',
+          attrs: { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+          injectTo: 'head' as const,
+        },
+        meta('color-scheme', 'dark'),
+        meta('theme-color', '#050507'),
+
+        { tag: 'title', children: page.title, injectTo: 'head' as const },
+        meta('description', page.description),
+        { tag: 'link', attrs: { rel: 'canonical', href: canonical }, injectTo: 'head' as const },
+
+        { tag: 'link', attrs: { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }, injectTo: 'head' as const },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/brand/mark-512.png' }, injectTo: 'head' as const },
+        { tag: 'link', attrs: { rel: 'manifest', href: '/site.webmanifest' }, injectTo: 'head' as const },
+
+        // The display face is the first thing painted; preloading it removes
+        // the width-axis reflow on the headline.
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'preload',
+            as: 'font',
+            type: 'font/woff2',
+            href: '/fonts/archivo-latin-wdth-normal.woff2',
+            crossorigin: '',
+          },
+          injectTo: 'head' as const,
+        },
+
+        og('og:type', 'website'),
+        og('og:site_name', 'New AI Vision Labs'),
+        og('og:title', page.title),
+        og('og:description', page.description),
+        og('og:url', canonical),
+        og('og:image', OG_IMAGE),
+        og('og:image:width', '1200'),
+        og('og:image:height', '630'),
+        og('og:image:alt', OG_ALT),
+        meta('twitter:card', 'summary_large_image'),
+        meta('twitter:title', page.title),
+        meta('twitter:description', page.description),
+        meta('twitter:image', OG_IMAGE),
+      ];
+    },
+  };
+}
+
 function legalNoscript() {
   const docs: Record<string, unknown> = {
     privacy,
@@ -167,7 +272,7 @@ export default defineConfig({
    * Set BASE_PATH at build time; it must carry a trailing slash.
    */
   base: process.env.BASE_PATH ?? '/',
-  plugins: [react(), buildStamp(), legalNoscript()],
+  plugins: [react(), pageMeta(), buildStamp(), legalNoscript()],
   build: {
     rollupOptions: { input },
     // Small assets inline; anything larger stays a request the browser can
