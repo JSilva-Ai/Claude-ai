@@ -183,6 +183,11 @@ if (run('qa')) {
     failed.push('visual QA');
 }
 
+if (run('rtl')) {
+  step('RTL regression sweep');
+  if (sh('node', ['scripts/rtl.mjs', `--url=${URL}`])) failed.push('RTL');
+}
+
 stop();
 
 console.log('');
