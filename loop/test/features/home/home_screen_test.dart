@@ -31,6 +31,9 @@ class _FailingRepository implements HomeRepository {
   const _FailingRepository();
 
   @override
+  Stream<void> get changes => const Stream<void>.empty();
+
+  @override
   Future<HomeSnapshot> fetchHome() async =>
       throw const HomeLoadFailure('no network');
 }

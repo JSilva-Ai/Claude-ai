@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import '../data/home_repository.dart';
@@ -12,11 +14,21 @@ import 'home_state.dart';
 /// thing that would need rewriting if the project later adopts Riverpod.
 /// Adding a dependency to earn what the framework gives away is not free — it
 /// is a version to track and a convention every future contributor must learn.
+///
+/// Reactive updates ride the same path a manual [refresh] already did,
+/// rather than a second state system next to it: the controller subscribes
+/// to [HomeRepository.changes] once, in its own constructor, and every event
+/// just calls [refresh]. A repository with nothing reactive behind it (the
+/// mock) never fires, so this is a no-op for every existing test and
+/// screenshot — the subscription exists, it is simply never triggered.
 class HomeController extends ChangeNotifier {
   HomeController({required HomeRepository repository})
-      : _repository = repository;
+      : _repository = repository {
+    _changes = _repository.changes.listen((_) => refresh());
+  }
 
   final HomeRepository _repository;
+  late final StreamSubscription<void> _changes;
 
   HomeState _state = const HomeLoading();
   HomeState get state => _state;
@@ -59,6 +71,12 @@ class HomeController extends ChangeNotifier {
   void _set(HomeState next) {
     _state = next;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_changes.cancel());
+    super.dispose();
   }
 }
 

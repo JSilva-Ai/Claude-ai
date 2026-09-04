@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loop/features/home/data/home_repository.dart';
 import 'package:loop/features/home/models/home_snapshot.dart';
@@ -7,7 +9,9 @@ import 'package:loop/features/home/state/home_controller.dart';
 import 'package:loop/features/home/state/home_state.dart';
 
 /// A repository that answers on command, so the test controls the ordering
-/// instead of racing a timer.
+/// instead of racing a timer. [changes] is a real, controllable stream
+/// rather than the always-empty one every other double in this file uses,
+/// so a test can fire it on demand to prove the controller reacts.
 class _FakeRepository implements HomeRepository {
   _FakeRepository();
 
@@ -17,6 +21,13 @@ class _FakeRepository implements HomeRepository {
     profile: UserProfile(id: 'u', displayName: 'Jorge'),
     summaries: <LoopCategory, int>{LoopCategory.atRisk: 1},
   );
+
+  final StreamController<void> _changes = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> get changes => _changes.stream;
+
+  void fireChange() => _changes.add(null);
 
   @override
   Future<HomeSnapshot> fetchHome() async {
@@ -81,6 +92,52 @@ void main() {
       await controller.load();
 
       expect(notifications, greaterThan(0));
+    });
+
+    test('an event on repository.changes triggers the same refresh() '
+        'already does — no widget has to poll anything', () async {
+      final _FakeRepository repository = _FakeRepository();
+      final HomeController controller = HomeController(repository: repository);
+      await controller.load();
+      expect(repository.calls, 1);
+
+      repository.snapshot = const HomeSnapshot(
+        profile: UserProfile(id: 'u', displayName: 'Jorge'),
+        summaries: <LoopCategory, int>{LoopCategory.today: 2},
+      );
+      repository.fireChange();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(repository.calls, 2);
+      expect(
+        (controller.state as HomeReady).snapshot.countOf(LoopCategory.today),
+        2,
+      );
+    });
+
+    test('a repository with nothing reactive (the mock\'s own shape) never '
+        'refreshes on its own — this is not a polling loop', () async {
+      final _FakeRepository repository = _FakeRepository();
+      final HomeController controller = HomeController(repository: repository);
+      await controller.load();
+      expect(repository.calls, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(repository.calls, 1);
+    });
+
+    test('disposing cancels the changes subscription — a later event on '
+        'the stream does not throw or refetch', () async {
+      final _FakeRepository repository = _FakeRepository();
+      final HomeController controller = HomeController(repository: repository);
+      await controller.load();
+      final int callsBeforeDispose = repository.calls;
+
+      controller.dispose();
+      repository.fireChange();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(repository.calls, callsBeforeDispose);
     });
   });
 }

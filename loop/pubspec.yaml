@@ -21,6 +21,10 @@ dependencies:
   # mechanism, and depending on the dead package would only add a no-op.
   drift: ^2.34.4
   sqlite3: ^3.4.0
+  # 2C-C: the one place this app needs to know a real filesystem path — where
+  # the production database file lives. Nothing under lib/data or
+  # lib/application depends on it; only lib/composition does.
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:

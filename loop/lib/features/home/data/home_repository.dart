@@ -8,6 +8,18 @@ import '../models/home_snapshot.dart';
 /// exists this early.
 abstract interface class HomeRepository {
   Future<HomeSnapshot> fetchHome();
+
+  /// Fires whenever data behind [fetchHome] may have changed — never the
+  /// snapshot itself, just a signal. [HomeController] treats every event as
+  /// "call [fetchHome] again", the same work its own `refresh()` already
+  /// does; this is what lets the real, database-backed repository update the
+  /// Home without any widget polling or importing storage directly.
+  ///
+  /// A source with nothing reactive behind it — [MockHomeRepository], the
+  /// fixed demo data every screenshot and widget test still runs against —
+  /// answers with a stream that never fires, which is a correct, honest
+  /// implementation, not a stub.
+  Stream<void> get changes;
 }
 
 /// Thrown by a repository when the snapshot cannot be produced.

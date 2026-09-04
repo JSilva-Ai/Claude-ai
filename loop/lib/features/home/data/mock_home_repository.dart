@@ -27,6 +27,10 @@ class MockHomeRepository implements HomeRepository {
   final bool failure;
   final bool empty;
 
+  /// Fixed demo data has nothing to react to — the mock never fires.
+  @override
+  Stream<void> get changes => const Stream<void>.empty();
+
   @override
   Future<HomeSnapshot> fetchHome() async {
     if (delay > Duration.zero) await Future<void>.delayed(delay);
