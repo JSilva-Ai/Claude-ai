@@ -37,7 +37,8 @@ void main() {
     expect(stateFiles, isNotEmpty);
   });
 
-  test('no widget or controller imports the domain, Drift, or sqlite3 '
+  test(
+      'no widget or controller imports the domain, Drift, or sqlite3 '
       'directly', () {
     const List<String> forbidden = <String>[
       'domain/',
@@ -58,7 +59,8 @@ void main() {
     expect(offenders, isEmpty);
   });
 
-  test('no widget imports the application layer either — HomeSnapshot, '
+  test(
+      'no widget imports the application layer either — HomeSnapshot, '
       'reached through HomeController, is the entire contract', () {
     final List<String> offenders = <String>[];
     for (final File file in presentationFiles) {

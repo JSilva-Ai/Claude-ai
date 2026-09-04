@@ -13,7 +13,8 @@ void main() {
   const LoopStateMachine machine = LoopStateMachine();
 
   group('LoopAppComposition, the wiring itself', () {
-    test('open → write → observe → close, entirely through the composed '
+    test(
+        'open → write → observe → close, entirely through the composed '
         'objects, no widget involved', () async {
       final LoopAppComposition composition = LoopAppComposition.withExecutor(
         NativeDatabase.memory(),
@@ -49,7 +50,8 @@ void main() {
       await subscription.cancel();
     });
 
-    test('dispose closes the database — a query against it afterward '
+    test(
+        'dispose closes the database — a query against it afterward '
         'fails loudly rather than silently returning empty/stale data',
         () async {
       // A real, file-backed executor, deliberately: NativeDatabase.memory()
@@ -81,7 +83,8 @@ void main() {
       );
     });
 
-    test('data written before closing is there after reopening the same '
+    test(
+        'data written before closing is there after reopening the same '
         'file — the same guarantee 2C-A proved at the Drift level, now '
         'through the full composition', () async {
       final Directory tempDir = await Directory.systemTemp.createTemp(
@@ -100,7 +103,8 @@ void main() {
         basis: basis.id,
         now: t0,
       );
-      await first.repository.saveOutcome(created, newEvidence: <Evidence>[basis]);
+      await first.repository
+          .saveOutcome(created, newEvidence: <Evidence>[basis]);
       await first.dispose();
 
       final LoopAppComposition reopened = LoopAppComposition.withExecutor(

@@ -55,7 +55,8 @@ void main() {
   const LoopStateMachine machine = LoopStateMachine();
 
   group('LoopHomeRepository', () {
-    test('an empty store produces a valid, empty HomeSnapshot — not an '
+    test(
+        'an empty store produces a valid, empty HomeSnapshot — not an '
         'error, not fabricated content', () async {
       final InMemoryLoopRepository repository = InMemoryLoopRepository();
       final LoopHomeRepository homeRepository = LoopHomeRepository(
@@ -91,7 +92,8 @@ void main() {
       expect(snapshot.activeLoops, 1);
     });
 
-    test('profile defaults to UserProfile.anonymous — never a fabricated '
+    test(
+        'profile defaults to UserProfile.anonymous — never a fabricated '
         'name', () {
       final LoopHomeRepository homeRepository = LoopHomeRepository(
         repository: InMemoryLoopRepository(),
@@ -123,7 +125,8 @@ void main() {
       await subscription.cancel();
     });
 
-    test('a persistence failure surfaces as HomeLoadFailure, never the raw '
+    test(
+        'a persistence failure surfaces as HomeLoadFailure, never the raw '
         'PersistenceFailure or anything Drift-shaped', () async {
       final _ThrowingRepository repository = _ThrowingRepository(
         const PersistenceConstraintViolation('simulated FK violation'),

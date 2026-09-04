@@ -94,7 +94,8 @@ void main() {
       expect(notifications, greaterThan(0));
     });
 
-    test('an event on repository.changes triggers the same refresh() '
+    test(
+        'an event on repository.changes triggers the same refresh() '
         'already does — no widget has to poll anything', () async {
       final _FakeRepository repository = _FakeRepository();
       final HomeController controller = HomeController(repository: repository);
@@ -115,7 +116,8 @@ void main() {
       );
     });
 
-    test('a repository with nothing reactive (the mock\'s own shape) never '
+    test(
+        'a repository with nothing reactive (the mock\'s own shape) never '
         'refreshes on its own — this is not a polling loop', () async {
       final _FakeRepository repository = _FakeRepository();
       final HomeController controller = HomeController(repository: repository);
@@ -126,7 +128,8 @@ void main() {
       expect(repository.calls, 1);
     });
 
-    test('disposing cancels the changes subscription — a later event on '
+    test(
+        'disposing cancels the changes subscription — a later event on '
         'the stream does not throw or refetch', () async {
       final _FakeRepository repository = _FakeRepository();
       final HomeController controller = HomeController(repository: repository);
