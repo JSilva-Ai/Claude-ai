@@ -1,3 +1,4 @@
+import 'commitment/commitment_status.dart';
 import 'ids.dart';
 import 'loop/loop_state.dart';
 import 'loop/loop_transition.dart';
@@ -64,6 +65,26 @@ final class OperationRefused extends LoopFailure {
 
   @override
   String toString() => 'OperationRefused($reason)';
+}
+
+/// A Commitment's own status transition was refused — attempting a move
+/// that is not legal from its current status. Kept apart from
+/// [IllegalTransition], which is typed to [LoopState]/[LoopTransition] and
+/// cannot represent a [CommitmentStatus] move without a mismatch, and apart
+/// from [OperationRefused], whose own doc reserves it for refusals that are
+/// not lifecycle transitions — a Commitment status change is exactly that.
+final class IllegalCommitmentTransition extends LoopFailure {
+  const IllegalCommitmentTransition({required this.from, required this.to});
+
+  final CommitmentStatus from;
+  final CommitmentStatus to;
+
+  @override
+  String get debugMessage =>
+      'A commitment cannot move from ${from.name} to ${to.name}';
+
+  @override
+  String toString() => 'IllegalCommitmentTransition($debugMessage)';
 }
 
 final class UnknownEvidence extends LoopFailure {
