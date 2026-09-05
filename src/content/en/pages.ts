@@ -45,7 +45,7 @@ export const pages: PageMeta[] = [
     route: 'apps/biblelink',
     title: 'BIBLELINK — New AI Vision Labs',
     description:
-      'BIBLELINK is an application by New AI Vision Labs, built and going through final testing before release.',
+      'BIBLELINK is a daily devotional app by New AI Vision Labs, centered on Scripture, reflection, practical application, and prayer. Currently in final testing before release.',
   },
   {
     route: 'apps/galaxy-forge',

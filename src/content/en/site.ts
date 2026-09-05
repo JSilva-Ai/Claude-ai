@@ -307,12 +307,14 @@ export const apps: App[] = [
     slug: 'biblelink',
     name: 'BIBLELINK',
     category: 'app',
-    kind: 'Application',
-    tagline: 'Built, and going through final testing before release.',
+    kind: 'Application · Daily devotional',
+    positioning: 'Scripture, reflection, and prayer for every day.',
+    tagline: 'A daily devotional app, in final testing before release.',
     status: 'Final testing',
     description: [
-      'BIBLELINK is finished and is going through final testing.',
-      'What it does, and what it looks like, are not on this page yet. They go up together, when the product is ready to be shown rather than announced — which is a short wait from here rather than a long one.',
+      'BIBLELINK is a daily devotional experience centered on Scripture, reflection, practical application, and prayer.',
+      'It is designed around a calm, focused daily rhythm with the Bible, bringing the devotional experience together in one place.',
+      'BIBLELINK is currently in final testing before release. Store links will appear only after release is authorized.',
     ],
     screenshots: [],
     stores: [
