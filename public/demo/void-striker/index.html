@@ -509,7 +509,42 @@ canvas{display:block;image-rendering:auto;}
 (function(){'use strict';
 
 // ─── CANVAS SETUP ────────────────────────────────────────────────────────────
-var W=520,H=720;
+/*
+  The logical world.
+
+  W is fixed: 520 units wide, always. H is NOT fixed any more, and that is the
+  whole of this change.
+
+  It used to be 520x720 letterboxed to fit, which on a 390x844 iPhone made
+  _scale = 390/520 = 0.75 and a canvas 540 points tall inside an 844-point
+  screen: 304 points of black, 36% of the display, above and below the game.
+  The hub and the modals never showed it because they are DOM over the canvas,
+  which is why only gameplay looked wrong on the device.
+
+  So H now follows the viewport's aspect ratio. The extra height is real world
+  above the play field, not stretch and not crop:
+
+      H0 = 720   the design baseline. Every tuned distance is expressed in it.
+      H  = the effective height, W * viewportH / viewportW, never below H0
+      FT = H - H0, the band of extra sky that appears ABOVE the play field
+
+  Everything the design places from the BOTTOM (the player, the bottom HUD, the
+  buttons) is already written as `H - n` and follows a taller H for free.
+  Everything placed from the TOP that belongs to the fight (the enemy rows, the
+  boss, the player's ceiling) is offset by FT, so the distance between the
+  formation and the player is exactly what it was at 720 — the difficulty is
+  not touched. The top HUD stays at absolute y, because it belongs to the top
+  of the screen rather than to the field.
+
+  On a viewport wider than 520:720 — a desktop, the 520x720 media capture — the
+  computed height lands under H0, H stays 720 and FT is 0, so nothing about
+  those cases changes at all.
+*/
+var W=520,H0=720,H=H0,FT=0;
+/* A guard against an absurdly tall window (a narrow browser column), not a
+   device model: past this the game letterboxes again rather than opening a
+   field no one designed. Taller than any shipping phone. */
+var H_MAX=1280;
 var canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
 
 /*
@@ -539,6 +574,18 @@ var _scale=1;
 */
 var DPR_CAP=3;
 var _rscale=1;          // adaptive multiplier, 1 = full device resolution
+
+/* The one place the effective world height is decided. Everything else reads
+   H and FT; nothing else measures the viewport. */
+function _computeField(){
+  var vw=Math.max(1,window.innerWidth||W),vh=Math.max(1,window.innerHeight||H0);
+  /* Not rounded. `Math.round` here left the world a fraction of a unit taller
+     than the screen's own ratio, which came out as a one-pixel black line
+     along the bottom edge — a letterbox is a letterbox at any size. */
+  H=Math.max(H0,Math.min(W*vh/vw,H_MAX));
+  FT=H-H0;
+}
+_computeField();
 function resize(){
   /* innerWidth/innerHeight, deliberately. In an iframe on a phone these report
      the 980px desktop layout viewport a subframe falls back to, which looks
@@ -547,8 +594,30 @@ function resize(){
      `screen` instead — which does report the real 390pt device — rendered the
      game as a postage stamp in a field of black. Measure the picture, not the
      numbers. */
-  _scale=Math.min(window.innerWidth/W,window.innerHeight/H);
-  var cssW=Math.floor(W*_scale),cssH=Math.floor(H*_scale);
+  /*
+     The field is recomputed only when a run is NOT in progress. On the website
+     in mobile Safari `innerHeight` changes as the address bar hides, and a
+     world that grew a hundred units mid-fight would move the enemy rows under
+     the player. Between runs it is free to change; during one it is frozen and
+     the few points of difference letterbox, which is invisible and harmless.
+  */
+  if(!(typeof gs!=='undefined'&&gs&&gs.phase==='playing'))_computeField();
+  var vw=window.innerWidth,vh=window.innerHeight,cssW,cssH;
+  /*
+     Two modes, decided by whether the world we have still matches the screen we
+     have. It does whenever the viewport is taller than 520:720 and the field was
+     computed for it — then the canvas is given the viewport exactly and there is
+     no letterbox at all. It does not on a desktop (wider than the baseline), or
+     when H is frozen mid-run and the address bar has since moved; then the old
+     fit-and-centre applies and the residual shows as a band, which is the
+     correct, honest fallback rather than a stretch.
+  */
+  if(Math.abs(H-W*vh/vw)<0.5){
+    cssW=vw;cssH=vh;_scale=cssW/W;
+  }else{
+    _scale=Math.min(vw/W,vh/H);
+    cssW=Math.round(W*_scale);cssH=Math.round(H*_scale);
+  }
   canvas.style.width=cssW+'px';
   canvas.style.height=cssH+'px';
   var dpr=Math.min(window.devicePixelRatio||1,DPR_CAP)*_rscale;
@@ -2782,7 +2851,7 @@ function drawUpgradeShop(){
     5pt on a phone. The stack was strictly the more readable of the two on every
     size the game is actually played at, so it is the only one now.
   */
-  var m=18,rh=96,rgap=14,ry=Math.floor(H*.20);
+  var m=18,rh=96,rgap=14,ry=FT+Math.floor(H0*.20);
   gs._upgCards=[];
 
   gs.upgChoices.forEach(function(c,i){
@@ -2859,13 +2928,13 @@ function selectUpgrade(idx){
   var c=gs.upgChoices[idx];if(!c)return;
   var price=getUpgradePrice(c);
   if(gs.credits<price){
-    addFloat(W/2,H*.6,'NOT ENOUGH CREDITS','#ff4466',false);
+    addFloat(W/2,FT+H0*.6,'NOT ENOUGH CREDITS','#ff4466',false);
     SFX.shield();return;
   }
   gs.credits-=price;
   _upgBought[c.id]=(_upgBought[c.id]||0)+1;
   c.apply();SFX.upgrade();
-  addFloat(W/2,H*.45,c.name+' ACTIVATED',c.col,true);
+  addFloat(W/2,FT+H0*.45,c.name+' ACTIVATED',c.col,true);
   // Allow buying again from same shop if credits remain
   // Refresh choices so prices update
   gs.upgChoices=getUpgrades();
@@ -2907,7 +2976,7 @@ function _moveEnemy(e){
       e.dvy=Math.min(e.dvy+.16,7.5);
       e.x+=clamp((p.x-e.x)*.014,-2.6,2.6)*k;
       e.y+=e.dvy;
-      if(e.y>H+50){e.diving=false;e.y=-40;e.x=e.ax;e.dvy=0;e.diveT=Math.round(rand(150,420));}
+      if(e.y>H+50){e.diving=false;e.y=FT-40;e.x=e.ax;e.dvy=0;e.diveT=Math.round(rand(150,420));}
     }else{
       e.ph+=.02*k;
       e.x=clamp(e.ax+Math.sin(e.ph)*14,22,W-22);
@@ -2946,7 +3015,7 @@ function makeEnemyWave(wave){
     var bt=(Math.floor(wave/5)-1)%BOSS_TYPES;
     var tier=Math.floor((wave-1)/15);                 // each full cycle comes back tougher
     var hp=Math.round((36+bt*12+tier*30)*dc.hpM);
-    en.push({x:W/2,y:-110,ty:130,type:0,btype:bt,hp:hp,maxhp:hp,alive:true,boss:true,
+    en.push({x:W/2,y:FT-110,ty:FT+130,type:0,btype:bt,hp:hp,maxhp:hp,alive:true,boss:true,
       entered:false,st:48,ang:0,dx:(1.6+bt*.2)*dc.spdM,patT:0,pat:0,_raged:false});
   }else{
     var fm=formationFor(wave);
@@ -2955,8 +3024,10 @@ function makeEnemyWave(wave){
       for(var c=0;c<cols;c++){
         var tp=Math.floor(rand(0,Math.min(EC.length,1+wave*.6)));
         var hp2=tp>3?2:1;hp2=Math.max(1,Math.round(hp2*dc.hpM));
-        var ax=52+c*(412/Math.max(cols-1,1)),ty=HUD_TOP+24+r*58;
-        en.push({x:ax,y:-40-r*54,ty:ty,ax:ax,
+        // FT keeps the rank exactly as far above the player as it was at
+        // H=720, so a taller screen shows more sky and not an easier fight.
+        var ax=52+c*(412/Math.max(cols-1,1)),ty=FT+HUD_TOP+24+r*58;
+        en.push({x:ax,y:FT-40-r*54,ty:ty,ax:ax,
           fm:fm,ph:(c*.7+r*1.1),amp:26+r*8,
           diving:false,dvy:0,diveT:Math.round(rand(90,420)+c*22),
           entered:false,
@@ -3043,7 +3114,7 @@ function _onKill(e){
   if(gs.score>=250000)unlock('250k');
   if(e.boss)unlock('boss');
   var ms=[10000,25000,50000,100000,200000];
-  ms.forEach(function(m){if(gs.score>=m&&!gs._miles[m]){gs._miles[m]=1;addFloat(W/2,H*.28,'\u2605 '+m.toLocaleString(),'#ffee00',true);SFX.power();}});
+  ms.forEach(function(m){if(gs.score>=m&&!gs._miles[m]){gs._miles[m]=1;addFloat(W/2,FT+H0*.28,'\u2605 '+m.toLocaleString(),'#ffee00',true);SFX.power();}});
 }
 
 function _applyPU(pu){
@@ -3073,7 +3144,7 @@ function detonateBomb(){
   gs.bombs--;
   gs.bullets=gs.bullets.filter(function(b){return!b.enemy;});
   gs.screenShake=22;SFX.bomb();
-  ring(W/2,H/2,'rgba(255,100,0,.8)');burst(W/2,H/2,'rgba(255,140,50,.9)',48,11);
+  ring(W/2,FT+H0/2,'rgba(255,100,0,.8)');burst(W/2,FT+H0/2,'rgba(255,140,50,.9)',48,11);
   gs.enemies.forEach(function(e){
     if(!e.alive)return;
     e.hp=Math.max(0,e.hp-3);burst(e.x,e.y,EC[e.type%EC.length],10);
@@ -3110,7 +3181,7 @@ function update(){
   if(gs.keys['ArrowRight']||gs.keys['d'])p.x=clamp(p.x+spd,22,W-22);
   // Kept clear of both bars, so a tap near the bottom corner is unambiguously
   // a button press and never a steering touch the ship was sitting under.
-  var yLo=HUD_TOP+20,yHi=H-HUD_BOT-26;
+  var yLo=FT+HUD_TOP+20,yHi=H-HUD_BOT-26;
   if(gs.keys['ArrowUp']||gs.keys['w'])p.y=clamp(p.y-spd*.75,yLo,yHi);
   if(gs.keys['ArrowDown']||gs.keys['s'])p.y=clamp(p.y+spd*.75,yLo,yHi);
   if(gs.mactive)p.x=lerp(p.x,gs.mx,.14);
@@ -3307,7 +3378,7 @@ function drawBanner(){
   var k=b.t/b.dur;
   // ease in, hold, ease out
   var a=k<.18?(k/.18):k>.72?(1-(k-.72)/.28):1;
-  var y=H*.34;
+  var y=FT+H0*.34;
   var sweep=clamp((k<.5?k/.28:1),0,1);
   ctx.save();
   ctx.globalAlpha=a*.85;
