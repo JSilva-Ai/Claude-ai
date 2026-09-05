@@ -430,6 +430,29 @@ The directive, in his words:
   still not been read by a lawyer.
 - No visible language selector until it would expose only published locales.
 
+**The Arabic typefaces are chosen and approved. Nothing is installed.**
+
+- **Noto Kufi Arabic** — display and headlines. It reaches weight 900, which is
+  the only way to approach the presence of the Latin display setting
+  (`'wdth' 76, 'wght' 800` on Archivo), because Arabic type has no width axis to
+  condense on. It is a poor choice for long paragraphs, which is why there are
+  two faces and not one.
+- **IBM Plex Sans Arabic** — body text and UI. Its engineered tone is the
+  closest of the candidates to the voice the site already has, and it takes over
+  exactly where Kufi stops working. Two faces rather than one mirrors what the
+  Latin side already does with Archivo and JetBrains Mono.
+- **Both must be self-hosted.** The privacy policy asserts, verified, that no
+  route contacts a third-party host — so a font CDN is not available. Subset to
+  Arabic with their own `unicode-range` beside the existing Latin faces, so an
+  English page never downloads them.
+- **Arabic layout uses RTL**, not translated text in a left-to-right box.
+- **No Arabic is published without human language review**, and **the English
+  legal content remains the official legal version** until translations have had
+  appropriate legal review.
+
+The specimens the choice was made from are at
+`https://claude.ai/code/artifact/d78f49da-994b-4b1f-b3cf-32eff7c025e5`.
+
 The audit behind this is at
 `https://claude.ai/code/artifact/7c6a0a34-7e94-408d-854a-dbdd4572f17d`.
 Three findings from it that the code now depends on:
