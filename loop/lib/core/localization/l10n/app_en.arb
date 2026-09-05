@@ -1,0 +1,118 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "LOOP",
+  "@appTitle": { "description": "The product name. Not translated." },
+
+  "menuButton": "Menu",
+  "@menuButton": { "description": "Accessibility label for the header menu button." },
+  "profileButton": "Your profile",
+  "@profileButton": { "description": "Accessibility label for the header avatar." },
+  "statusOnline": "Online",
+  "@statusOnline": { "description": "Accessibility label for the dot on the avatar." },
+
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingWithName": "{greeting}, {name}.",
+  "@greetingWithName": {
+    "description": "Greeting plus the user's first name, with the sentence punctuation the language wants.",
+    "placeholders": {
+      "greeting": { "type": "String", "example": "Good morning" },
+      "name": { "type": "String", "example": "Jorge" }
+    }
+  },
+  "heresWhatsImportant": "Here's what's important today.",
+
+  "loopsActive": "LOOPS\nACTIVE",
+  "@loopsActive": { "description": "Label inside the ring. The newline is the intended two-line break." },
+  "activeLoopsSemantics": "{count, plural, =1{1 active loop} other{{count} active loops}}",
+  "@activeLoopsSemantics": {
+    "description": "Spoken form of the ring, which is a graphic.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "atRisk": "AT RISK",
+  "atRiskDescription": "Needs your attention",
+  "waiting": "WAITING",
+  "waitingDescription": "Waiting for others",
+  "today": "TODAY",
+  "todayDescription": "Planned for today",
+  "done": "DONE",
+  "doneDescription": "Loops closed",
+
+  "summaryCardSemantics": "{title}, {description}, {count, plural, =0{no loops} =1{1 loop} other{{count} loops}}",
+  "@summaryCardSemantics": {
+    "description": "Spoken form of a summary card, so a screen reader gets state without relying on colour.",
+    "placeholders": {
+      "title": { "type": "String", "example": "At risk" },
+      "description": { "type": "String", "example": "Needs your attention" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiInsight": "AI INSIGHT",
+  "upNext": "UP NEXT",
+  "addToCalendar": "Add to calendar",
+
+  "upNextToday": "Today, {time}",
+  "@upNextToday": {
+    "description": "Date line when the item is today.",
+    "placeholders": { "time": { "type": "String", "example": "2:00 PM" } }
+  },
+  "upNextTomorrow": "Tomorrow, {time}",
+  "@upNextTomorrow": {
+    "placeholders": { "time": { "type": "String", "example": "2:00 PM" } }
+  },
+  "upNextOnDate": "{date}, {time}",
+  "@upNextOnDate": {
+    "placeholders": {
+      "date": { "type": "String", "example": "Fri, Sep 5" },
+      "time": { "type": "String", "example": "2:00 PM" }
+    }
+  },
+
+  "countdownDaysHours": "in {days}d {hours}h",
+  "@countdownDaysHours": {
+    "placeholders": { "days": { "type": "int" }, "hours": { "type": "int" } }
+  },
+  "countdownHoursMinutes": "in {hours}h {minutes}m",
+  "@countdownHoursMinutes": {
+    "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } }
+  },
+  "countdownMinutes": "in {minutes}m",
+  "@countdownMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "countdownNow": "now",
+  "countdownOverdue": "overdue",
+
+  "navHome": "Home",
+  "navLoops": "Loops",
+  "navCreate": "Create",
+  "navFocus": "Focus",
+  "navMore": "More",
+
+  "comingSoonTitle": "{section} is coming",
+  "@comingSoonTitle": {
+    "description": "Placeholder sheet shown where a screen does not exist yet.",
+    "placeholders": { "section": { "type": "String", "example": "At risk" } }
+  },
+  "comingSoonBody": "This screen is part of a later phase. The Home is the first piece of LOOP to be built.",
+  "close": "Close",
+
+  "language": "Language",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languagePortuguese": "Português",
+  "languageSpanish": "Español",
+
+  "loading": "Loading your loops…",
+  "errorTitle": "We couldn't load your loops",
+  "errorBody": "Something went wrong on our side. Nothing was lost.",
+  "retry": "Try again",
+  "emptyTitle": "Nothing is open",
+  "emptyBody": "Every loop is closed. Enjoy it.",
+
+  "refresh": "Refresh"
+}

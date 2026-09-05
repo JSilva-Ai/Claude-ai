@@ -38,12 +38,19 @@ function findPages(dir: string, found: string[] = []): string[] {
      * `mobile/` is the native app: a separate npm project that packages the
      * game with Capacitor, holding the built web payload and the copy synced
      * into each native project. Three more index.html files, no routes.
+     *
+     * `loop/` is the LOOP app: a Flutter project, not part of this site at
+     * all. Its `web/index.html` is Flutter's own host page, and left
+     * discoverable here it would be built and published as the route /loop/ —
+     * a page that cannot work, since Vite would not produce the Dart bundle
+     * it loads.
      */
     if (
       name === 'node_modules' ||
       name === 'dist' ||
       name === 'public' ||
       name === 'mobile' ||
+      name === 'loop' ||
       name.startsWith('.')
     )
       continue;

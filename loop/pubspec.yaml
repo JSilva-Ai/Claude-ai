@@ -1,0 +1,39 @@
+name: loop
+description: LOOP — the app that makes sure nothing important in your life gets left unfinished.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Required by the code that `flutter gen-l10n` generates.
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  # 2C-A: the persistence foundation accepted by ADR. drift 2.34.4 itself
+  # requires sqlite3 ^3.4.0 — there is no version of drift actively maintained
+  # today that still allows pinning to the sqlite3 2.x line. `sqlite3_flutter_libs`
+  # is deliberately absent: as of its own 0.6.0+eol release it bundles nothing —
+  # sqlite3 3.x provisions the native library itself via Dart's build-hooks
+  # mechanism, and depending on the dead package would only add a no-op.
+  drift: ^2.34.4
+  sqlite3: ^3.4.0
+  # 2C-C: the one place this app needs to know a real filesystem path — where
+  # the production database file lives. Nothing under lib/data or
+  # lib/application depends on it; only lib/composition does.
+  path_provider: ^2.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.34.4
+  build_runner: ^2.16.1
+
+flutter:
+  uses-material-design: true
+  # Turns on the l10n code generation described by l10n.yaml.
+  generate: true

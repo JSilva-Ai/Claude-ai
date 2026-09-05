@@ -1,0 +1,75 @@
+name: loop
+
+# The Flutter app gets its own workflow because it shares nothing with the
+# site: a different toolchain, a different lockfile, and a different reason to
+# go red. Keeping them apart is also what keeps either signal worth reading —
+# a failing site check should mean the site is broken, not that a Dart file
+# somewhere is misformatted.
+#
+# Until this existed, `loop/` had no automated verification at all: the site's
+# `checks` workflow runs on every push, which made the repository look covered
+# while `flutter analyze` and `flutter test` had never run anywhere but a
+# laptop.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'loop/**'
+      - '.github/workflows/loop.yml'
+  pull_request:
+    paths:
+      - 'loop/**'
+      - '.github/workflows/loop.yml'
+
+concurrency:
+  group: loop-${{ github.ref }}
+  cancel-in-progress: true
+
+# Everything below runs in the Flutter project, not at the repository root,
+# where there is no pubspec.yaml at all.
+defaults:
+  run:
+    working-directory: loop
+
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to an exact version rather than tracking a channel, and the
+      # version is not a preference: `loop/.metadata` records the framework
+      # revision the project was created on, d3b14c876900e553bc736ca19295fc09e3853e8e,
+      # and that revision is tag 3.47.2 — which is also what the project's
+      # README says it was built and verified on. Following `stable` instead
+      # would mean a Flutter release, on a day nobody touched this code, could
+      # turn the build red and make it look like a regression.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # `--output=none` is the point of this step: it names every misformatted
+      # file and exits non-zero without writing to any of them. A CI step that
+      # formats the tree for you hides the drift rather than failing on it, and
+      # the next commit arrives unformatted just the same.
+      - name: Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      # This is also what puts the architecture suites on a machine that is not
+      # somebody's laptop: test/architecture/ is what stops a vendor SDK, an
+      # HTTP client or a Flutter import from reaching lib/domain, and a guard
+      # that only ever runs by hand is a guard that eventually does not run.
+      #
+      # The screenshot suite skips itself unless LOOP_SCREENSHOTS is set, so it
+      # needs no tag exclusion here; it renders PNGs and asserts nothing.
+      - name: Test
+        run: flutter test
