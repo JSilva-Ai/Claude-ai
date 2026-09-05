@@ -610,13 +610,57 @@ try{
   var _ss=localStorage.getItem('vs_vol_sfx');   if(_ss!==null)_volSfx=parseFloat(_ss);
 }catch(e){}
 
+/*
+  iOS gives a page no audio at all until a real user gesture has both created
+  and resumed an AudioContext, and it will not accept either from a timer, an
+  animation frame or a native bridge callback.
+
+  This used to be satisfied by accident. The game opened with a title card you
+  tapped through, and that tap ran openModal() — which calls into here — from
+  inside a genuine touch handler. Deleting the title card moved
+  `openModal('main', ...)` to the end of the script, so the context came to be
+  created at LOAD time with no gesture behind it: on a phone it was born
+  suspended, `_ready` latched true so nothing ever tried again, the whole music
+  graph was built on a dead context, and every resume() afterwards came from the
+  game loop, which iOS refuses. The result on a physical iPhone was silence,
+  complete and permanent. Desktop browsers hid it because they accept a resume()
+  once the page has been clicked at all.
+
+  So creation and unlocking are separate now. initAC() only makes the context.
+  unlockAudio() is the one routine allowed to bring the sound up, it is called
+  from real gestures only, and it is idempotent — every tap re-checks, so a
+  context that iOS suspended while the app was backgrounded comes back on the
+  next touch without any special case for it.
+*/
 function initAC(){
   if(_ready)return;
   try{
     AC=new(window.AudioContext||window.webkitAudioContext)();
     _ready=true;
-    if(gs.phase==='title')setTimeout(musicStart,200);
   }catch(e){}
+}
+/*
+  Must be called SYNCHRONOUSLY inside a user gesture. Anything deferred — a
+  setTimeout, a promise continuation, a requestAnimationFrame — has left the
+  gesture by the time it runs and iOS treats it as autoplay.
+*/
+function unlockAudio(){
+  initAC();
+  if(!AC)return;
+  if(AC.state!=='running'){
+    try{AC.resume();}catch(e){}
+    /* The one-sample silent buffer. Playing anything at all inside the gesture
+       is what actually flips WebKit's flag; resume() alone is not always
+       enough, and a buffer nobody can hear is the cheapest way to do it. */
+    try{
+      var b=AC.createBuffer(1,1,22050),src=AC.createBufferSource();
+      src.buffer=b;src.connect(AC.destination);src.start(0);
+    }catch(e){}
+  }
+  // Music starts here and nowhere else on the first interaction, so the game is
+  // still silent until the player has actually touched it.
+  if(!_muted&&!_music&&typeof gs!=='undefined'&&gs&&
+     (gs.phase==='title'||gs.phase==='playing'))musicStart();
 }
 function _wake(){if(AC&&AC.state==='suspended')AC.resume();}
 
@@ -1303,7 +1347,8 @@ function showToast(msg){
 // ─── MODAL SYSTEM ─────────────────────────────────────────────────────────────
 var _modalStack=[];
 function openModal(id,html,closeable){
-  initAC();
+  /* No initAC() here. The hub opens on load, so this ran with no gesture
+     behind it and iOS handed back a context that could never be unlocked. */
   _modalStack.push({id:id,html:html,closeable:closeable!==false});
   _renderModal();
 }
@@ -3133,7 +3178,9 @@ function _hitPlayer(){
 function update(){
   if(gs.paused)return;   // freeze the clock too, so nothing drifts while paused
   gs.t++;
-  if(!_ready&&gs.t===3)initAC();
+  /* The frame-3 creation is gone for the same reason: an animation frame is
+     not a user gesture, and creating the context there beat every real tap to
+     it and latched _ready. Audio now comes up on the first gesture instead. */
   if(gs.phase!=='playing')return;
   if(gs.upgradePhase)return;
   if(gs.screenShake>0)gs.screenShake*=.75;
@@ -3424,7 +3471,7 @@ window.addEventListener('keydown',function(e){
   }
   // Space used to be what opened the hub from the title card. The hub is
   // already open, so space just unlocks audio on a desktop keyboard.
-  if(gs.phase==='title'&&e.key===' ')initAC();
+  if(gs.phase==='title'&&e.key===' ')unlockAudio();
   if(gs.upgradePhase){if(e.key==='1')selectUpgrade(0);if(e.key==='2')selectUpgrade(1);if(e.key==='3')selectUpgrade(2);if(e.key==='4')selectUpgrade('skip');}
   if(e.key==='q'||e.key==='Q'){
     if(!detonateBomb()&&gs.phase==='playing'&&!gs.paused&&!gs.upgradePhase){
@@ -3485,8 +3532,27 @@ function _touchAt(pos){
   return 'steer';
 }
 
+/*
+  The audio unlock, bound to the document rather than to the canvas.
+
+  The hub, the menus and every button in them are DOM drawn OVER the canvas, so
+  the canvas sees none of those taps — a player can launch a mission, buy an
+  upgrade and open the settings without a single event reaching the listeners
+  below. Binding here in the capture phase means the first real interaction
+  unlocks the sound whatever it lands on, and nothing has to remember to ask.
+
+  Left installed rather than removed after the first hit: iOS suspends the
+  context when the app is backgrounded, and the native shim's resume() runs from
+  a bridge callback, which is not a gesture. Leaving these bound means the next
+  touch brings the sound back on its own. unlockAudio() is a cheap no-op once
+  the context is running.
+*/
+['pointerdown','touchend','mousedown','keydown'].forEach(function(ev){
+  document.addEventListener(ev,unlockAudio,{capture:true,passive:true});
+});
+
 canvas.addEventListener('touchstart',function(e){
-  e.preventDefault();initAC();
+  e.preventDefault();unlockAudio();
   for(var i=0;i<e.changedTouches.length;i++){
     var t=e.changedTouches[i];
     var pos=getCanvasPos(t.clientX,t.clientY);
@@ -3520,7 +3586,7 @@ canvas.addEventListener('touchend',_touchRelease,{passive:false});
 canvas.addEventListener('touchcancel',_touchRelease,{passive:false});
 
 canvas.addEventListener('click',function(ev){
-  initAC();
+  unlockAudio();
   var pos=getCanvasPos(ev.clientX,ev.clientY);
   if(gs.paused)return;
   if(gs.phase==='playing'){

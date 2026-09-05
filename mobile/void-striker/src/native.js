@@ -18,6 +18,32 @@
   'use strict';
 
   /**
+   * Surface the actual error.
+   *
+   * Xcode's log carries Capacitor's own line — "JS Eval error A JavaScript
+   * exception occurred" — which names neither the message nor the file nor the
+   * line, so a real fault and a harmless one look identical from the console.
+   * These two handlers print what actually happened; Capacitor forwards
+   * console output to the native log, so it lands in Xcode next to that line.
+   *
+   * Installed before the native-platform check below, so `npm run verify` and
+   * a plain browser opening www/ get the same reporting.
+   */
+  window.addEventListener('error', function (e) {
+    console.error(
+      '[void-striker] ' + (e.message || 'error') +
+      ' @ ' + (e.filename || '?') + ':' + (e.lineno || 0) + ':' + (e.colno || 0) +
+      (e.error && e.error.stack ? '\n' + e.error.stack : '')
+    );
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason;
+    console.error('[void-striker] unhandled rejection: ' +
+      (r && r.message ? r.message : String(r)) +
+      (r && r.stack ? '\n' + r.stack : ''));
+  });
+
+  /**
    * Track every AudioContext the game creates.
    *
    * The game builds its music out of live oscillators rather than a streamed
